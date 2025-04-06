@@ -5,9 +5,9 @@ services:
     image: postgres:13
     restart: always
     environment:
-      POSTGRES_DB=coworkly
-      POSTGRES_USER=postgres
-      POSTGRES_PASSWORD=coworkly_gjj
+      POSTGRES_DB: coworkly
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: coworkly_gjj
     ports:
       - 5432:5432
     volumes:
@@ -34,17 +34,17 @@ services:
     networks:
       - coworkly-network
 
-  frontend:
-    build: ./frontend
-    restart: always
-    depends_on:
-      - backend
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/usr/src/app
-    networks:
-      - coworkly-network
+  # frontend:
+  #   build: ./frontend
+  #   restart: always
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend:/usr/src/app
+  #   networks:
+  #     - coworkly-network
 
 volumes:
   postgres-data:
