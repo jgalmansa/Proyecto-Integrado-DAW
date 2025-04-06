@@ -15,4 +15,12 @@ npx sequelize-cli db:migrate
 
 **Enhorabuena, ya tienes la base de datos creada y con sus tablas!**
 
+Compruebalo, ya sea en pgAdmin 4 o en TablePlus. Las credenciales son las siguientes:
+
+- **Host**: localhost
+- **Puerto**: 5432
+- **Usuario**: postgres
+- **Constraseña**: coworkly_gjj
+- **Base de datos**: coworkly
+
 Ya puedes trabajar :D
