@@ -1,6 +1,8 @@
-require('dotenv').config();
+// backend/config/config.js
+import dotenv from 'dotenv';
+dotenv.config();
 
-module.exports = {
+export default {
   development: {
     username: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD,
@@ -9,5 +11,5 @@ module.exports = {
     port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
     logging: false
-  },
+  }
 };

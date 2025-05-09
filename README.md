@@ -23,4 +23,28 @@ Compruebalo, ya sea en pgAdmin 4 o en TablePlus. Las credenciales son las siguie
 - **Constraseña**: coworkly_gjj
 - **Base de datos**: coworkly
 
-Ya puedes trabajar :D
+## Creación de servidor index.js con Express
+
+### Estructura
+
+#### Archivo index.js
+
+Punto de entrada de la aplicación.
+
+#### Conexión a la base de datos
+
+- **config.js**: Define las configuraciones de la base de datos.
+- **db.js**: Establece la conexión usando Sequalize.
+
+### Flujo de inicio y funcionamiento
+
+1. Al ejecutar docker-compose up, se crea el contenedor de la base de datos y del backend.
+2. El servidor carga las variables de entorno (archivo .env), configura Express con middlewares básicos, intenta conectarse a la base de datos y una vez conectado, inicia el servidor en el puerto.
+
+### Configuración de puertos
+
+Para acceder al servidor:
+
+- El puerto debe estar mapeado en docker-compose.yml (ports: 5000:5000).
+- La variable de entorno en .env debe apuntar al mismo puerto (5000).
+

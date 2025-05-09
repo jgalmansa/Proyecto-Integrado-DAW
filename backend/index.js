@@ -1,28 +1,44 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const routes = require('./src/routes'); // Asegúrate de tener un index.js en la carpeta routes
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import sequelize from './config/db.js';
 
-// Cargar variables de entorno
 dotenv.config();
 
-// Crear app de Express
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middlewares globales
 app.use(cors());
-app.use(express.json()); // Para parsear JSON en las solicitudes
+app.use(express.json());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
-// Rutas
-app.use('/api', routes);
+app.get('/', (req, res) =>
+  res.send('✅ Backend funcionando correctamente 8/5/25')
+);
 
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.send('Servidor funcionando');
-});
+const startServer = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('📦 Conexión a la base de datos establecida correctamente');
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    app.listen(PORT, () => {
+      console.clear();
+      console.log('=== 🚀 Servidor iniciado ===');
+      console.log(`📡 Puerto: ${PORT}`);
+      console.log(`🌐 URL: http://localhost:${PORT}`);
+      console.log(`🔑 Modo: ${process.env.NODE_ENV || 'desarrollo'}`);
+      console.log('===========================\n');
+    });
+  } catch (error) {
+    console.error('❌ Error al conectar con la base de datos:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+process.on('unhandledRejection', (error) => {
+  console.error('❌ Error no manejado:', error.message);
+  process.exit(1);
 });
