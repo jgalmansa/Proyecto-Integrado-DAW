@@ -1,43 +1,85 @@
-'use strict';
+import Company from './company.js';
+import User from './user.js';
+import Domain from './domain.js';
+import Workspace from './workspace.js';
+import Reservation from './reservation.js';
+import Notification from './notification.js';
 
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const process = require('process');
-const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
-const db = {};
-
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
-
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
-    );
-  })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  });
-
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
+// Asociaciones entre Company y User
+Company.hasMany(User, { 
+  foreignKey: 'company_id',
+  as: 'users'
+});
+User.belongsTo(Company, { 
+  foreignKey: 'company_id',
+  as: 'company'
 });
 
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
+// Asociaciones entre Company y Domain
+Company.hasMany(Domain, { 
+  foreignKey: 'company_id',
+  as: 'domains'
+});
+Domain.belongsTo(Company, { 
+  foreignKey: 'company_id',
+  as: 'company'
+});
 
-module.exports = db;
+// Asociaciones entre Company y Workspace
+Company.hasMany(Workspace, { 
+  foreignKey: 'company_id',
+  as: 'workspaces'
+});
+Workspace.belongsTo(Company, { 
+  foreignKey: 'company_id',
+  as: 'company'
+});
+
+// Asociaciones entre User y Reservation
+User.hasMany(Reservation, { 
+  foreignKey: 'user_id',
+  as: 'reservations'
+});
+Reservation.belongsTo(User, { 
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+// Asociaciones entre Workspace y Reservation
+Workspace.hasMany(Reservation, { 
+  foreignKey: 'workspace_id',
+  as: 'reservations'
+});
+Reservation.belongsTo(Workspace, { 
+  foreignKey: 'workspace_id',
+  as: 'workspace'
+});
+
+// Asociaciones entre User y Notification
+User.hasMany(Notification, { 
+  foreignKey: 'user_id',
+  as: 'notifications'
+});
+Notification.belongsTo(User, { 
+  foreignKey: 'user_id',
+  as: 'user'
+});
+
+// Asociaciones entre Reservation y Notification
+Reservation.hasMany(Notification, { 
+  foreignKey: 'reservation_id',
+  as: 'notifications'
+});
+Notification.belongsTo(Reservation, { 
+  foreignKey: 'reservation_id',
+  as: 'reservation'
+});
+
+export {
+  Company,
+  User,
+  Domain,
+  Workspace,
+  Reservation,
+  Notification
+};
