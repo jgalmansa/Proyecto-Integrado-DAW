@@ -74,8 +74,8 @@ export const verifyCredentials = async (email, password) => {
       return { success: false, message: 'Usuario no encontrado o inactivo' };
     }
     
-    // Verificar contraseña (usar comparePassword en lugar de bcrypt.compare directamente)
-    const passwordMatch = await comparePassword(password, user.password);
+    // Usar el método comparePassword del modelo
+    const passwordMatch = await user.comparePassword(password);
     
     if (!passwordMatch) {
       return { success: false, message: 'Contraseña incorrecta' };
