@@ -48,3 +48,42 @@ Para acceder al servidor:
 - El puerto debe estar mapeado en docker-compose.yml (ports: 5000:5000).
 - La variable de entorno en .env debe apuntar al mismo puerto (5000).
 
+# Registro de nueva empresa
+
+## Comprobación con Postman o ThunderClient
+
+**1. Ruta**: POST http://localhost:5000/api/companies/register
+**2. Body**: En formato JSON
+
+```
+{
+  "companyName": "Mi Empresa S.L.",
+  "companyEmail": "info@miempresa.com",
+  "companyAddress": "Calle Principal 123",
+  "companyPhone": "555-123456",
+  "adminFirstName": "Juan",
+  "adminLastName": "Pérez",
+  "adminEmail": "admin@miempresa.com",
+  "adminPassword": "Password123!",
+  "domains": ["miempresa.com", "otroDominio.com"]
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Empresa registrada exitosamente",
+  "company": {
+    "id": 1,
+    "name": "Mi Empresa S.L.",
+    "email": "info@miempresa.com",
+    "invitation_code": "5E70945A"
+  },
+  "admin": {
+    "id": 1,
+    "name": "Juan Pérez",
+    "email": "admin@miempresa.com"
+  }
+}
+```
