@@ -59,25 +59,42 @@ Show-Tree
 ```
 4. Copia el resultado y pegalo en PROMPT.txt para tener la estructura actualizada.
 
-## Creación de servidor index.js con Express
+# .env
 
-### Estructura
+En este punto, el archivo .env debe estar de la siguiente manera:
 
-#### Archivo index.js
+```
+DB_HOST=postgres
+DB_USER=postgres
+DB_PASSWORD=coworkly_gjj
+DB_NAME=coworkly
+DB_PORT=5432
+
+PORT=5000
+
+JWT_SECRET=tu_clave_secreta_super_segura
+JWT_EXPIRES_IN=24h
+```
+
+# Creación de servidor index.js con Express
+
+## Estructura
+
+### Archivo index.js
 
 Punto de entrada de la aplicación.
 
-#### Conexión a la base de datos
+### Conexión a la base de datos
 
 - **config.js**: Define las configuraciones de la base de datos.
 - **db.js**: Establece la conexión usando Sequalize.
 
-### Flujo de inicio y funcionamiento
+## Flujo de inicio y funcionamiento
 
 1. Al ejecutar docker-compose up, se crea el contenedor de la base de datos y del backend.
 2. El servidor carga las variables de entorno (archivo .env), configura Express con middlewares básicos, intenta conectarse a la base de datos y una vez conectado, inicia el servidor en el puerto.
 
-### Configuración de puertos
+## Configuración de puertos
 
 Para acceder al servidor:
 
@@ -151,6 +168,37 @@ Para acceder al servidor:
   "message": "Usuario registrado correctamente",
   "user": {
     "id": 2,
+    "email": "user@miempresa.com",
+    "firstName": "User",
+    "lastName": "Prueba",
+    "role": "user",
+    "companyId": 1
+  }
+}
+```
+
+# Login
+
+### Comprobación con Postman o ThunderClient
+
+**1. Ruta**: POST http://localhost:5000/api/users/login
+**2. Body**: En formato JSON
+
+```
+{
+  "email": "user@miempresa.com",
+  "password": "Password123!"
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Inicio de sesión exitoso",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsImNvbXBhbnlJZCI6MSwiZW1haWwiOiJ1c2VyMkBtaWVtcHJlc2EuY29tIiwicm9sZSI6InVzZXIiLCJpYXQiOjE3NDcxNDQ1MzUsImV4cCI6MTc0NzIzMDkzNX0.iuH1kXT_QRoagg3fW0N_faKSG5EGvvk_D2UJ3N8MFKY",
+  "user": {
+    "id": 4,
     "email": "user@miempresa.com",
     "firstName": "User",
     "lastName": "Prueba",

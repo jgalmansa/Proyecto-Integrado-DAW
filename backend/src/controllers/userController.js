@@ -81,13 +81,10 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'El dominio de correo no está permitido para esta empresa' });
     }
 
-    // Generar hash de la contraseña
-    const hashedPassword = await hashPassword(password);
-
     // Crear nuevo usuario
     const newUser = await User.create({
       email,
-      password: hashedPassword,
+      password,
       first_name: firstName,
       last_name: lastName,
       company_id: company.id,
