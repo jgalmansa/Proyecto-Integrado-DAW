@@ -4,23 +4,27 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import sequelize from './config/db.js';
-import companyRoutes from './src/routes/companyRoutes.js';
 
+// Importación de rutas
+import companyRoutes from './src/routes/companyRoutes.js';
+import userRoutes from './src/routes/userRoutes.js';
+
+// Configuración de variables de entorno
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Importación de rutas
-// Más rutas se añadirán a medida que se desarrollen
-
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 // Rutas
 app.use('/api/companies', companyRoutes);
+app.use('/api/users', userRoutes);
 
+// Ruta de prueba
 app.get('/', (req, res) =>
   res.send('✅ Backend funcionando correctamente 8/5/25')
 );
@@ -42,6 +46,14 @@ app.use((err, req, res, next) => {
   });
 });
 
+/**
+ * Inicia el servidor Express, autenticando la conexión a la base de datos
+ * y estableciendo el puerto de escucha.
+ *
+ * @async
+ * @returns {void}
+ * @throws {Error} Si no se puede conectar con la base de datos
+ */
 const startServer = async () => {
   try {
     await sequelize.authenticate();
@@ -63,6 +75,7 @@ const startServer = async () => {
 
 startServer();
 
+// Manejo de errores no manejados
 process.on('unhandledRejection', (error) => {
   console.error('❌ Error no manejado:', error.message);
   process.exit(1);

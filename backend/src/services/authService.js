@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import { User } from '../../models/index.js';
 
 dotenv.config();
 
@@ -55,5 +56,52 @@ export const verifyToken = (token) => {
     return jwt.verify(token, JWT_SECRET);
   } catch (error) {
     return null;
+  }
+};
+
+/**
+ * Verifica las credenciales de un usuario para el inicio de sesión
+ * @param {string} email - Correo electrónico del usuario
+ * @param {string} password - Contraseña en texto plano
+ * @returns {Promise<Object>} - Resultado de la verificación
+ */
+export const verifyCredentials = async (email, password) => {
+  try {
+    // Buscar usuario por email
+    const user = await User.findOne({ where: { email, is_active: true } });
+    
+    if (!user) {
+      return { success: false, message: 'Usuario no encontrado o inactivo' };
+    }
+    
+    // Verificar contraseña (usar comparePassword en lugar de bcrypt.compare directamente)
+    const passwordMatch = await comparePassword(password, user.password);
+    
+    if (!passwordMatch) {
+      return { success: false, message: 'Contraseña incorrecta' };
+    }
+    
+    // Actualizar último login
+    await user.update({ last_login: new Date() });
+    
+    // Generar token (usar la función generateToken existente)
+    const token = generateToken(user);
+    
+    return {
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+        companyId: user.company_id
+      }
+    };
+    
+  } catch (error) {
+    console.error('Error en verificación de credenciales:', error);
+    return { success: false, message: 'Error interno del servidor' };
   }
 };

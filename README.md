@@ -23,6 +23,42 @@ Compruebalo, ya sea en pgAdmin 4 o en TablePlus. Las credenciales son las siguie
 - **Constraseña**: coworkly_gjj
 - **Base de datos**: coworkly
 
+## Instrucciones para comando tree en Windows 11
+
+1. Presiona Win + X → Terminal
+2. Muevete a la carpeta backend del proyecto ```cd ...\backend```
+3. Pega en la consola el siguiente código:
+
+```
+function Show-Tree {
+    param(
+      [string] $Path = '.',
+      [int]    $Level = 0
+    )
+    Get-ChildItem -LiteralPath $Path -Force |
+      Where-Object {
+        # No Hiddens ni System, y no node_modules/.git/package-lock.json
+        -not ($_.Attributes -band [IO.FileAttributes]::Hidden) -and
+        -not ($_.Attributes -band [IO.FileAttributes]::System) -and
+        $_.FullName -notmatch '\\node_modules\\' -and
+        $_.FullName -notmatch '\\\.git\\' -and
+        $_.Name     -ne 'package-lock.json'
+      } |
+      ForEach-Object {
+        # Imprime con sangría
+        $indent = '  ' * $Level
+        Write-Output (“$indent└─ $($_.Name)”)
+        if ($_.PSIsContainer) {
+          Show-Tree -Path $_.FullName -Level ($Level + 1)
+        }
+      }
+}
+
+# Ejecuta:
+Show-Tree
+```
+4. Copia el resultado y pegalo en PROMPT.txt para tener la estructura actualizada.
+
 ## Creación de servidor index.js con Express
 
 ### Estructura
@@ -48,3 +84,78 @@ Para acceder al servidor:
 - El puerto debe estar mapeado en docker-compose.yml (ports: 5000:5000).
 - La variable de entorno en .env debe apuntar al mismo puerto (5000).
 
+# Registros
+
+## Nueva empresa
+
+### Comprobación con Postman o ThunderClient
+
+**1. Ruta**: POST http://localhost:5000/api/companies/register
+**2. Body**: En formato JSON
+
+```
+{
+  "companyName": "Mi Empresa S.L.",
+  "companyEmail": "info@miempresa.com",
+  "companyAddress": "Calle Principal 123",
+  "companyPhone": "555-123456",
+  "adminFirstName": "Juan",
+  "adminLastName": "Pérez",
+  "adminEmail": "admin@miempresa.com",
+  "adminPassword": "Password123!",
+  "domains": ["miempresa.com", "otroDominio.com"]
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Empresa registrada exitosamente",
+  "company": {
+    "id": 1,
+    "name": "Mi Empresa S.L.",
+    "email": "info@miempresa.com",
+    "invitation_code": "5E70945A"
+  },
+  "admin": {
+    "id": 1,
+    "name": "Juan Pérez",
+    "email": "admin@miempresa.com"
+  }
+}
+```
+
+## Nuevo usuario
+
+### Comprobación con Postman o ThunderClient
+
+**1. Ruta**: POST http://localhost:5000/api/users/register
+**2. Body**: En formato JSON
+
+```
+{
+  "email": "user@miempresa.com",
+  "password": "Password123!",
+  "confirmPassword": "Password123!",
+  "firstName": "User",
+  "lastName": "Prueba",
+  "invitationCode": "5E70945A"
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Usuario registrado correctamente",
+  "user": {
+    "id": 2,
+    "email": "user@miempresa.com",
+    "firstName": "User",
+    "lastName": "Prueba",
+    "role": "user",
+    "companyId": 1
+  }
+}
+```

@@ -1,0 +1,201 @@
+PETICIÓN:
+Vamos a hacer la funcionalidad para que se pueda registrar un usuario en la aplicación. El usuario se registra con correo y código de invitación. El código de invitación se ha creado al registrarse la empresa. Cada empresa tiene su codigo. Al ser correcto todo, procedes a indicar la contraseña.
+CONTINUACIÓN:
+Te vuelvo a mostrar el enunciado del proyecto:
+Desarrollaremos una aplicación web para la gestión integral de reservas de espacios de trabajo colaborativo, que incluirá salas de reuniones, áreas de coworking y otros recursos. La plataforma permitirá a los usuarios:
+* Consultar en tiempo real: Visualizar la disponibilidad de cada espacio mediante un calendario interactivo.
+* Realizar reservas: Efectuar, modificar o cancelar reservas de manera sencilla.
+* Sincronización con calendarios externos: Integrar servicios como Google Calendar para evitar solapamientos y gestionar eventos.
+* Recibir notificaciones: Obtener alertas y recordatorios sobre sus reservas mediante correos electrónicos o notificaciones push.
+* Acceso mediante código QR: Cada sala contará con un código QR único que, al ser escaneado, redirigirá al usuario a una página específica en la aplicación, mostrando información actualizada sobre el estado, las reservas vigentes y otros detalles relevantes.
+Esta solución se orienta a optimizar el uso de espacios colaborativos, garantizando una experiencia intuitiva, segura y responsive, y abriendo la puerta a futuras integraciones y mejoras en la gestión de recursos.
+Los usuarios podrán ser administradores (usuarios con privilegios) o usuarios (sin privilegios). Los administradores, serán los usuarios que gestionan los espacios, añadiendo, editando o eliminándolos. También gestionarán a los demás usuarios, creándolos, editándolos, eliminándolos y dándole los permisos. Los usuarios, simplemente tendrán su perfil y podrán reservar un espacio, editar una reserva o eliminarla.
+Cada usuario tiene su cuenta. En ella podrá ver un dashboard con un calendario, los espacios de trabajo, las reservas actuales, un enlace para escanear el qr, y sus notificaciones.
+· Calendario: Se podrá hacer una reserva rápida. Seleccionando el día y la hora, aparecerán los espacios disponibles ese día en esa hora.
+· Espacios de trabajo: Se podrá seleccionar el espacio de trabajo y acceder a su información. Desde ahí, se podrá realizar la reserva.
+· Mis reservas: Aparecen tus reservas con espacio, fecha y tiempo estimado de la reserva. Podrás ver mas detalles. Posibilidad de ver historial.
+· Escanear QR: Contiene un botón que te llevará a tu cámara para escanear el qr. 
+· Notificaciones: Panel con las notificaciones, informativas. Posibilidad de ver todas.
+QR: Cada espacio tendría su propio qr. El trabajador solo tendría que escanearlo, y accedería al espacio de trabajo que ha escaneado para poder hacer la reserva.
+Notificaciones (personales): Recordatorios de la reserva.
+Notificaciones globales (informativas): Espacio inutilizable (por ejemplo).
+REGISTROS:
+En la aplicación te podras registrar como empresa o como usuario.
+-Empresa: Datos de empresa y primer administrador. El administrador debe indicar que dominios están permitidos.
+-Usuario: Administrador crea código de invitación, el usuario se registra con correo y código de invitación. Al ser correcto todo, procedes a indicar la contraseña.
+-Contraseña y confirmar contraseña.
+CODIGO DE INVITACION:
+- Debe ser único.
+- De un solo uso?
+- Maximo de usos?
+- Caducidad por tiempo?
+LOGIN:
+Correo y contraseña
+TECNOLOGIAS:
+Frontend: React y Tailwind.
+Backend: Node.js con Express.
+Base de datos: PostgreSQL y Sequelize.
+Despliegue: Docker.
+
+ACTUALIZAR ESTRUCTURA, ESTA EN EL README.md COMO HACERLO:
+La estructura actual del proyecto es:
+PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree
+└─ config
+  └─ config.js
+  └─ db.js
+└─ migrations
+  └─ 20250402185916-create-companies.cjs
+  └─ 20250402185950-create-users.cjs
+  └─ 20250402190011-create-domains.cjs
+  └─ 20250402190029-create-workspaces.cjs
+  └─ 20250402190046-create-reservations.cjs
+  └─ 20250402190108-create-notifications.cjs
+└─ models
+  └─ company.js
+  └─ domain.js
+  └─ index.js
+  └─ user.js
+└─ node_modules
+└─ seeders
+└─ src
+  └─ config
+    └─ vacio.txt
+  └─ controllers
+    └─ companyController.js
+    └─ userController.js
+    └─ vacio.txt
+  └─ middlewares
+    └─ authMiddleware.js
+    └─ companyValidationMiddleware.js
+    └─ userValidationMiddleware.js
+  └─ models
+    └─ vacio.txt
+  └─ routes
+    └─ companyRoutes.js
+    └─ userRoutes.js
+  └─ services
+    └─ authService.js
+    └─ vacio.txt
+  └─ utils
+    └─ invitationCodeGenerator.js
+└─ .env
+└─ Dockerfile
+└─ ENUNCIADO.txt
+└─ index.js
+└─ package.json
+
+La base de datos: 
+-- Optional: Create the database
+CREATE DATABASE workspace_reservation;
+
+-- Connect to the database (in psql)
+\c workspace_reservation;
+
+-- Table: Companies
+CREATE TABLE companies (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    address TEXT,
+    phone VARCHAR(20),
+    invitation_code VARCHAR(50) UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+
+-- Table: Users
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100),
+    company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    role VARCHAR(10) CHECK (role IN ('admin', 'user')) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    last_login TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+
+-- Table: Domains
+CREATE TABLE domains (
+    id SERIAL PRIMARY KEY,
+    company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    domain VARCHAR(255) UNIQUE NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+
+-- Table: Workspaces
+CREATE TABLE workspaces (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    capacity INTEGER NOT NULL,
+    company_id INTEGER NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    qr VARCHAR(255) UNIQUE,
+    is_available BOOLEAN DEFAULT TRUE,
+    equipment JSONB, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+
+-- Table: Reservations
+CREATE TABLE reservations (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    workspace_id INTEGER NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    guests TEXT,
+    number_of_people INTEGER NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    status VARCHAR(20) CHECK (status IN ('pending', 'confirmed', 'cancelled')) NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+
+-- Table: Notifications
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(10) CHECK (type IN ('global', 'personal')) NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    reservation_id INTEGER REFERENCES reservations(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP DEFAULT NULL
+);
+
+Responde en español.
+Estamos usando type module.
+Si necesitas ver algun archivo para continuar dimelo.
+
+SI HAY ALGUN ERROR PONERLO AQUI CON UNA BREVE EXPLICACION:
+Tras crear todos los archivos, nos da este error en la consola del backend del docker:
+2025-05-13 12:17:31 > backend@1.0.0 start
+2025-05-13 12:17:31 > node index.js
+2025-05-13 12:17:31 
+2025-05-13 12:17:32 node:internal/errors:478
+2025-05-13 12:17:32     ErrorCaptureStackTrace(err);
+2025-05-13 12:17:32     ^
+2025-05-13 12:17:32 
+2025-05-13 12:17:32 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/usr/src/app/models/workspace.js' imported from /usr/src/app/models/index.js
+2025-05-13 12:17:32     at new NodeError (node:internal/errors:387:5)
+2025-05-13 12:17:32     at finalizeResolution (node:internal/modules/esm/resolve:330:11)
+2025-05-13 12:17:32     at moduleResolve (node:internal/modules/esm/resolve:907:10)
+2025-05-13 12:17:32     at defaultResolve (node:internal/modules/esm/resolve:1115:11)
+2025-05-13 12:17:32     at nextResolve (node:internal/modules/esm/loader:163:28)
+2025-05-13 12:17:32     at ESMLoader.resolve (node:internal/modules/esm/loader:841:30)
+2025-05-13 12:17:32     at ESMLoader.getModuleJob (node:internal/modules/esm/loader:424:18)
+2025-05-13 12:17:32     at ModuleWrap.<anonymous> (node:internal/modules/esm/module_job:76:40)
+2025-05-13 12:17:32     at link (node:internal/modules/esm/module_job:75:36) {
+2025-05-13 12:17:32   code: 'ERR_MODULE_NOT_FOUND'
+2025-05-13 12:17:32 }
