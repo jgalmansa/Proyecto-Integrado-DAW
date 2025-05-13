@@ -23,6 +23,42 @@ Compruebalo, ya sea en pgAdmin 4 o en TablePlus. Las credenciales son las siguie
 - **Constraseña**: coworkly_gjj
 - **Base de datos**: coworkly
 
+## Instrucciones para comando tree en Windows 11
+
+1. Presiona Win + X → Terminal
+2. Muevete a la carpeta backend del proyecto ```cd ...\backend```
+3. Pega en la consola el siguiente código:
+
+```
+function Show-Tree {
+    param(
+      [string] $Path = '.',
+      [int]    $Level = 0
+    )
+    Get-ChildItem -LiteralPath $Path -Force |
+      Where-Object {
+        # No Hiddens ni System, y no node_modules/.git/package-lock.json
+        -not ($_.Attributes -band [IO.FileAttributes]::Hidden) -and
+        -not ($_.Attributes -band [IO.FileAttributes]::System) -and
+        $_.FullName -notmatch '\\node_modules\\' -and
+        $_.FullName -notmatch '\\\.git\\' -and
+        $_.Name     -ne 'package-lock.json'
+      } |
+      ForEach-Object {
+        # Imprime con sangría
+        $indent = '  ' * $Level
+        Write-Output (“$indent└─ $($_.Name)”)
+        if ($_.PSIsContainer) {
+          Show-Tree -Path $_.FullName -Level ($Level + 1)
+        }
+      }
+}
+
+# Ejecuta:
+Show-Tree
+```
+4. Copia el resultado y pegalo en PROMPT.txt para tener la estructura actualizada.
+
 ## Creación de servidor index.js con Express
 
 ### Estructura

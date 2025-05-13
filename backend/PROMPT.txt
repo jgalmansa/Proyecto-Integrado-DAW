@@ -36,6 +36,7 @@ Frontend: React y Tailwind.
 Backend: Node.js con Express.
 Base de datos: PostgreSQL y Sequelize.
 Despliegue: Docker.
+
 ACTUALIZAR ESTRUCTURA, ESTA EN EL README.md COMO HACERLO:
 La estructura actual del proyecto es:
 PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree
