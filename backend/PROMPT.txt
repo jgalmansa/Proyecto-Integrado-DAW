@@ -1,6 +1,6 @@
 PETICIÓN:
-Vamos a hacer la funcionalidad para que se pueda registrar un usuario en la aplicación. El usuario se registra con correo y código de invitación. El código de invitación se ha creado al registrarse la empresa. Cada empresa tiene su codigo. Al ser correcto todo, procedes a indicar la contraseña.
-CONTINUACIÓN:
+Vamos a hacer la funcionalidad para que los usuarios puedan hacer login. Se entrará con correo y contraseña.
+
 Te vuelvo a mostrar el enunciado del proyecto:
 Desarrollaremos una aplicación web para la gestión integral de reservas de espacios de trabajo colaborativo, que incluirá salas de reuniones, áreas de coworking y otros recursos. La plataforma permitirá a los usuarios:
 * Consultar en tiempo real: Visualizar la disponibilidad de cada espacio mediante un calendario interactivo.
@@ -37,7 +37,6 @@ Backend: Node.js con Express.
 Base de datos: PostgreSQL y Sequelize.
 Despliegue: Docker.
 
-ACTUALIZAR ESTRUCTURA, ESTA EN EL README.md COMO HACERLO:
 La estructura actual del proyecto es:
 PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree
 └─ config
@@ -54,7 +53,10 @@ PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree
   └─ company.js
   └─ domain.js
   └─ index.js
+  └─ notification.js
+  └─ reservation.js
   └─ user.js
+  └─ workspace.js
 └─ node_modules
 └─ seeders
 └─ src
@@ -80,9 +82,9 @@ PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree
     └─ invitationCodeGenerator.js
 └─ .env
 └─ Dockerfile
-└─ ENUNCIADO.txt
 └─ index.js
 └─ package.json
+└─ PROMPT.txt
 
 La base de datos: 
 -- Optional: Create the database
@@ -178,24 +180,322 @@ Responde en español.
 Estamos usando type module.
 Si necesitas ver algun archivo para continuar dimelo.
 
-SI HAY ALGUN ERROR PONERLO AQUI CON UNA BREVE EXPLICACION:
-Tras crear todos los archivos, nos da este error en la consola del backend del docker:
-2025-05-13 12:17:31 > backend@1.0.0 start
-2025-05-13 12:17:31 > node index.js
-2025-05-13 12:17:31 
-2025-05-13 12:17:32 node:internal/errors:478
-2025-05-13 12:17:32     ErrorCaptureStackTrace(err);
-2025-05-13 12:17:32     ^
-2025-05-13 12:17:32 
-2025-05-13 12:17:32 Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/usr/src/app/models/workspace.js' imported from /usr/src/app/models/index.js
-2025-05-13 12:17:32     at new NodeError (node:internal/errors:387:5)
-2025-05-13 12:17:32     at finalizeResolution (node:internal/modules/esm/resolve:330:11)
-2025-05-13 12:17:32     at moduleResolve (node:internal/modules/esm/resolve:907:10)
-2025-05-13 12:17:32     at defaultResolve (node:internal/modules/esm/resolve:1115:11)
-2025-05-13 12:17:32     at nextResolve (node:internal/modules/esm/loader:163:28)
-2025-05-13 12:17:32     at ESMLoader.resolve (node:internal/modules/esm/loader:841:30)
-2025-05-13 12:17:32     at ESMLoader.getModuleJob (node:internal/modules/esm/loader:424:18)
-2025-05-13 12:17:32     at ModuleWrap.<anonymous> (node:internal/modules/esm/module_job:76:40)
-2025-05-13 12:17:32     at link (node:internal/modules/esm/module_job:75:36) {
-2025-05-13 12:17:32   code: 'ERR_MODULE_NOT_FOUND'
-2025-05-13 12:17:32 }
+Actualmente, mi userController.js es asi:
+// src/controllers/userController.js
+import { User, Company } from '../../models/index.js';
+import { hashPassword, verifyCredentials } from '../services/authService.js';
+import { Op } from 'sequelize';
+
+/**
+ * Inicia sesión con un usuario y contraseña
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Object>} - Resultado de la verificación:
+ *   - success: Verdadero si la verificación fue exitosa
+ *   - message: Mensaje de error en caso de falla
+ *   - token: Token de acceso para el usuario
+ *   - user: Información del usuario logueado
+ */
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Verificar credenciales
+    const result = await verifyCredentials(email, password);
+    
+    if (!result.success) {
+      return res.status(401).json({ message: result.message });
+    }
+    
+    return res.status(200).json({
+      message: 'Inicio de sesión exitoso',
+      token: result.token,
+      user: result.user
+    });
+    
+  } catch (error) {
+    console.error('Error en inicio de sesión:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Registra un nuevo usuario en el sistema.
+ * @param {Object} req - Objeto de solicitud de Express que contiene el cuerpo de la solicitud con los datos del usuario.
+ * @param {Object} res - Objeto de respuesta de Express para enviar la respuesta al cliente.
+ * @returns {Promise<void>} - Envía una respuesta HTTP con el estado del registro:
+ *   - 201 y detalles del usuario si el registro es exitoso.
+ *   - 400 y un mensaje de error si el correo ya está registrado, el código de invitación es inválido,
+ *     o el dominio del correo no está permitido.
+ *   - 500 y un mensaje de error si ocurre un error interno del servidor.
+ */
+
+export const registerUser = async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, invitationCode } = req.body;
+
+    // Verificar si el usuario ya existe
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
+    }
+
+    // Buscar la empresa con el código de invitación proporcionado
+    const company = await Company.findOne({ where: { invitation_code: invitationCode } });
+    if (!company) {
+      return res.status(400).json({ message: 'Código de invitación inválido' });
+    }
+
+    // Verificar si el dominio del correo está permitido para esta empresa
+    const emailDomain = email.split('@')[1];
+    
+    // Buscar el dominio permitido (puede estar guardado con o sin @)
+    const allowedDomain = await company.getDomains({
+      where: { 
+        [Op.or]: [
+          { domain: emailDomain },      // Sin @ (ej: "miempresa.com")
+          { domain: `@${emailDomain}` } // Con @ (ej: "@miempresa.com")
+        ],
+        is_active: true 
+      }
+    });
+
+    if (allowedDomain.length === 0) {
+      return res.status(400).json({ message: 'El dominio de correo no está permitido para esta empresa' });
+    }
+
+    // Generar hash de la contraseña
+    const hashedPassword = await hashPassword(password);
+
+    // Crear nuevo usuario
+    const newUser = await User.create({
+      email,
+      password: hashedPassword,
+      first_name: firstName,
+      last_name: lastName,
+      company_id: company.id,
+      role: 'user', // Por defecto es un usuario sin privilegios
+      is_active: true
+    });
+
+    // No devolver la contraseña en la respuesta
+    const userResponse = {
+      id: newUser.id,
+      email: newUser.email,
+      firstName: newUser.first_name,
+      lastName: newUser.last_name,
+      role: newUser.role,
+      companyId: newUser.company_id
+    };
+
+    return res.status(201).json({
+      message: 'Usuario registrado correctamente',
+      user: userResponse
+    });
+  } catch (error) {
+    console.error('Error al registrar usuario:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Verifica si un código de invitación es válido.
+ * @param {Object} req - Objeto de solicitud de Express que contiene el parámetro "invitationCode".
+ * @param {Object} res - Objeto de respuesta de Express para enviar la respuesta al cliente.
+ * @returns {Promise<Object>} - Resultado de la verificación:
+ *   - valid: Verdadero si el código de invitación es válido.
+ *   - message: Mensaje de error en caso de falla.
+ *   - companyName: Nombre de la empresa que emitió el código (si es válido).
+ */
+export const checkInvitationCode = async (req, res) => {
+  try {
+    const { invitationCode } = req.params;
+    
+    // Verificar si el código existe
+    const company = await Company.findOne({ where: { invitation_code: invitationCode } });
+    
+    if (!company) {
+      return res.status(404).json({ valid: false, message: 'Código de invitación inválido' });
+    }
+    
+    return res.status(200).json({
+      valid: true,
+      companyName: company.name
+    });
+    
+  } catch (error) {
+    console.error('Error al verificar código de invitación:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+authService.js:
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import { User } from '../../models/index.js';
+
+dotenv.config();
+
+// Número de rondas para el hash de contraseñas
+const SALT_ROUNDS = 10;
+const JWT_SECRET = process.env.JWT_SECRET || 'workspace_reservation_secret';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
+/**
+ * Hashea una contraseña
+ * @param {string} password - Contraseña en texto plano
+ * @returns {Promise<string>} - Contraseña hasheada
+ */
+export const hashPassword = async (password) => {
+  const salt = await bcrypt.genSalt(SALT_ROUNDS);
+  return bcrypt.hash(password, salt);
+};
+
+/**
+ * Compara una contraseña en texto plano con una hasheada
+ * @param {string} password - Contraseña en texto plano
+ * @param {string} hashedPassword - Contraseña hasheada
+ * @returns {Promise<boolean>} - Verdadero si coinciden
+ */
+export const comparePassword = async (password, hashedPassword) => {
+  return bcrypt.compare(password, hashedPassword);
+};
+
+/**
+ * Genera un token JWT para un usuario
+ * @param {Object} userData - Datos del usuario para incluir en el token
+ * @returns {string} - Token JWT
+ */
+export const generateToken = (userData) => {
+  const payload = {
+    userId: userData.id,
+    companyId: userData.company_id,
+    email: userData.email,
+    role: userData.role
+  };
+
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+};
+
+/**
+ * Verifica y decodifica un token JWT
+ * @param {string} token - Token JWT
+ * @returns {Object|null} - Datos del usuario o null si es inválido
+ */
+export const verifyToken = (token) => {
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    return null;
+  }
+};
+
+/**
+ * Verifica las credenciales de un usuario para el inicio de sesión
+ * @param {string} email - Correo electrónico del usuario
+ * @param {string} password - Contraseña en texto plano
+ * @returns {Promise<Object>} - Resultado de la verificación
+ */
+export const verifyCredentials = async (email, password) => {
+  try {
+    // Buscar usuario por email
+    const user = await User.findOne({ where: { email, is_active: true } });
+    
+    if (!user) {
+      return { success: false, message: 'Usuario no encontrado o inactivo' };
+    }
+    
+    // Verificar contraseña (usar comparePassword en lugar de bcrypt.compare directamente)
+    const passwordMatch = await comparePassword(password, user.password);
+    
+    if (!passwordMatch) {
+      return { success: false, message: 'Contraseña incorrecta' };
+    }
+    
+    // Actualizar último login
+    await user.update({ last_login: new Date() });
+    
+    // Generar token (usar la función generateToken existente)
+    const token = generateToken(user);
+    
+    return {
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+        companyId: user.company_id
+      }
+    };
+    
+  } catch (error) {
+    console.error('Error en verificación de credenciales:', error);
+    return { success: false, message: 'Error interno del servidor' };
+  }
+};
+
+authMiddleware.js:
+import { User } from '../../models/index.js';
+import { verifyToken } from '../services/authService.js';
+
+export const authenticateToken = async (req, res, next) => {
+  try {
+    // Obtener token del encabezado
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+    
+    if (!token) {
+      return res.status(401).json({ message: 'Acceso denegado. Se requiere token de autenticación' });
+    }
+    
+    // Verificar token usando la función existente en authService
+    const decoded = verifyToken(token);
+    
+    if (!decoded) {
+      return res.status(403).json({ message: 'Token inválido o expirado' });
+    }
+    
+    // Verificar que el usuario existe y está activo
+    const user = await User.findOne({
+      where: { id: decoded.userId, is_active: true },
+      attributes: { exclude: ['password'] } // No incluir la contraseña
+    });
+    
+    if (!user) {
+      return res.status(403).json({ message: 'Usuario no encontrado o inactivo' });
+    }
+    
+    // Agregar usuario a la solicitud
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error('Error en autenticación:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+// Middleware para verificar roles (admin o user)
+export const authorizeRole = (roles = []) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Acceso denegado. Usuario no autenticado' });
+    }
+    
+    // Convertir a array si es un string
+    if (typeof roles === 'string') {
+      roles = [roles];
+    }
+    
+    if (roles.length && !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        message: 'Acceso denegado. No tiene permisos suficientes para esta acción'
+      });
+    }
+    
+    next();
+  };
+};
