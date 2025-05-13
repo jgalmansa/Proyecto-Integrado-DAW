@@ -66,11 +66,21 @@ class CompanyController {
       }, { transaction });
 
       // Crear dominios permitidos
-      const domainEntries = (domains || [companyDomain]).map(domain => ({
-        company_id: company.id,
-        domain: domain.startsWith('@') ? domain : `@${domain}`,
-        is_active: true
-      }));
+      const domainEntries = (domains || [companyDomain]).map(domain => {
+        // Manejar tanto si es un string como si es un objeto con propiedad 'domain'
+        let domainStr;
+        if (typeof domain === 'object' && domain.domain) {
+          domainStr = domain.domain;
+        } else {
+          domainStr = domain;
+        }
+        
+        return {
+          company_id: company.id,
+          domain: domainStr.startsWith('@') ? domainStr : `@${domainStr}`,
+          is_active: true
+        };
+      });
 
       await Domain.bulkCreate(domainEntries, { transaction });
 

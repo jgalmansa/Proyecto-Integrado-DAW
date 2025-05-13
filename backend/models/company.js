@@ -37,9 +37,21 @@ Company.init({
     type: DataTypes.STRING(20),
     allowNull: true,
     validate: {
-      is: {
-        args: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/im,
-        msg: 'Formato de teléfono inválido'
+    /**
+     * Verifica si un número de teléfono tiene un formato válido
+     * @param {string} value - Número de teléfono a validar
+     * @throws {Error} Si el formato del teléfono no es válido
+     * @returns {undefined}
+     */
+      isValidPhone(value) {
+        // Si el valor es nulo o vacío, aceptarlo (porque allowNull: true)
+        if (!value) return;
+        
+        // Validación más flexible: al menos 6 dígitos, puede tener +, -, espacio, ( ) y .
+        const phoneRegex = /^[+]?[0-9\s()\-.]{6,20}$/;
+        if (!phoneRegex.test(value)) {
+          throw new Error('Formato de teléfono inválido');
+        }
       }
     }
   },
