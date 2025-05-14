@@ -207,3 +207,55 @@ Para acceder al servidor:
   }
 }
 ```
+
+# Espacios de trabajo
+
+## Crear
+
+**1. Ruta**: POST http://localhost:5000/api/workspaces
+**2. Body**: En formato JSON
+
+```
+{
+  "name": "Sala de Reuniones Principal",
+  "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+  "capacity": 10,
+  "isAvailable": true,
+  "equipment": {
+    "proyector": true,
+    "pizarra": true,
+    "videoconferencia": true,
+    "wifi": true,
+    "enchufes": 8
+  }
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Espacio de trabajo creado exitosamente",
+  "workspace": {
+    "created_at": "2025-05-14T15:17:52.565Z",
+    "updated_at": "2025-05-14T15:17:52.565Z",
+    "id": 1,
+    "name": "Sala de Reuniones Principal",
+    "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+    "capacity": 10,
+    "company_id": 1,
+    "qr": null,
+    "is_available": true,
+    "equipment": {
+      "wifi": true,
+      "pizarra": true,
+      "enchufes": 8,
+      "proyector": true,
+      "videoconferencia": true
+    },
+    "updatedAt": "2025-05-14T15:17:52.565Z",
+    "createdAt": "2025-05-14T15:17:52.565Z",
+    "deleted_at": null
+  }
+}
+```

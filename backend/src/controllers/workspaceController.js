@@ -6,7 +6,17 @@ import { Workspace } from '../../models/index.js';
  */
 export const getWorkspaces = async (req, res) => {
   try {
-    const { companyId } = req.user;
+    // Intentar obtener el ID de compañía de cualquier forma posible
+    let companyId;
+    if (req.user.dataValues && req.user.dataValues.company_id) {
+      companyId = req.user.dataValues.company_id;
+    } else {
+      companyId = req.user.company_id || req.user.companyId;
+    }
+    
+    if (!companyId) {
+      return res.status(400).json({ message: 'ID de compañía no encontrado en el usuario autenticado' });
+    }
     
     const workspaces = await Workspace.findAll({
       where: { 
@@ -28,7 +38,18 @@ export const getWorkspaces = async (req, res) => {
 export const getWorkspaceById = async (req, res) => {
   try {
     const { id } = req.params;
-    const { companyId } = req.user;
+    
+    // Intentar obtener el ID de compañía de cualquier forma posible
+    let companyId;
+    if (req.user.dataValues && req.user.dataValues.company_id) {
+      companyId = req.user.dataValues.company_id;
+    } else {
+      companyId = req.user.company_id || req.user.companyId;
+    }
+    
+    if (!companyId) {
+      return res.status(400).json({ message: 'ID de compañía no encontrado en el usuario autenticado' });
+    }
     
     const workspace = await Workspace.findOne({
       where: { 
@@ -55,7 +76,28 @@ export const getWorkspaceById = async (req, res) => {
 export const createWorkspace = async (req, res) => {
   try {
     const { name, description, capacity, equipment, isAvailable } = req.body;
-    const { companyId } = req.user;
+    
+    // Depurar para ver cómo está estructurado req.user
+    console.log('Estructura de req.user:', JSON.stringify(req.user, null, 2));
+    
+    // Intentar obtener el ID de compañía de cualquier forma posible
+    let companyId;
+    if (req.user.dataValues && req.user.dataValues.company_id) {
+      companyId = req.user.dataValues.company_id;
+    } else {
+      companyId = req.user.company_id || req.user.companyId;
+    }
+    
+    console.log('Datos recibidos:', { name, description, capacity, equipment, isAvailable, companyId });
+    
+    // Verificar que companyId existe
+    if (!companyId) {
+      console.error('Error: company_id es null o undefined');
+      return res.status(400).json({ 
+        message: 'Error de validación',
+        errors: ['ID de compañía no encontrado en el usuario autenticado']
+      });
+    }
     
     // En lugar de generar un QR, simplemente dejamos el campo en null por ahora
     // Esto se puede implementar más adelante
@@ -76,6 +118,13 @@ export const createWorkspace = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al crear espacio de trabajo:', error);
+    console.error('Detalle del error:', error.message);
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ 
+        message: 'Error de validación',
+        errors: error.errors.map(err => err.message)
+      });
+    }
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
@@ -87,7 +136,18 @@ export const updateWorkspace = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, capacity, equipment, isAvailable } = req.body;
-    const { companyId } = req.user;
+    
+    // Intentar obtener el ID de compañía de cualquier forma posible
+    let companyId;
+    if (req.user.dataValues && req.user.dataValues.company_id) {
+      companyId = req.user.dataValues.company_id;
+    } else {
+      companyId = req.user.company_id || req.user.companyId;
+    }
+    
+    if (!companyId) {
+      return res.status(400).json({ message: 'ID de compañía no encontrado en el usuario autenticado' });
+    }
     
     const workspace = await Workspace.findOne({
       where: { 
@@ -125,7 +185,18 @@ export const updateWorkspace = async (req, res) => {
 export const deleteWorkspace = async (req, res) => {
   try {
     const { id } = req.params;
-    const { companyId } = req.user;
+    
+    // Intentar obtener el ID de compañía de cualquier forma posible
+    let companyId;
+    if (req.user.dataValues && req.user.dataValues.company_id) {
+      companyId = req.user.dataValues.company_id;
+    } else {
+      companyId = req.user.company_id || req.user.companyId;
+    }
+    
+    if (!companyId) {
+      return res.status(400).json({ message: 'ID de compañía no encontrado en el usuario autenticado' });
+    }
     
     const workspace = await Workspace.findOne({
       where: { 

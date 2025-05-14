@@ -1,5 +1,5 @@
 PETICIÓN:
-Vamos a hacer la funcionalidad para que los usuarios puedan hacer login. Se entrará con correo y contraseña.
+Acabamos de añadir las funcionalidades de crear, editar y eliminar espacios de trabajo. Pero al probar con thunderClient el crear una espacio de trabajo, da error 500. Ayudame a resolver el problema.
 
 Te vuelvo a mostrar el enunciado del proyecto:
 Desarrollaremos una aplicación web para la gestión integral de reservas de espacios de trabajo colaborativo, que incluirá salas de reuniones, áreas de coworking y otros recursos. La plataforma permitirá a los usuarios:
@@ -38,7 +38,7 @@ Base de datos: PostgreSQL y Sequelize.
 Despliegue: Docker.
 
 La estructura actual del proyecto es:
-PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree
+PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree 
 └─ config
   └─ config.js
   └─ db.js
@@ -66,15 +66,18 @@ PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree
     └─ companyController.js
     └─ userController.js
     └─ vacio.txt
+    └─ workspaceController.js
   └─ middlewares
     └─ authMiddleware.js
     └─ companyValidationMiddleware.js
     └─ userValidationMiddleware.js
+    └─ workspaceValidationMiddleware.js
   └─ models
     └─ vacio.txt
   └─ routes
     └─ companyRoutes.js
     └─ userRoutes.js
+    └─ workspaceRoutes.js
   └─ services
     └─ authService.js
     └─ vacio.txt
@@ -180,322 +183,339 @@ Responde en español.
 Estamos usando type module.
 Si necesitas ver algun archivo para continuar dimelo.
 
-Actualmente, mi userController.js es asi:
-// src/controllers/userController.js
-import { User, Company } from '../../models/index.js';
-import { hashPassword, verifyCredentials } from '../services/authService.js';
-import { Op } from 'sequelize';
+Te muestro workspaceController.js:
+// backend/src/controllers/workspaceController.js
+import { Workspace } from '../../models/index.js';
 
 /**
- * Inicia sesión con un usuario y contraseña
- * @param {Object} req - Objeto de solicitud de Express
- * @param {Object} res - Objeto de respuesta de Express
- * @returns {Promise<Object>} - Resultado de la verificación:
- *   - success: Verdadero si la verificación fue exitosa
- *   - message: Mensaje de error en caso de falla
- *   - token: Token de acceso para el usuario
- *   - user: Información del usuario logueado
+ * Obtiene todos los espacios de trabajo de una empresa
  */
-export const login = async (req, res) => {
+export const getWorkspaces = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { companyId } = req.user;
     
-    // Verificar credenciales
-    const result = await verifyCredentials(email, password);
-    
-    if (!result.success) {
-      return res.status(401).json({ message: result.message });
-    }
-    
-    return res.status(200).json({
-      message: 'Inicio de sesión exitoso',
-      token: result.token,
-      user: result.user
-    });
-    
-  } catch (error) {
-    console.error('Error en inicio de sesión:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-/**
- * Registra un nuevo usuario en el sistema.
- * @param {Object} req - Objeto de solicitud de Express que contiene el cuerpo de la solicitud con los datos del usuario.
- * @param {Object} res - Objeto de respuesta de Express para enviar la respuesta al cliente.
- * @returns {Promise<void>} - Envía una respuesta HTTP con el estado del registro:
- *   - 201 y detalles del usuario si el registro es exitoso.
- *   - 400 y un mensaje de error si el correo ya está registrado, el código de invitación es inválido,
- *     o el dominio del correo no está permitido.
- *   - 500 y un mensaje de error si ocurre un error interno del servidor.
- */
-
-export const registerUser = async (req, res) => {
-  try {
-    const { email, password, firstName, lastName, invitationCode } = req.body;
-
-    // Verificar si el usuario ya existe
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ message: 'El correo electrónico ya está registrado' });
-    }
-
-    // Buscar la empresa con el código de invitación proporcionado
-    const company = await Company.findOne({ where: { invitation_code: invitationCode } });
-    if (!company) {
-      return res.status(400).json({ message: 'Código de invitación inválido' });
-    }
-
-    // Verificar si el dominio del correo está permitido para esta empresa
-    const emailDomain = email.split('@')[1];
-    
-    // Buscar el dominio permitido (puede estar guardado con o sin @)
-    const allowedDomain = await company.getDomains({
+    const workspaces = await Workspace.findAll({
       where: { 
-        [Op.or]: [
-          { domain: emailDomain },      // Sin @ (ej: "miempresa.com")
-          { domain: `@${emailDomain}` } // Con @ (ej: "@miempresa.com")
-        ],
-        is_active: true 
+        company_id: companyId,
+        deleted_at: null
       }
     });
+    
+    return res.status(200).json({ workspaces });
+  } catch (error) {
+    console.error('Error al obtener espacios de trabajo:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
 
-    if (allowedDomain.length === 0) {
-      return res.status(400).json({ message: 'El dominio de correo no está permitido para esta empresa' });
-    }
-
-    // Generar hash de la contraseña
-    const hashedPassword = await hashPassword(password);
-
-    // Crear nuevo usuario
-    const newUser = await User.create({
-      email,
-      password: hashedPassword,
-      first_name: firstName,
-      last_name: lastName,
-      company_id: company.id,
-      role: 'user', // Por defecto es un usuario sin privilegios
-      is_active: true
+/**
+ * Obtiene un espacio de trabajo específico
+ */
+export const getWorkspaceById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+    
+    const workspace = await Workspace.findOne({
+      where: { 
+        id,
+        company_id: companyId,
+        deleted_at: null
+      }
     });
+    
+    if (!workspace) {
+      return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
+    }
+    
+    return res.status(200).json({ workspace });
+  } catch (error) {
+    console.error('Error al obtener espacio de trabajo:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
 
-    // No devolver la contraseña en la respuesta
-    const userResponse = {
-      id: newUser.id,
-      email: newUser.email,
-      firstName: newUser.first_name,
-      lastName: newUser.last_name,
-      role: newUser.role,
-      companyId: newUser.company_id
-    };
+/**
+ * Crea un nuevo espacio de trabajo
+ */
+export const createWorkspace = async (req, res) => {
+  try {
+    const { name, description, capacity, equipment, isAvailable } = req.body;
+    const { companyId } = req.user;
 
+    console.log('Datos recibidos:', { name, description, capacity, equipment, isAvailable });
+    
+    // En lugar de generar un QR, simplemente dejamos el campo en null por ahora
+    // Esto se puede implementar más adelante
+    
+    const workspace = await Workspace.create({
+      name,
+      description,
+      capacity,
+      company_id: companyId,
+      qr: null, // Sin QR por ahora
+      is_available: isAvailable !== undefined ? isAvailable : true,
+      equipment: equipment || {}
+    });
+    
     return res.status(201).json({
-      message: 'Usuario registrado correctamente',
-      user: userResponse
+      message: 'Espacio de trabajo creado exitosamente',
+      workspace
     });
   } catch (error) {
-    console.error('Error al registrar usuario:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-/**
- * Verifica si un código de invitación es válido.
- * @param {Object} req - Objeto de solicitud de Express que contiene el parámetro "invitationCode".
- * @param {Object} res - Objeto de respuesta de Express para enviar la respuesta al cliente.
- * @returns {Promise<Object>} - Resultado de la verificación:
- *   - valid: Verdadero si el código de invitación es válido.
- *   - message: Mensaje de error en caso de falla.
- *   - companyName: Nombre de la empresa que emitió el código (si es válido).
- */
-export const checkInvitationCode = async (req, res) => {
-  try {
-    const { invitationCode } = req.params;
-    
-    // Verificar si el código existe
-    const company = await Company.findOne({ where: { invitation_code: invitationCode } });
-    
-    if (!company) {
-      return res.status(404).json({ valid: false, message: 'Código de invitación inválido' });
-    }
-    
-    return res.status(200).json({
-      valid: true,
-      companyName: company.name
-    });
-    
-  } catch (error) {
-    console.error('Error al verificar código de invitación:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-authService.js:
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import { User } from '../../models/index.js';
-
-dotenv.config();
-
-// Número de rondas para el hash de contraseñas
-const SALT_ROUNDS = 10;
-const JWT_SECRET = process.env.JWT_SECRET || 'workspace_reservation_secret';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
-
-/**
- * Hashea una contraseña
- * @param {string} password - Contraseña en texto plano
- * @returns {Promise<string>} - Contraseña hasheada
- */
-export const hashPassword = async (password) => {
-  const salt = await bcrypt.genSalt(SALT_ROUNDS);
-  return bcrypt.hash(password, salt);
-};
-
-/**
- * Compara una contraseña en texto plano con una hasheada
- * @param {string} password - Contraseña en texto plano
- * @param {string} hashedPassword - Contraseña hasheada
- * @returns {Promise<boolean>} - Verdadero si coinciden
- */
-export const comparePassword = async (password, hashedPassword) => {
-  return bcrypt.compare(password, hashedPassword);
-};
-
-/**
- * Genera un token JWT para un usuario
- * @param {Object} userData - Datos del usuario para incluir en el token
- * @returns {string} - Token JWT
- */
-export const generateToken = (userData) => {
-  const payload = {
-    userId: userData.id,
-    companyId: userData.company_id,
-    email: userData.email,
-    role: userData.role
-  };
-
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
-};
-
-/**
- * Verifica y decodifica un token JWT
- * @param {string} token - Token JWT
- * @returns {Object|null} - Datos del usuario o null si es inválido
- */
-export const verifyToken = (token) => {
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return null;
-  }
-};
-
-/**
- * Verifica las credenciales de un usuario para el inicio de sesión
- * @param {string} email - Correo electrónico del usuario
- * @param {string} password - Contraseña en texto plano
- * @returns {Promise<Object>} - Resultado de la verificación
- */
-export const verifyCredentials = async (email, password) => {
-  try {
-    // Buscar usuario por email
-    const user = await User.findOne({ where: { email, is_active: true } });
-    
-    if (!user) {
-      return { success: false, message: 'Usuario no encontrado o inactivo' };
-    }
-    
-    // Verificar contraseña (usar comparePassword en lugar de bcrypt.compare directamente)
-    const passwordMatch = await comparePassword(password, user.password);
-    
-    if (!passwordMatch) {
-      return { success: false, message: 'Contraseña incorrecta' };
-    }
-    
-    // Actualizar último login
-    await user.update({ last_login: new Date() });
-    
-    // Generar token (usar la función generateToken existente)
-    const token = generateToken(user);
-    
-    return {
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
-        companyId: user.company_id
-      }
-    };
-    
-  } catch (error) {
-    console.error('Error en verificación de credenciales:', error);
-    return { success: false, message: 'Error interno del servidor' };
-  }
-};
-
-authMiddleware.js:
-import { User } from '../../models/index.js';
-import { verifyToken } from '../services/authService.js';
-
-export const authenticateToken = async (req, res, next) => {
-  try {
-    // Obtener token del encabezado
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
-    
-    if (!token) {
-      return res.status(401).json({ message: 'Acceso denegado. Se requiere token de autenticación' });
-    }
-    
-    // Verificar token usando la función existente en authService
-    const decoded = verifyToken(token);
-    
-    if (!decoded) {
-      return res.status(403).json({ message: 'Token inválido o expirado' });
-    }
-    
-    // Verificar que el usuario existe y está activo
-    const user = await User.findOne({
-      where: { id: decoded.userId, is_active: true },
-      attributes: { exclude: ['password'] } // No incluir la contraseña
-    });
-    
-    if (!user) {
-      return res.status(403).json({ message: 'Usuario no encontrado o inactivo' });
-    }
-    
-    // Agregar usuario a la solicitud
-    req.user = user;
-    next();
-  } catch (error) {
-    console.error('Error en autenticación:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-// Middleware para verificar roles (admin o user)
-export const authorizeRole = (roles = []) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Acceso denegado. Usuario no autenticado' });
-    }
-    
-    // Convertir a array si es un string
-    if (typeof roles === 'string') {
-      roles = [roles];
-    }
-    
-    if (roles.length && !roles.includes(req.user.role)) {
-      return res.status(403).json({
-        message: 'Acceso denegado. No tiene permisos suficientes para esta acción'
+    console.error('Error al crear espacio de trabajo:', error);
+    console.error('Detalle del error:', error.message);
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({ 
+        message: 'Error de validación',
+        errors: error.errors.map(err => err.message)
       });
     }
-    
-    next();
-  };
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
 };
+
+/**
+ * Actualiza un espacio de trabajo existente
+ */
+export const updateWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, capacity, equipment, isAvailable } = req.body;
+    const { companyId } = req.user;
+    
+    const workspace = await Workspace.findOne({
+      where: { 
+        id,
+        company_id: companyId,
+        deleted_at: null
+      }
+    });
+    
+    if (!workspace) {
+      return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
+    }
+    
+    const updatedWorkspace = await workspace.update({
+      name: name !== undefined ? name : workspace.name,
+      description: description !== undefined ? description : workspace.description,
+      capacity: capacity !== undefined ? capacity : workspace.capacity,
+      is_available: isAvailable !== undefined ? isAvailable : workspace.is_available,
+      equipment: equipment !== undefined ? equipment : workspace.equipment
+    });
+    
+    return res.status(200).json({
+      message: 'Espacio de trabajo actualizado exitosamente',
+      workspace: updatedWorkspace
+    });
+  } catch (error) {
+    console.error('Error al actualizar espacio de trabajo:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Elimina un espacio de trabajo (baja lógica)
+ */
+export const deleteWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { companyId } = req.user;
+    
+    const workspace = await Workspace.findOne({
+      where: { 
+        id,
+        company_id: companyId,
+        deleted_at: null
+      }
+    });
+    
+    if (!workspace) {
+      return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
+    }
+    
+    // Realizar baja lógica
+    await workspace.update({ deleted_at: new Date() });
+    
+    return res.status(200).json({
+      message: 'Espacio de trabajo eliminado exitosamente'
+    });
+  } catch (error) {
+    console.error('Error al eliminar espacio de trabajo:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+workspaceValidationMiddleware.js:
+// backend/src/middlewares/workspaceValidationMiddleware.js
+/**
+ * Valida datos para la creación de un espacio de trabajo
+ */
+export const validateWorkspaceCreation = (req, res, next) => {
+  const { name, capacity } = req.body;
+  const errors = [];
+  
+  // Validar nombre
+  if (!name || name.trim() === '') {
+    errors.push('El nombre del espacio es obligatorio');
+  }
+  
+  // Validar capacidad
+  if (!capacity || isNaN(capacity) || capacity <= 0) {
+    errors.push('La capacidad debe ser un número positivo');
+  }
+  
+  // Si hay errores, devolverlos
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
+  }
+  
+  next();
+};
+
+/**
+ * Valida datos para la actualización de un espacio de trabajo
+ */
+export const validateWorkspaceUpdate = (req, res, next) => {
+  const { name, capacity } = req.body;
+  const errors = [];
+  
+  // Validar nombre si está presente
+  if (name !== undefined && name.trim() === '') {
+    errors.push('El nombre del espacio no puede estar vacío');
+  }
+  
+  // Validar capacidad si está presente
+  if (capacity !== undefined && (isNaN(capacity) || capacity <= 0)) {
+    errors.push('La capacidad debe ser un número positivo');
+  }
+  
+  // Si hay errores, devolverlos
+  if (errors.length > 0) {
+    return res.status(400).json({ errors });
+  }
+  
+  next();
+};
+
+workspaceRoutes.js:
+// src/routes/workspaceRoutes.js
+import express from 'express';
+import {
+  getWorkspaces,
+  getWorkspaceById,
+  createWorkspace,
+  updateWorkspace,
+  deleteWorkspace
+} from '../controllers/workspaceController.js';
+import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
+import { 
+  validateWorkspaceCreation,
+  validateWorkspaceUpdate 
+} from '../middlewares/workspaceValidationMiddleware.js';
+
+const router = express.Router();
+
+// Todas las rutas requieren autenticación
+router.use(authenticateToken);
+
+// Rutas públicas para usuarios autenticados
+router.get('/', getWorkspaces);
+router.get('/:id', getWorkspaceById);
+
+// Rutas solo para administradores
+router.post('/', [authorizeRole(['admin']), validateWorkspaceCreation], createWorkspace);
+router.put('/:id', [authorizeRole(['admin']), validateWorkspaceUpdate], updateWorkspace);
+router.delete('/:id', authorizeRole(['admin']), deleteWorkspace);
+
+export default router;
+
+modelo workspace.js:
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
+
+class Workspace extends Model {}
+
+Workspace.init({
+  id: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true
+  },
+  name: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  capacity: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  company_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'companies',
+      key: 'id'
+    },
+    onDelete: 'CASCADE'
+  },
+  qr: {
+    type: DataTypes.STRING(255),
+    unique: true,
+    allowNull: true
+  },
+  is_available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  equipment: {
+    type: DataTypes.JSONB,
+    allowNull: true
+  },
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  updated_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  deleted_at: {
+    type: DataTypes.DATE,
+    allowNull: true
+  }
+}, {
+  sequelize,
+  modelName: 'Workspace',
+  tableName: 'workspaces',
+  timestamps: true,
+  paranoid: true,
+  underscored: true
+});
+
+export default Workspace;
+
+body:
+{
+  "name": "Sala de Reuniones Principal",
+  "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+  "capacity": 10,
+  "isAvailable": true,
+  "equipment": {
+    "proyector": true,
+    "pizarra": true,
+    "videoconferencia": true,
+    "wifi": true,
+    "enchufes": 8
+  }
+}
+response: response: {
+  "message": "Error de validación",
+  "errors": [
+    "Workspace.company_id cannot be null"
+  ]
+}
