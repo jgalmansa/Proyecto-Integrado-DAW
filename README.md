@@ -207,3 +207,36 @@ Para acceder al servidor:
   }
 }
 ```
+
+
+# Logout
+
+### Comprobación con Postman o ThunderClient
+
+**1. Ruta**: POST http://localhost:5000/api/users/logout
+**2. Headers**: 
+```
+Key: Authoritation
+Value: Bearer [token-del-usuario]
+```
+
+**3. Response**:
+Logout correcto:
+```
+{
+    "success": true,
+    "message": "Sesión cerrada correctamente"
+}
+```
+Logout con un token que ya está ha sido usado:
+```
+{
+    "message": "Sesión cerrada. Debe iniciar sesión nuevamente"
+}
+```
+Si no se indica el token:
+```
+{
+    "message": "Acceso denegado. Se requiere token de autenticación"
+}
+```
