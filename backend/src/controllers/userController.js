@@ -1,7 +1,8 @@
 // src/controllers/userController.js
 import { User, Company } from '../../models/index.js';
-import { hashPassword, verifyCredentials } from '../services/authService.js';
+import { hashPassword, verifyCredentials, verifyToken } from '../services/authService.js';
 import { Op } from 'sequelize';
+import { blacklistToken } from '../services/redisService.js';
 
 /**
  * Inicia sesión con un usuario y contraseña
@@ -142,3 +143,60 @@ export const checkInvitationCode = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+/**
+ * Cierra la sesión de un usuario invalidando su token JWT
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Object>} - Mensaje de confirmación de cierre de sesión
+ */
+
+export const logout = async (req, res) => {
+  try {
+    const token = req.token;
+
+    if (!token) {
+      return res.status(400).json({ message: 'No se ha proporcionado un token váido'})
+    }
+
+    //Verificamos el token para obtener el tiempo de expiración
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return res.status(400).json({ messsage: 'Token inválido'});
+    }
+
+    // Calculamos el tiempo hasta que expire
+    const currentTime = Math.floor(Date.now()/1000);
+    const expireTime = decoded.exp;
+    const tiemToExpire = expireTime - currentTime;
+
+
+    // Añadimos el token a la lista negra en redis. Si ha expirado o a punto de hacerlo se mete en la lista negra
+    const blacklistDuration = tiemToExpire > 0 ? tiemToExpire : 3600;
+    await blacklistToken(token, blacklistDuration);
+
+    // Registrar la hora del logout. Es opcional
+    if (req.user) {
+      // Intenta actualizar solo si el modelo User lo soporta
+      try {
+        await User.update(
+          { last_login: new Date() }, // O last_logout si existe ese campo
+          { where: { id: req.user.id } }
+        );
+      } catch (updateError) {
+        // Si falla porque el campo no existe, simplemente lo ignoramos
+        console.warn('No se pudo actualizar el campo de logout:', updateError.message);
+      }
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: 'Sesión cerrada correctamente'
+    });
+
+
+  } catch (error) {
+    console.error('Error al cerrar sesión: ', error);
+    return res.status(500).json({ message: 'Error interno del servidor'});
+  }
+}
