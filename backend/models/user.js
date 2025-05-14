@@ -1,4 +1,3 @@
-// backend/models/user.js
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 import bcrypt from 'bcryptjs';
@@ -104,14 +103,26 @@ User.init({
   deletedAt: 'deleted_at',
   paranoid: true,
   hooks: {
-    // Hash de contraseña antes de guardar
+    
+    /**
+     * Hook para hashear la contraseña antes de crear un usuario
+     * Genera un hash de la contraseña utilizando bcrypt y lo asigna al usuario
+     * @param {User} user - Instancia de User que se va a crear
+     * @returns {Promise<void>}
+     */
     beforeCreate: async (user) => {
       if (user.password) {
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
       }
     },
-    // Hash de contraseña antes de actualizar
+    
+    /**
+     * Hook para hashear la contraseña antes de actualizar
+     * Si se ha modificado la contraseña, se genera un hash con ella
+     * @param {User} user - Instancia de User que se va a actualizar
+     * @returns {Promise<void>}
+     */
     beforeUpdate: async (user) => {
       if (user.changed('password')) {
         const salt = await bcrypt.genSalt(10);
