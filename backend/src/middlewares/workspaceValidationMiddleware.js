@@ -1,7 +1,21 @@
-// backend/src/middlewares/workspaceValidationMiddleware.js
+
 /**
- * Valida datos para la creación de un espacio de trabajo
+ * Middleware para validar los datos de creación de un espacio de trabajo.
+ * 
+ * @param {Object} req - Objeto de solicitud de Express que contiene el cuerpo de la solicitud.
+ * @param {Object} res - Objeto de respuesta de Express para enviar respuestas HTTP.
+ * @param {Function} next - Función para pasar el control al siguiente middleware.
+ * 
+ * @throws {Error} Si hay errores de validación, responde con un estado 400 y un objeto JSON con los mensajes de error.
+ * 
+ * @example
+ * // Ejemplo de datos de solicitud
+ * req.body = {
+ *   name: 'Sala de Conferencias',
+ *   capacity: 20
+ * };
  */
+
 export const validateWorkspaceCreation = (req, res, next) => {
   const { name, capacity } = req.body;
   const errors = [];
@@ -24,8 +38,22 @@ export const validateWorkspaceCreation = (req, res, next) => {
   next();
 };
 
+
 /**
- * Valida datos para la actualización de un espacio de trabajo
+ * Middleware para validar los datos de actualización de un espacio de trabajo.
+ * 
+ * @param {Object} req - Objeto de solicitud de Express que contiene el cuerpo de la solicitud.
+ * @param {Object} res - Objeto de respuesta de Express para enviar respuestas HTTP.
+ * @param {Function} next - Función para pasar el control al siguiente middleware.
+ * 
+ * @throws {Error} Si hay errores de validación, responde con un estado 400 y un objeto JSON con los mensajes de error.
+ * 
+ * @example
+ * // Ejemplo de datos de solicitud
+ * req.body = {
+ *   name: 'Sala de Conferencias',
+ *   capacity: 20
+ * };
  */
 export const validateWorkspaceUpdate = (req, res, next) => {
   const { name, capacity } = req.body;

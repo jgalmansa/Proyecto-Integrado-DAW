@@ -1,4 +1,3 @@
-// src/routes/workspaceRoutes.js
 import express from 'express';
 import {
   getWorkspaces,

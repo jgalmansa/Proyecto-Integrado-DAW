@@ -1,8 +1,16 @@
-// backend/src/controllers/workspaceController.js
 import { Workspace } from '../../models/index.js';
 
+
 /**
- * Obtiene todos los espacios de trabajo de una empresa
+ * Obtiene todos los espacios de trabajo de la empresa asociada al usuario autenticado
+ * 
+ * @param {import('express').Request} req - Petición HTTP
+ * @param {import('express').Response} res - Respuesta HTTP
+ * 
+ * @example
+ * GET /workspaces
+ * 
+ * @throws {Error} Si hubo un error al obtener los espacios de trabajo
  */
 export const getWorkspaces = async (req, res) => {
   try {
@@ -32,8 +40,17 @@ export const getWorkspaces = async (req, res) => {
   }
 };
 
+
 /**
  * Obtiene un espacio de trabajo específico
+ * 
+ * @param {import('express').Request} req - Petición HTTP
+ * @param {import('express').Response} res - Respuesta HTTP
+ * 
+ * @example
+ * GET /workspaces/:id
+ * 
+ * @throws {Error} Si hubo un error al obtener el espacio de trabajo
  */
 export const getWorkspaceById = async (req, res) => {
   try {
@@ -70,15 +87,22 @@ export const getWorkspaceById = async (req, res) => {
   }
 };
 
+
 /**
  * Crea un nuevo espacio de trabajo
+ * 
+ * @param {import('express').Request} req - Petición HTTP
+ * @param {import('express').Response} res - Respuesta HTTP
+ * 
+ * @example
+ * POST /workspaces
+ * 
+ * @throws {Error} Si hubo un error al crear el espacio de trabajo
  */
+
 export const createWorkspace = async (req, res) => {
   try {
     const { name, description, capacity, equipment, isAvailable } = req.body;
-    
-    // Depurar para ver cómo está estructurado req.user
-    console.log('Estructura de req.user:', JSON.stringify(req.user, null, 2));
     
     // Intentar obtener el ID de compañía de cualquier forma posible
     let companyId;
@@ -87,8 +111,6 @@ export const createWorkspace = async (req, res) => {
     } else {
       companyId = req.user.company_id || req.user.companyId;
     }
-    
-    console.log('Datos recibidos:', { name, description, capacity, equipment, isAvailable, companyId });
     
     // Verificar que companyId existe
     if (!companyId) {
@@ -129,8 +151,17 @@ export const createWorkspace = async (req, res) => {
   }
 };
 
+
 /**
  * Actualiza un espacio de trabajo existente
+ * 
+ * @param {import('express').Request} req - Petición HTTP
+ * @param {import('express').Response} res - Respuesta HTTP
+ * 
+ * @example
+ * PUT /workspaces/:id
+ * 
+ * @throws {Error} Si hubo un error al actualizar el espacio de trabajo
  */
 export const updateWorkspace = async (req, res) => {
   try {
@@ -179,9 +210,18 @@ export const updateWorkspace = async (req, res) => {
   }
 };
 
-/**
- * Elimina un espacio de trabajo (baja lógica)
- */
+
+  /**
+   * Elimina un espacio de trabajo (baja lógica)
+   * 
+   * @param {import('express').Request} req - Petición HTTP
+   * @param {import('express').Response} res - Respuesta HTTP
+   * 
+   * @example
+   * DELETE /workspaces/:id
+   * 
+   * @throws {Error} Si hubo un error al eliminar el espacio de trabajo
+   */
 export const deleteWorkspace = async (req, res) => {
   try {
     const { id } = req.params;
