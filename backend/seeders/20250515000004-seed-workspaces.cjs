@@ -95,8 +95,7 @@ module.exports = {
 
         for (let i = 0; i < 5; i++) {
           const workspaceTemplate = workspaceTypes[i];
-          // Generamos un código QR único basado en un timestamp para evitar colisiones
-          const qrCode = crypto.createHash('md5').update(`${company.id}-${i}-${Date.now()}-${Math.random()}`).digest('hex');
+          const qrCode = null;
           
           workspaces.push({
             name: `${workspaceTemplate.name} ${i + 1}`,
