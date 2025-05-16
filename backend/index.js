@@ -9,6 +9,7 @@ import sequelize from './config/db.js';
 import companyRoutes from './src/routes/companyRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import workspaceRoutes from './src/routes/workspaceRoutes.js';
+import reservationRoutes from './src/routes/reservationRoutes.js';
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -25,6 +26,7 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use('/api/companies', companyRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/reservations', reservationRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) =>

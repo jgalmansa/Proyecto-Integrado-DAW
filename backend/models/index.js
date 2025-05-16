@@ -5,75 +5,32 @@ import Workspace from './workspace.js';
 import Reservation from './reservation.js';
 import Notification from './notification.js';
 
-// Asociaciones entre Company y User
-Company.hasMany(User, { 
-  foreignKey: 'company_id',
-  as: 'users'
-});
-User.belongsTo(Company, { 
-  foreignKey: 'company_id',
-  as: 'company'
-});
+// Definir las asociaciones entre modelos
+// Relaciones Company
+Company.hasMany(User, { foreignKey: 'company_id' });
+Company.hasMany(Domain, { foreignKey: 'company_id' });
+Company.hasMany(Workspace, { foreignKey: 'company_id' });
 
-// Asociaciones entre Company y Domain
-Company.hasMany(Domain, { 
-  foreignKey: 'company_id',
-  as: 'domains'
-});
-Domain.belongsTo(Company, { 
-  foreignKey: 'company_id',
-  as: 'company'
-});
+// Relaciones User
+User.belongsTo(Company, { foreignKey: 'company_id' });
+User.hasMany(Reservation, { foreignKey: 'user_id' });
+User.hasMany(Notification, { foreignKey: 'user_id' });
 
-// Asociaciones entre Company y Workspace
-Company.hasMany(Workspace, { 
-  foreignKey: 'company_id',
-  as: 'workspaces'
-});
-Workspace.belongsTo(Company, { 
-  foreignKey: 'company_id',
-  as: 'company'
-});
+// Relaciones Domain
+Domain.belongsTo(Company, { foreignKey: 'company_id' });
 
-// Asociaciones entre User y Reservation
-User.hasMany(Reservation, { 
-  foreignKey: 'user_id',
-  as: 'reservations'
-});
-Reservation.belongsTo(User, { 
-  foreignKey: 'user_id',
-  as: 'user'
-});
+// Relaciones Workspace
+Workspace.belongsTo(Company, { foreignKey: 'company_id' });
+Workspace.hasMany(Reservation, { foreignKey: 'workspace_id' });
 
-// Asociaciones entre Workspace y Reservation
-Workspace.hasMany(Reservation, { 
-  foreignKey: 'workspace_id',
-  as: 'reservations'
-});
-Reservation.belongsTo(Workspace, { 
-  foreignKey: 'workspace_id',
-  as: 'workspace'
-});
+// Relaciones Reservation
+Reservation.belongsTo(User, { foreignKey: 'user_id' });
+Reservation.belongsTo(Workspace, { foreignKey: 'workspace_id' });
+Reservation.hasMany(Notification, { foreignKey: 'reservation_id' });
 
-// Asociaciones entre User y Notification
-User.hasMany(Notification, { 
-  foreignKey: 'user_id',
-  as: 'notifications'
-});
-Notification.belongsTo(User, { 
-  foreignKey: 'user_id',
-  as: 'user'
-});
-
-// Asociaciones entre Reservation y Notification
-Reservation.hasMany(Notification, { 
-  foreignKey: 'reservation_id',
-  as: 'notifications'
-});
-Notification.belongsTo(Reservation, { 
-  foreignKey: 'reservation_id',
-  as: 'reservation'
-});
+// Relaciones Notification
+Notification.belongsTo(User, { foreignKey: 'user_id' });
+Notification.belongsTo(Reservation, { foreignKey: 'reservation_id', allowNull: true });
 
 export {
   Company,
