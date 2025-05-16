@@ -76,6 +76,25 @@ JWT_SECRET=tu_clave_secreta_super_segura
 JWT_EXPIRES_IN=24h
 ```
 
+# Introducir datos con seeders
+
+```
+docker up -d
+docker exec -it proyecto-integrado-daw-backend-1 sh
+```
+
+Con el último comando has entrado en el docker del backend. Debes estar en la siguiente ruta: **/usr/src/app #**. Ponemos el siguiente comando:
+
+```
+npx sequelize-cli db:seed:all
+```
+
+Si necesitas **eliminar** todos los datos de la base de datos:
+
+```
+npx sequelize-cli db:seed:undo:all
+```
+
 # Creación de servidor index.js con Express
 
 ## Estructura
