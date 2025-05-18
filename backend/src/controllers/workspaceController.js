@@ -1,5 +1,5 @@
+// backend/src/controllers/workspaceController.js
 import { Workspace } from '../../models/index.js';
-
 
 /**
  * Obtiene todos los espacios de trabajo de la empresa asociada al usuario autenticado
