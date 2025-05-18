@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "node-schedule": "^2.1.1"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.3"
+  }
+}
