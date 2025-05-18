@@ -1,6 +1,6 @@
 // backend/src/controllers/workspaceController.js
 import { Workspace } from '../../models/index.js';
-
+import { createGlobalNotification } from '../services/notificationService.js';
 /**
  * Obtiene todos los espacios de trabajo de la empresa asociada al usuario autenticado
  * 
@@ -199,6 +199,22 @@ export const updateWorkspace = async (req, res) => {
       is_available: isAvailable !== undefined ? isAvailable : workspace.is_available,
       equipment: equipment !== undefined ? equipment : workspace.equipment
     });
+
+    // Añadir notificación global si el espacio se marca como no disponible
+    if (req.body.isAvailable === false) {
+      await createGlobalNotification(
+        workspace.company_id,
+        `AVISO: El espacio "${workspace.name}" ya no está disponible para reservas.`,
+        [] // No excluir a ningún usuario
+      );
+    } else if (req.body.isAvailable === true) {
+      // Notificar que el espacio vuelve a estar disponible
+      await createGlobalNotification(
+        workspace.company_id,
+        `AVISO: El espacio "${workspace.name}" vuelve a estar disponible para reservas.`,
+        []
+      );
+    }
     
     return res.status(200).json({
       message: 'Espacio de trabajo actualizado exitosamente',

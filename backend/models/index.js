@@ -4,6 +4,9 @@ import Domain from './domain.js';
 import Workspace from './workspace.js';
 import Reservation from './reservation.js';
 import Notification from './notification.js';
+import sequelize from '../config/db.js';
+
+
 
 // Definir las asociaciones entre modelos
 // Relaciones Company
@@ -33,6 +36,7 @@ Notification.belongsTo(User, { foreignKey: 'user_id' });
 Notification.belongsTo(Reservation, { foreignKey: 'reservation_id', allowNull: true });
 
 export {
+  sequelize,
   Company,
   User,
   Domain,
