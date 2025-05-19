@@ -3,7 +3,7 @@
 Con docker abierto, desde visual studio code (VSC), en la raiz del proyecto, usar los comandos:
 
 ```
-docker up -d
+docker compose up -d
 docker exec -it proyecto-integrado-daw-backend-1 sh
 ```
 
@@ -79,7 +79,7 @@ JWT_EXPIRES_IN=24h
 # Introducir datos con seeders
 
 ```
-docker up -d
+docker compose up -d
 docker exec -it proyecto-integrado-daw-backend-1 sh
 ```
 
@@ -534,6 +534,187 @@ Para acceder al servidor:
 ## Obtener todos los espacios de trabajo
 
 **1. Ruta**: GET http://localhost:5000/api/workspaces
+**2. Body**: No hace falta, no se envían datos.
+**3. Response**:
+
+```
+{
+  "workspaces": [
+    {
+      "id": 1,
+      "name": "Sala de Reuniones Principal (Actualizada)",
+      "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+      "capacity": 12,
+      "company_id": 1,
+      "qr": null,
+      "is_available": true,
+      "equipment": {
+        "wifi": true,
+        "pizarra": true,
+        "cafetera": true,
+        "enchufes": 10,
+        "proyector": true,
+        "videoconferencia": true
+      },
+      "created_at": "2025-05-14T15:17:52.565Z",
+      "updated_at": "2025-05-14T15:23:41.070Z",
+      "deleted_at": null,
+      "createdAt": "2025-05-14T15:17:52.565Z",
+      "updatedAt": "2025-05-14T15:23:41.070Z",
+      "deletedAt": null
+    }
+  ]
+}
+```
+
+## Obtener un espacio de trabajo específico
+
+**1. Ruta**: GET http://localhost:5000/api/workspaces/{id}
+**2. Body**: No hace falta, no se envían datos.
+**3. Response**:
+
+```
+{
+  "workspace": {
+    "id": 1,
+    "name": "Sala de Reuniones Principal (Actualizada)",
+    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+    "capacity": 12,
+    "company_id": 1,
+    "qr": null,
+    "is_available": true,
+    "equipment": {
+      "wifi": true,
+      "pizarra": true,
+      "cafetera": true,
+      "enchufes": 10,
+      "proyector": true,
+      "videoconferencia": true
+    },
+    "created_at": "2025-05-14T15:17:52.565Z",
+    "updated_at": "2025-05-14T15:23:41.070Z",
+    "deleted_at": null,
+    "createdAt": "2025-05-14T15:17:52.565Z",
+    "updatedAt": "2025-05-14T15:23:41.070Z",
+    "deletedAt": null
+  }
+}
+```
+
+# Reservas
+
+## Crear
+
+**1. Ruta**: POST http://localhost:5000/api/reservations
+**2. Body**: En formato JSON
+
+```
+{
+  "workspaceId": 1,
+  "guests": "john@example.com",
+  "numberOfPeople": 3,
+  "startTime": "2025-05-20T10:00:00.000Z",
+  "endTime": "2025-05-20T12:00:00.000Z"
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Espacio de trabajo creado exitosamente",
+  "workspace": {
+    "created_at": "2025-05-14T15:17:52.565Z",
+    "updated_at": "2025-05-14T15:17:52.565Z",
+    "id": 1,
+    "name": "Sala de Reuniones Principal",
+    "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+    "capacity": 10,
+    "company_id": 1,
+    "qr": null,
+    "is_available": true,
+    "equipment": {
+      "wifi": true,
+      "pizarra": true,
+      "enchufes": 8,
+      "proyector": true,
+      "videoconferencia": true
+    },
+    "updatedAt": "2025-05-14T15:17:52.565Z",
+    "createdAt": "2025-05-14T15:17:52.565Z",
+    "deleted_at": null
+  }
+}
+```
+
+## Actualizar
+
+**1. Ruta**: PUT http://localhost:5000/api/reservations/{id}
+**2. Body**: En formato JSON
+
+```
+{
+  "name": "Sala de Reuniones Principal (Actualizada)",
+  "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+  "capacity": 12,
+  "isAvailable": true,
+  "equipment": {
+    "proyector": true,
+    "pizarra": true,
+    "videoconferencia": true,
+    "wifi": true,
+    "enchufes": 10,
+    "cafetera": true
+  }
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Espacio de trabajo actualizado exitosamente",
+  "workspace": {
+    "id": 1,
+    "name": "Sala de Reuniones Principal (Actualizada)",
+    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+    "capacity": 12,
+    "company_id": 1,
+    "qr": null,
+    "is_available": true,
+    "equipment": {
+      "proyector": true,
+      "pizarra": true,
+      "videoconferencia": true,
+      "wifi": true,
+      "enchufes": 10,
+      "cafetera": true
+    },
+    "created_at": "2025-05-14T15:17:52.565Z",
+    "updated_at": "2025-05-14T15:17:52.565Z",
+    "deleted_at": null,
+    "createdAt": "2025-05-14T15:17:52.565Z",
+    "updatedAt": "2025-05-14T15:23:41.070Z",
+    "deletedAt": null
+  }
+}
+```
+
+## Eliminar
+
+**1. Ruta**: POST http://localhost:5000/api/reservations/{id}
+**2. Body**: No hace falta, no se envían datos.
+**3. Response**:
+
+```
+{
+  "message": "Espacio de trabajo eliminado exitosamente"
+}
+```
+
+## Obtener todos los espacios de trabajo
+
+**1. Ruta**: GET http://localhost:5000/api/reservations
 **2. Body**: No hace falta, no se envían datos.
 **3. Response**:
 
