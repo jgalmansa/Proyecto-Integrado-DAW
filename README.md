@@ -413,3 +413,223 @@ Para acceder al servidor:
   }
 }
 ```
+
+# Espacios de trabajo
+
+## Crear
+
+**1. Ruta**: POST http://localhost:5000/api/workspaces
+**2. Body**: En formato JSON
+
+```
+{
+  "name": "Sala de Reuniones Principal",
+  "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+  "capacity": 10,
+  "isAvailable": true,
+  "equipment": {
+    "proyector": true,
+    "pizarra": true,
+    "videoconferencia": true,
+    "wifi": true,
+    "enchufes": 8
+  }
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Espacio de trabajo creado exitosamente",
+  "workspace": {
+    "created_at": "2025-05-14T15:17:52.565Z",
+    "updated_at": "2025-05-14T15:17:52.565Z",
+    "id": 1,
+    "name": "Sala de Reuniones Principal",
+    "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+    "capacity": 10,
+    "company_id": 1,
+    "qr": null,
+    "is_available": true,
+    "equipment": {
+      "wifi": true,
+      "pizarra": true,
+      "enchufes": 8,
+      "proyector": true,
+      "videoconferencia": true
+    },
+    "updatedAt": "2025-05-14T15:17:52.565Z",
+    "createdAt": "2025-05-14T15:17:52.565Z",
+    "deleted_at": null
+  }
+}
+```
+
+## Actualizar
+
+**1. Ruta**: PUT http://localhost:5000/api/workspaces/{id}
+**2. Body**: En formato JSON
+
+```
+{
+  "name": "Sala de Reuniones Principal (Actualizada)",
+  "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+  "capacity": 12,
+  "isAvailable": true,
+  "equipment": {
+    "proyector": true,
+    "pizarra": true,
+    "videoconferencia": true,
+    "wifi": true,
+    "enchufes": 10,
+    "cafetera": true
+  }
+}
+```
+
+**3. Response**:
+
+```
+{
+  "message": "Espacio de trabajo actualizado exitosamente",
+  "workspace": {
+    "id": 1,
+    "name": "Sala de Reuniones Principal (Actualizada)",
+    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+    "capacity": 12,
+    "company_id": 1,
+    "qr": null,
+    "is_available": true,
+    "equipment": {
+      "proyector": true,
+      "pizarra": true,
+      "videoconferencia": true,
+      "wifi": true,
+      "enchufes": 10,
+      "cafetera": true
+    },
+    "created_at": "2025-05-14T15:17:52.565Z",
+    "updated_at": "2025-05-14T15:17:52.565Z",
+    "deleted_at": null,
+    "createdAt": "2025-05-14T15:17:52.565Z",
+    "updatedAt": "2025-05-14T15:23:41.070Z",
+    "deletedAt": null
+  }
+}
+```
+
+## Eliminar
+
+**1. Ruta**: POST http://localhost:5000/api/workspaces/{id}
+**2. Body**: No hace falta, no se envían datos.
+**3. Response**:
+
+```
+{
+  "message": "Espacio de trabajo eliminado exitosamente"
+}
+```
+
+## Obtener todos los espacios de trabajo
+
+**1. Ruta**: GET http://localhost:5000/api/workspaces
+**2. Body**: No hace falta, no se envían datos.
+**3. Response**:
+
+```
+{
+  "workspaces": [
+    {
+      "id": 1,
+      "name": "Sala de Reuniones Principal (Actualizada)",
+      "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+      "capacity": 12,
+      "company_id": 1,
+      "qr": null,
+      "is_available": true,
+      "equipment": {
+        "wifi": true,
+        "pizarra": true,
+        "cafetera": true,
+        "enchufes": 10,
+        "proyector": true,
+        "videoconferencia": true
+      },
+      "created_at": "2025-05-14T15:17:52.565Z",
+      "updated_at": "2025-05-14T15:23:41.070Z",
+      "deleted_at": null,
+      "createdAt": "2025-05-14T15:17:52.565Z",
+      "updatedAt": "2025-05-14T15:23:41.070Z",
+      "deletedAt": null
+    }
+  ]
+}
+```
+
+## Obtener un espacio de trabajo específico
+
+**1. Ruta**: GET http://localhost:5000/api/workspaces/{id}
+**2. Body**: No hace falta, no se envían datos.
+**3. Response**:
+
+```
+{
+  "workspace": {
+    "id": 1,
+    "name": "Sala de Reuniones Principal (Actualizada)",
+    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
+    "capacity": 12,
+    "company_id": 1,
+    "qr": null,
+    "is_available": true,
+    "equipment": {
+      "wifi": true,
+      "pizarra": true,
+      "cafetera": true,
+      "enchufes": 10,
+      "proyector": true,
+      "videoconferencia": true
+    },
+    "created_at": "2025-05-14T15:17:52.565Z",
+    "updated_at": "2025-05-14T15:23:41.070Z",
+    "deleted_at": null,
+    "createdAt": "2025-05-14T15:17:52.565Z",
+    "updatedAt": "2025-05-14T15:23:41.070Z",
+    "deletedAt": null
+  }
+}
+```
+
+
+# Logout
+
+### Comprobación con Postman o ThunderClient
+
+**1. Ruta**: POST http://localhost:5000/api/users/logout
+**2. Headers**: 
+```
+Key: Authoritation
+Value: Bearer [token-del-usuario]
+```
+
+**3. Response**:
+Logout correcto:
+```
+{
+    "success": true,
+    "message": "Sesión cerrada correctamente"
+}
+```
+Logout con un token que ya está ha sido usado:
+```
+{
+    "message": "Sesión cerrada. Debe iniciar sesión nuevamente"
+}
+```
+Si no se indica el token:
+```
+{
+    "message": "Acceso denegado. Se requiere token de autenticación"
+}
+```
