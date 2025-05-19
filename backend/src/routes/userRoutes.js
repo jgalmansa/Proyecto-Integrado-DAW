@@ -1,6 +1,7 @@
 import express from 'express';
-import { registerUser, checkInvitationCode, login } from '../controllers/userController.js';
+import { registerUser, checkInvitationCode, login, logout } from '../controllers/userController.js';
 import { validateUserRegistration, validateLogin } from '../middlewares/userValidationMiddleware.js';
+import  { authenticateToken } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -12,5 +13,9 @@ router.post('/register', validateUserRegistration, registerUser);
 
 // Iniciar sesión
 router.post('/login', validateLogin, login);
+
+// Ruta para logout
+router.post('/logout', authenticateToken, logout);
+
 
 export default router;

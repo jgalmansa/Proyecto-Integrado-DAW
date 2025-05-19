@@ -1,5 +1,12 @@
 import { User } from '../../models/index.js';
 import { verifyToken } from '../services/authService.js';
+import { isTokenBlacklisted } from '../services/redisService.js';
+
+
+/**
+ * Middleware de autenticación para usuarios que intentan acceder a rutas protegidas.
+ * Verificamos si el usuario está autenticado y no ha cerrado sesión
+ */
 
 export const authenticateToken = async (req, res, next) => {
   try {
@@ -10,7 +17,13 @@ export const authenticateToken = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({ message: 'Acceso denegado. Se requiere token de autenticación' });
     }
-    
+
+    // Verificar si el token está en la lista negra, es decir si ha sio invalidado por ejemplo por un logout
+    const isBlacklisted = await isTokenBlacklisted(token);
+    if (isBlacklisted) {
+      return res.status(401).json({ message: 'Sesión cerrada. Debe iniciar sesión nuevamente' });
+    }
+
     // Verificar token usando la función existente en authService
     const decoded = verifyToken(token);
     
@@ -28,8 +41,9 @@ export const authenticateToken = async (req, res, next) => {
       return res.status(403).json({ message: 'Usuario no encontrado o inactivo' });
     }
     
-    // Agregar usuario a la solicitud
+    // Agregar usuario + token a la solicitud para que estén disponibles en los controladores
     req.user = user;
+    req.token = token;
     next();
   } catch (error) {
     console.error('Error en autenticación:', error);
@@ -37,7 +51,9 @@ export const authenticateToken = async (req, res, next) => {
   }
 };
 
-// Middleware para verificar roles (admin o user)
+/* Middleware para verificar roles (admin o user) para acceder a una ruta
+ * @param   string    roles  --> Lista de roles permitidos para esta ruta
+ */
 export const authorizeRole = (roles = []) => {
   return (req, res, next) => {
     if (!req.user) {

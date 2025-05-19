@@ -17,7 +17,7 @@ import { scheduleReservationReminders } from './src/utils/scheduler.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 // Middlewares
 app.use(cors());
