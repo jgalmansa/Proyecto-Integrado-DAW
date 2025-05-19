@@ -1,6 +1,8 @@
 // backend/src/controllers/reservationController.js
 import { Reservation, Workspace, User, Notification } from '../../models/index.js';
 import { Op } from 'sequelize';
+import { createPersonalNotification, createGlobalNotification } from '../services/notificationService.js';
+
 
 /**
  * Crea una nueva reserva de espacio
@@ -80,14 +82,27 @@ export const createReservation = async (req, res) => {
       status: 'confirmed'  // Confirmada por defecto
     });
     
-    // Crear notificación para el usuario
-    await Notification.create({
-      user_id: userId,
-      type: 'personal',
-      message: `Has reservado ${workspace.name} para el ${start.toLocaleDateString()} de ${start.toLocaleTimeString()} a ${end.toLocaleTimeString()}.`,
-      is_read: false,
-      reservation_id: newReservation.id
-    });
+    // Crear notificación para el usuario usando el servicio de notificaciones
+    await createPersonalNotification(
+      userId,
+      `Has reservado ${workspace.name} para el ${start.toLocaleDateString()} de ${start.toLocaleTimeString()} a ${end.toLocaleTimeString()}.`,
+      newReservation.id
+    );
+
+    // Notificar a los administradores si es necesario
+    if (process.env.NOTIFY_ADMINS_ON_RESERVATION === 'true') {
+      const admins = await User.findAll({
+        where: { company_id: companyId, role: 'admin', is_active: true }
+      });
+      
+      for (const admin of admins) {
+        await createPersonalNotification(
+          admin.id,
+          `Nueva reserva creada por ${req.user.first_name} ${req.user.last_name} para ${workspace.name}.`,
+          newReservation.id
+        );
+      }
+    }
     
     // Responder con la reserva creada
     return res.status(201).json({
@@ -350,14 +365,12 @@ export const updateReservation = async (req, res) => {
     // Actualizar la reserva
     await reservation.update(updateData);
 
-    // Crear notificación para el usuario
-    await Notification.create({
-      user_id: reservation.user_id, // Usar user_id de la reserva
-      type: 'personal',
-      message: `Tu reserva para ${reservation.Workspace.name} ha sido modificada.`,
-      is_read: false,
-      reservation_id: reservation.id
-    });
+    // Crear notificación para el usuario usando el servicio de notificaciones
+    await createPersonalNotification(
+      reservation.user_id,
+      `Tu reserva para ${reservation.Workspace.name} ha sido modificada.`,
+      reservation.id
+    );
 
     // Responder con la reserva actualizada
     const updatedReservation = await Reservation.findByPk(id, {
@@ -435,14 +448,12 @@ export const cancelReservation = async (req, res) => {
     // Cancelar la reserva
     await reservation.update({ status: 'cancelled' });
 
-    // Crear notificación para el usuario
-    await Notification.create({
-      user_id: reservation.user_id, // Notificar al dueño de la reserva 
-      type: 'personal',
-      message: `Tu reserva para ${reservation.Workspace.name} ha sido cancelada.`,
-      is_read: false,
-      reservation_id: reservation.id
-    });
+    // Crear notificación para el usuario usando el servicio de notificaciones
+    await createPersonalNotification(
+      reservation.user_id,
+      `Tu reserva para ${reservation.Workspace.name} ha sido cancelada.`,
+      reservation.id
+    );
 
     return res.status(200).json({
       message: 'Reserva cancelada correctamente',

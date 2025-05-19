@@ -10,6 +10,8 @@ import companyRoutes from './src/routes/companyRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import workspaceRoutes from './src/routes/workspaceRoutes.js';
 import reservationRoutes from './src/routes/reservationRoutes.js';
+import notificationRoutes from './src/routes/notificationRoutes.js';
+import { scheduleReservationReminders } from './src/utils/scheduler.js';
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -27,6 +29,7 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/reservations', reservationRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Ruta de prueba
 app.get('/', (req, res) =>
@@ -78,6 +81,9 @@ const startServer = async () => {
 };
 
 startServer();
+
+scheduleReservationReminders();
+console.log('Tareas programadas iniciadas');
 
 // Manejo de errores no manejados
 process.on('unhandledRejection', (error) => {
