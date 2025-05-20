@@ -42,11 +42,7 @@ router.put('/:id', validateUpdateReservation, updateReservation);
 // Cancelar una reserva
 router.delete('/:id', validateCancelReservation, cancelReservation);
 
-// Obtener todas las reservas de un espacio (requiere permisos de administrador)
-router.get('/workspace/:workspaceId', 
-  validateGetWorkspaceReservations, 
-  authorizeRole(['admin']), 
-  getWorkspaceReservations
-);
+// Obtener todas las reservas de un espacio 
+router.get('/workspace/:workspaceId', validateGetWorkspaceReservations, getWorkspaceReservations);
 
 export default router;
