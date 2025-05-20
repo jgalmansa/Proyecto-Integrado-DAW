@@ -45,17 +45,17 @@ services:
     networks:
       - coworkly-network
 
-  # frontend:
-  #   build: ./frontend
-  #   restart: always
-  #   depends_on:
-  #     - backend
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./frontend:/usr/src/app
-  #   networks:
-  #     - coworkly-network
+  frontend:
+    build: ./frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/usr/src/app
+    networks:
+      - coworkly-network
 
 volumes:
   postgres-data:
