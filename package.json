@@ -1,6 +1,9 @@
 {
   "dependencies": {
-    "node-schedule": "^2.1.1"
+    "@tailwindcss/cli": "^4.1.7",
+    "node-schedule": "^2.1.1",
+    "serve": "^14.2.4",
+    "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
     "sequelize-cli": "^6.6.3"

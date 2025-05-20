@@ -1,5 +1,5 @@
 PETICIÓN:
-Acabamos de añadir las funcionalidades de crear, editar y eliminar espacios de trabajo. Pero al probar con thunderClient el crear una espacio de trabajo, da error 500. Ayudame a resolver el problema.
+He empezado el front. Intento iniciar docker para verlo en el navegador pero me da un error.
 
 Te vuelvo a mostrar el enunciado del proyecto:
 Desarrollaremos una aplicación web para la gestión integral de reservas de espacios de trabajo colaborativo, que incluirá salas de reuniones, áreas de coworking y otros recursos. La plataforma permitirá a los usuarios:
@@ -7,16 +7,13 @@ Desarrollaremos una aplicación web para la gestión integral de reservas de esp
 * Realizar reservas: Efectuar, modificar o cancelar reservas de manera sencilla.
 * Sincronización con calendarios externos: Integrar servicios como Google Calendar para evitar solapamientos y gestionar eventos.
 * Recibir notificaciones: Obtener alertas y recordatorios sobre sus reservas mediante correos electrónicos o notificaciones push.
-* Acceso mediante código QR: Cada sala contará con un código QR único que, al ser escaneado, redirigirá al usuario a una página específica en la aplicación, mostrando información actualizada sobre el estado, las reservas vigentes y otros detalles relevantes.
 Esta solución se orienta a optimizar el uso de espacios colaborativos, garantizando una experiencia intuitiva, segura y responsive, y abriendo la puerta a futuras integraciones y mejoras en la gestión de recursos.
 Los usuarios podrán ser administradores (usuarios con privilegios) o usuarios (sin privilegios). Los administradores, serán los usuarios que gestionan los espacios, añadiendo, editando o eliminándolos. También gestionarán a los demás usuarios, creándolos, editándolos, eliminándolos y dándole los permisos. Los usuarios, simplemente tendrán su perfil y podrán reservar un espacio, editar una reserva o eliminarla.
-Cada usuario tiene su cuenta. En ella podrá ver un dashboard con un calendario, los espacios de trabajo, las reservas actuales, un enlace para escanear el qr, y sus notificaciones.
+Cada usuario tiene su cuenta. En ella podrá ver un dashboard con un calendario, los espacios de trabajo, las reservas actuales y sus notificaciones.
 · Calendario: Se podrá hacer una reserva rápida. Seleccionando el día y la hora, aparecerán los espacios disponibles ese día en esa hora.
 · Espacios de trabajo: Se podrá seleccionar el espacio de trabajo y acceder a su información. Desde ahí, se podrá realizar la reserva.
 · Mis reservas: Aparecen tus reservas con espacio, fecha y tiempo estimado de la reserva. Podrás ver mas detalles. Posibilidad de ver historial.
-· Escanear QR: Contiene un botón que te llevará a tu cámara para escanear el qr. 
 · Notificaciones: Panel con las notificaciones, informativas. Posibilidad de ver todas.
-QR: Cada espacio tendría su propio qr. El trabajador solo tendría que escanearlo, y accedería al espacio de trabajo que ha escaneado para poder hacer la reserva.
 Notificaciones (personales): Recordatorios de la reserva.
 Notificaciones globales (informativas): Espacio inutilizable (por ejemplo).
 REGISTROS:
@@ -32,62 +29,90 @@ CODIGO DE INVITACION:
 LOGIN:
 Correo y contraseña
 TECNOLOGIAS:
-Frontend: React y Tailwind.
+Frontend: HTML5 y Tailwind.
 Backend: Node.js con Express.
 Base de datos: PostgreSQL y Sequelize.
 Despliegue: Docker.
 
 La estructura actual del proyecto es:
-PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW\backend> Show-Tree 
-└─ config
-  └─ config.js
-  └─ db.js
-└─ migrations
-  └─ 20250402185916-create-companies.cjs
-  └─ 20250402185950-create-users.cjs
-  └─ 20250402190011-create-domains.cjs
-  └─ 20250402190029-create-workspaces.cjs
-  └─ 20250402190046-create-reservations.cjs
-  └─ 20250402190108-create-notifications.cjs
-└─ models
-  └─ company.js
-  └─ domain.js
-  └─ index.js
-  └─ notification.js
-  └─ reservation.js
-  └─ user.js
-  └─ workspace.js
-└─ node_modules
-└─ seeders
-└─ src
+PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW> Show-Tree
+└─ backend
   └─ config
-    └─ vacio.txt
-  └─ controllers
-    └─ companyController.js
-    └─ userController.js
-    └─ vacio.txt
-    └─ workspaceController.js
-  └─ middlewares
-    └─ authMiddleware.js
-    └─ companyValidationMiddleware.js
-    └─ userValidationMiddleware.js
-    └─ workspaceValidationMiddleware.js
+    └─ config.js
+    └─ db.js
+  └─ migrations
+    └─ 20250402185916-create-companies.cjs
+    └─ 20250402185950-create-users.cjs
+    └─ 20250402190011-create-domains.cjs
+    └─ 20250402190029-create-workspaces.cjs
+    └─ 20250402190046-create-reservations.cjs
+    └─ 20250402190108-create-notifications.cjs
   └─ models
-    └─ vacio.txt
-  └─ routes
-    └─ companyRoutes.js
-    └─ userRoutes.js
-    └─ workspaceRoutes.js
-  └─ services
-    └─ authService.js
-    └─ vacio.txt
-  └─ utils
-    └─ invitationCodeGenerator.js
-└─ .env
-└─ Dockerfile
-└─ index.js
+    └─ company.js
+    └─ domain.js
+    └─ index.js
+    └─ notification.js
+    └─ reservation.js
+    └─ user.js
+    └─ workspace.js
+  └─ node_modules
+  └─ seeders
+    └─ 20250515000001-seed-companies.cjs
+    └─ 20250515000002-seed-domains.cjs
+    └─ 20250515000003-seed-users.cjs
+    └─ 20250515000004-seed-workspaces.cjs
+  └─ src
+    └─ config
+      └─ vacio.txt
+    └─ controllers
+      └─ companyController.js
+      └─ notificationController.js
+      └─ reservationController.js
+      └─ userController.js
+      └─ workspaceController.js
+    └─ middlewares
+      └─ authMiddleware.js
+      └─ companyValidationMiddleware.js
+      └─ reservationValidationMiddleware.js
+      └─ userValidationMiddleware.js
+      └─ workspaceValidationMiddleware.js
+    └─ models
+      └─ vacio.txt
+    └─ routes
+      └─ companyRoutes.js
+      └─ notificationRoutes.js
+      └─ reservationRoutes.js
+      └─ userRoutes.js
+      └─ workspaceRoutes.js
+    └─ services
+      └─ authService.js
+      └─ notificationService.js
+      └─ redisService.js
+      └─ vacio.txt
+    └─ utils
+      └─ invitationCodeGenerator.js
+      └─ scheduler.js
+  └─ .env
+  └─ Dockerfile
+  └─ index.js
+  └─ package.json
+  └─ PROMPT.txt
+└─ frontend
+  └─ assets
+    └─ css
+    └─ js
+  └─ node_modules
+  └─ public
+    └─ index.html
+  └─ src
+    └─ input.css
+    └─ output.css
+  └─ Dockerfile
+  └─ package.json
+└─ .gitignore
+└─ docker-compose.yml
 └─ package.json
-└─ PROMPT.txt
+└─ README.md
 
 La base de datos: 
 -- Optional: Create the database
@@ -183,339 +208,41 @@ Responde en español.
 Estamos usando type module.
 Si necesitas ver algun archivo para continuar dimelo.
 
-Te muestro workspaceController.js:
-// backend/src/controllers/workspaceController.js
-import { Workspace } from '../../models/index.js';
+Me da este error en el logs del docker del frontend:
+npm error Missing script: "start"
+npm error
+npm error Did you mean one of these?
+npm error   npm star # Mark your favorite packages
+npm error   npm stars # View packages marked as favorites
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run can be found in: /root/.npm/_logs/2025-05-20T15_01_07_360Z-debug-0.log
 
-/**
- * Obtiene todos los espacios de trabajo de una empresa
- */
-export const getWorkspaces = async (req, res) => {
-  try {
-    const { companyId } = req.user;
-    
-    const workspaces = await Workspace.findAll({
-      where: { 
-        company_id: companyId,
-        deleted_at: null
-      }
-    });
-    
-    return res.status(200).json({ workspaces });
-  } catch (error) {
-    console.error('Error al obtener espacios de trabajo:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-/**
- * Obtiene un espacio de trabajo específico
- */
-export const getWorkspaceById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { companyId } = req.user;
-    
-    const workspace = await Workspace.findOne({
-      where: { 
-        id,
-        company_id: companyId,
-        deleted_at: null
-      }
-    });
-    
-    if (!workspace) {
-      return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
-    }
-    
-    return res.status(200).json({ workspace });
-  } catch (error) {
-    console.error('Error al obtener espacio de trabajo:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-/**
- * Crea un nuevo espacio de trabajo
- */
-export const createWorkspace = async (req, res) => {
-  try {
-    const { name, description, capacity, equipment, isAvailable } = req.body;
-    const { companyId } = req.user;
-
-    console.log('Datos recibidos:', { name, description, capacity, equipment, isAvailable });
-    
-    // En lugar de generar un QR, simplemente dejamos el campo en null por ahora
-    // Esto se puede implementar más adelante
-    
-    const workspace = await Workspace.create({
-      name,
-      description,
-      capacity,
-      company_id: companyId,
-      qr: null, // Sin QR por ahora
-      is_available: isAvailable !== undefined ? isAvailable : true,
-      equipment: equipment || {}
-    });
-    
-    return res.status(201).json({
-      message: 'Espacio de trabajo creado exitosamente',
-      workspace
-    });
-  } catch (error) {
-    console.error('Error al crear espacio de trabajo:', error);
-    console.error('Detalle del error:', error.message);
-    if (error.name === 'SequelizeValidationError') {
-      return res.status(400).json({ 
-        message: 'Error de validación',
-        errors: error.errors.map(err => err.message)
-      });
-    }
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-/**
- * Actualiza un espacio de trabajo existente
- */
-export const updateWorkspace = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, description, capacity, equipment, isAvailable } = req.body;
-    const { companyId } = req.user;
-    
-    const workspace = await Workspace.findOne({
-      where: { 
-        id,
-        company_id: companyId,
-        deleted_at: null
-      }
-    });
-    
-    if (!workspace) {
-      return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
-    }
-    
-    const updatedWorkspace = await workspace.update({
-      name: name !== undefined ? name : workspace.name,
-      description: description !== undefined ? description : workspace.description,
-      capacity: capacity !== undefined ? capacity : workspace.capacity,
-      is_available: isAvailable !== undefined ? isAvailable : workspace.is_available,
-      equipment: equipment !== undefined ? equipment : workspace.equipment
-    });
-    
-    return res.status(200).json({
-      message: 'Espacio de trabajo actualizado exitosamente',
-      workspace: updatedWorkspace
-    });
-  } catch (error) {
-    console.error('Error al actualizar espacio de trabajo:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-/**
- * Elimina un espacio de trabajo (baja lógica)
- */
-export const deleteWorkspace = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { companyId } = req.user;
-    
-    const workspace = await Workspace.findOne({
-      where: { 
-        id,
-        company_id: companyId,
-        deleted_at: null
-      }
-    });
-    
-    if (!workspace) {
-      return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
-    }
-    
-    // Realizar baja lógica
-    await workspace.update({ deleted_at: new Date() });
-    
-    return res.status(200).json({
-      message: 'Espacio de trabajo eliminado exitosamente'
-    });
-  } catch (error) {
-    console.error('Error al eliminar espacio de trabajo:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
-  }
-};
-
-workspaceValidationMiddleware.js:
-// backend/src/middlewares/workspaceValidationMiddleware.js
-/**
- * Valida datos para la creación de un espacio de trabajo
- */
-export const validateWorkspaceCreation = (req, res, next) => {
-  const { name, capacity } = req.body;
-  const errors = [];
-  
-  // Validar nombre
-  if (!name || name.trim() === '') {
-    errors.push('El nombre del espacio es obligatorio');
-  }
-  
-  // Validar capacidad
-  if (!capacity || isNaN(capacity) || capacity <= 0) {
-    errors.push('La capacidad debe ser un número positivo');
-  }
-  
-  // Si hay errores, devolverlos
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-  
-  next();
-};
-
-/**
- * Valida datos para la actualización de un espacio de trabajo
- */
-export const validateWorkspaceUpdate = (req, res, next) => {
-  const { name, capacity } = req.body;
-  const errors = [];
-  
-  // Validar nombre si está presente
-  if (name !== undefined && name.trim() === '') {
-    errors.push('El nombre del espacio no puede estar vacío');
-  }
-  
-  // Validar capacidad si está presente
-  if (capacity !== undefined && (isNaN(capacity) || capacity <= 0)) {
-    errors.push('La capacidad debe ser un número positivo');
-  }
-  
-  // Si hay errores, devolverlos
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-  
-  next();
-};
-
-workspaceRoutes.js:
-// src/routes/workspaceRoutes.js
-import express from 'express';
-import {
-  getWorkspaces,
-  getWorkspaceById,
-  createWorkspace,
-  updateWorkspace,
-  deleteWorkspace
-} from '../controllers/workspaceController.js';
-import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
-import { 
-  validateWorkspaceCreation,
-  validateWorkspaceUpdate 
-} from '../middlewares/workspaceValidationMiddleware.js';
-
-const router = express.Router();
-
-// Todas las rutas requieren autenticación
-router.use(authenticateToken);
-
-// Rutas públicas para usuarios autenticados
-router.get('/', getWorkspaces);
-router.get('/:id', getWorkspaceById);
-
-// Rutas solo para administradores
-router.post('/', [authorizeRole(['admin']), validateWorkspaceCreation], createWorkspace);
-router.put('/:id', [authorizeRole(['admin']), validateWorkspaceUpdate], updateWorkspace);
-router.delete('/:id', authorizeRole(['admin']), deleteWorkspace);
-
-export default router;
-
-modelo workspace.js:
-import { Model, DataTypes } from 'sequelize';
-import sequelize from '../config/db.js';
-
-class Workspace extends Model {}
-
-Workspace.init({
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  },
-  name: {
-    type: DataTypes.STRING(255),
-    allowNull: false
-  },
-  description: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  capacity: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  company_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'companies',
-      key: 'id'
-    },
-    onDelete: 'CASCADE'
-  },
-  qr: {
-    type: DataTypes.STRING(255),
-    unique: true,
-    allowNull: true
-  },
-  is_available: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  },
-  equipment: {
-    type: DataTypes.JSONB,
-    allowNull: true
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
-  },
-  deleted_at: {
-    type: DataTypes.DATE,
-    allowNull: true
-  }
-}, {
-  sequelize,
-  modelName: 'Workspace',
-  tableName: 'workspaces',
-  timestamps: true,
-  paranoid: true,
-  underscored: true
-});
-
-export default Workspace;
-
-body:
+Te muestro el package.json del front:
 {
-  "name": "Sala de Reuniones Principal",
-  "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
-  "capacity": 10,
-  "isAvailable": true,
-  "equipment": {
-    "proyector": true,
-    "pizarra": true,
-    "videoconferencia": true,
-    "wifi": true,
-    "enchufes": 8
+  "scripts": {
+    "watch": "npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.6",
+    "@tailwindcss/postcss": "^4.1.6",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.6"
   }
 }
-response: response: {
-  "message": "Error de validación",
-  "errors": [
-    "Workspace.company_id cannot be null"
-  ]
-}
+
+Dockerfile (frontend):
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
