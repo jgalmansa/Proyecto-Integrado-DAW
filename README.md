@@ -227,192 +227,38 @@ Para acceder al servidor:
 }
 ```
 
-# Espacios de trabajo
+# Logout
 
-## Crear
+### Comprobación con Postman o ThunderClient
 
-**1. Ruta**: POST http://localhost:5000/api/workspaces
-**2. Body**: En formato JSON
-
+**1. Ruta**: POST http://localhost:5000/api/users/logout
+**2. Headers**: 
 ```
-{
-  "name": "Sala de Reuniones Principal",
-  "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
-  "capacity": 10,
-  "isAvailable": true,
-  "equipment": {
-    "proyector": true,
-    "pizarra": true,
-    "videoconferencia": true,
-    "wifi": true,
-    "enchufes": 8
-  }
-}
+Key: Authoritation
+Value: Bearer [token-del-usuario]
 ```
 
 **3. Response**:
-
+Logout correcto:
 ```
 {
-  "message": "Espacio de trabajo creado exitosamente",
-  "workspace": {
-    "created_at": "2025-05-14T15:17:52.565Z",
-    "updated_at": "2025-05-14T15:17:52.565Z",
-    "id": 1,
-    "name": "Sala de Reuniones Principal",
-    "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
-    "capacity": 10,
-    "company_id": 1,
-    "qr": null,
-    "is_available": true,
-    "equipment": {
-      "wifi": true,
-      "pizarra": true,
-      "enchufes": 8,
-      "proyector": true,
-      "videoconferencia": true
-    },
-    "updatedAt": "2025-05-14T15:17:52.565Z",
-    "createdAt": "2025-05-14T15:17:52.565Z",
-    "deleted_at": null
-  }
+    "success": true,
+    "message": "Sesión cerrada correctamente"
+}
+```
+Logout con un token que ya está ha sido usado:
+```
+{
+    "message": "Sesión cerrada. Debe iniciar sesión nuevamente"
+}
+```
+Si no se indica el token:
+```
+{
+    "message": "Acceso denegado. Se requiere token de autenticación"
 }
 ```
 
-## Actualizar
-
-**1. Ruta**: PUT http://localhost:5000/api/workspaces/{id}
-**2. Body**: En formato JSON
-
-```
-{
-  "name": "Sala de Reuniones Principal (Actualizada)",
-  "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-  "capacity": 12,
-  "isAvailable": true,
-  "equipment": {
-    "proyector": true,
-    "pizarra": true,
-    "videoconferencia": true,
-    "wifi": true,
-    "enchufes": 10,
-    "cafetera": true
-  }
-}
-```
-
-**3. Response**:
-
-```
-{
-  "message": "Espacio de trabajo actualizado exitosamente",
-  "workspace": {
-    "id": 1,
-    "name": "Sala de Reuniones Principal (Actualizada)",
-    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-    "capacity": 12,
-    "company_id": 1,
-    "qr": null,
-    "is_available": true,
-    "equipment": {
-      "proyector": true,
-      "pizarra": true,
-      "videoconferencia": true,
-      "wifi": true,
-      "enchufes": 10,
-      "cafetera": true
-    },
-    "created_at": "2025-05-14T15:17:52.565Z",
-    "updated_at": "2025-05-14T15:17:52.565Z",
-    "deleted_at": null,
-    "createdAt": "2025-05-14T15:17:52.565Z",
-    "updatedAt": "2025-05-14T15:23:41.070Z",
-    "deletedAt": null
-  }
-}
-```
-
-## Eliminar
-
-**1. Ruta**: POST http://localhost:5000/api/workspaces/{id}
-**2. Body**: No hace falta, no se envían datos.
-**3. Response**:
-
-```
-{
-  "message": "Espacio de trabajo eliminado exitosamente"
-}
-```
-
-## Obtener todos los espacios de trabajo
-
-**1. Ruta**: GET http://localhost:5000/api/workspaces
-**2. Body**: No hace falta, no se envían datos.
-**3. Response**:
-
-```
-{
-  "workspaces": [
-    {
-      "id": 1,
-      "name": "Sala de Reuniones Principal (Actualizada)",
-      "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-      "capacity": 12,
-      "company_id": 1,
-      "qr": null,
-      "is_available": true,
-      "equipment": {
-        "wifi": true,
-        "pizarra": true,
-        "cafetera": true,
-        "enchufes": 10,
-        "proyector": true,
-        "videoconferencia": true
-      },
-      "created_at": "2025-05-14T15:17:52.565Z",
-      "updated_at": "2025-05-14T15:23:41.070Z",
-      "deleted_at": null,
-      "createdAt": "2025-05-14T15:17:52.565Z",
-      "updatedAt": "2025-05-14T15:23:41.070Z",
-      "deletedAt": null
-    }
-  ]
-}
-```
-
-## Obtener un espacio de trabajo específico
-
-**1. Ruta**: GET http://localhost:5000/api/workspaces/{id}
-**2. Body**: No hace falta, no se envían datos.
-**3. Response**:
-
-```
-{
-  "workspace": {
-    "id": 1,
-    "name": "Sala de Reuniones Principal (Actualizada)",
-    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-    "capacity": 12,
-    "company_id": 1,
-    "qr": null,
-    "is_available": true,
-    "equipment": {
-      "wifi": true,
-      "pizarra": true,
-      "cafetera": true,
-      "enchufes": 10,
-      "proyector": true,
-      "videoconferencia": true
-    },
-    "created_at": "2025-05-14T15:17:52.565Z",
-    "updated_at": "2025-05-14T15:23:41.070Z",
-    "deleted_at": null,
-    "createdAt": "2025-05-14T15:17:52.565Z",
-    "updatedAt": "2025-05-14T15:23:41.070Z",
-    "deletedAt": null
-  }
-}
-```
 
 # Espacios de trabajo
 
@@ -521,7 +367,7 @@ Para acceder al servidor:
 
 ## Eliminar
 
-**1. Ruta**: POST http://localhost:5000/api/workspaces/{id}
+**1. Ruta**: DELETE http://localhost:5000/api/workspaces/{id}
 **2. Body**: No hace falta, no se envían datos.
 **3. Response**:
 
@@ -622,27 +468,16 @@ Para acceder al servidor:
 
 ```
 {
-  "message": "Espacio de trabajo creado exitosamente",
-  "workspace": {
-    "created_at": "2025-05-14T15:17:52.565Z",
-    "updated_at": "2025-05-14T15:17:52.565Z",
-    "id": 1,
-    "name": "Sala de Reuniones Principal",
-    "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
-    "capacity": 10,
-    "company_id": 1,
-    "qr": null,
-    "is_available": true,
-    "equipment": {
-      "wifi": true,
-      "pizarra": true,
-      "enchufes": 8,
-      "proyector": true,
-      "videoconferencia": true
-    },
-    "updatedAt": "2025-05-14T15:17:52.565Z",
-    "createdAt": "2025-05-14T15:17:52.565Z",
-    "deleted_at": null
+  "message": "Reserva creada exitosamente",
+  "reservation": {
+    "id": 4,
+    "workspaceId": 1,
+    "workspaceName": "Sala de Reuniones Principal",
+    "startTime": "2025-06-13T10:00:00.000Z",
+    "endTime": "2025-06-13T12:00:00.000Z",
+    "numberOfPeople": 3,
+    "guests": "john@example.com",
+    "status": "confirmed"
   }
 }
 ```
@@ -654,18 +489,11 @@ Para acceder al servidor:
 
 ```
 {
-  "name": "Sala de Reuniones Principal (Actualizada)",
-  "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-  "capacity": 12,
-  "isAvailable": true,
-  "equipment": {
-    "proyector": true,
-    "pizarra": true,
-    "videoconferencia": true,
-    "wifi": true,
-    "enchufes": 10,
-    "cafetera": true
-  }
+  "workspaceId": 1,
+  "guests": "john@example.com",
+  "numberOfPeople": 2,
+  "startTime": "2025-06-13T10:00:00.000Z",
+  "endTime": "2025-06-13T12:00:00.000Z"
 }
 ```
 
@@ -673,144 +501,191 @@ Para acceder al servidor:
 
 ```
 {
-  "message": "Espacio de trabajo actualizado exitosamente",
-  "workspace": {
-    "id": 1,
-    "name": "Sala de Reuniones Principal (Actualizada)",
-    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-    "capacity": 12,
-    "company_id": 1,
-    "qr": null,
-    "is_available": true,
-    "equipment": {
-      "proyector": true,
-      "pizarra": true,
-      "videoconferencia": true,
-      "wifi": true,
-      "enchufes": 10,
-      "cafetera": true
-    },
-    "created_at": "2025-05-14T15:17:52.565Z",
-    "updated_at": "2025-05-14T15:17:52.565Z",
-    "deleted_at": null,
-    "createdAt": "2025-05-14T15:17:52.565Z",
-    "updatedAt": "2025-05-14T15:23:41.070Z",
-    "deletedAt": null
+  "message": "Reserva actualizada correctamente",
+  "reservation": {
+    "id": 4,
+    "workspaceId": 1,
+    "workspaceName": "Sala de Reuniones Principal",
+    "startTime": "2025-06-13T10:00:00.000Z",
+    "endTime": "2025-06-13T12:00:00.000Z",
+    "numberOfPeople": 2,
+    "guests": "john@example.com",
+    "status": "confirmed"
   }
 }
 ```
 
 ## Eliminar
 
-**1. Ruta**: POST http://localhost:5000/api/reservations/{id}
+**1. Ruta**: DELETE http://localhost:5000/api/reservations/{id}
 **2. Body**: No hace falta, no se envían datos.
 **3. Response**:
 
 ```
 {
-  "message": "Espacio de trabajo eliminado exitosamente"
+  "message": "Reserva cancelada correctamente",
+  "reservationId": 4
 }
 ```
 
-## Obtener todos los espacios de trabajo
+## Obtener la información de una reserva
 
-**1. Ruta**: GET http://localhost:5000/api/reservations
+**1. Ruta**: GET http://localhost:5000/api/reservations/{idReserva}
 **2. Body**: No hace falta, no se envían datos.
 **3. Response**:
 
 ```
 {
-  "workspaces": [
-    {
+  "message": "Reserva obtenida correctamente",
+  "reservation": {
+    "id": 4,
+    "workspaceId": 1,
+    "workspace": {
       "id": 1,
-      "name": "Sala de Reuniones Principal (Actualizada)",
-      "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-      "capacity": 12,
-      "company_id": 1,
-      "qr": null,
-      "is_available": true,
+      "name": "Sala de Reuniones Principal",
+      "description": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+      "capacity": 10,
       "equipment": {
         "wifi": true,
         "pizarra": true,
-        "cafetera": true,
-        "enchufes": 10,
+        "enchufes": 8,
         "proyector": true,
         "videoconferencia": true
-      },
-      "created_at": "2025-05-14T15:17:52.565Z",
-      "updated_at": "2025-05-14T15:23:41.070Z",
-      "deleted_at": null,
-      "createdAt": "2025-05-14T15:17:52.565Z",
-      "updatedAt": "2025-05-14T15:23:41.070Z",
-      "deletedAt": null
+      }
+    },
+    "user": {
+      "id": 2,
+      "firstName": "User",
+      "lastName": "Prueba",
+      "email": "user@miempresa.com"
+    },
+    "startTime": "2025-06-13T10:00:00.000Z",
+    "endTime": "2025-06-13T12:00:00.000Z",
+    "numberOfPeople": 2,
+    "guests": "john@example.com",
+    "status": "cancelled",
+    "createdAt": "2025-05-19T18:25:48.140Z",
+    "updatedAt": "2025-05-19T18:28:55.196Z"
+  }
+}
+```
+
+## Obtener todas las reservas de un usuario
+
+**1. Ruta**: GET http://localhost:5000/api/reservations/user (Hay que estar logeado dentro de ese usuario)
+**2. Body**: No hace falta, no se envían datos.
+**3. Response**:
+
+```
+{
+  "message": "Reservas obtenidas correctamente",
+  "reservations": [
+    {
+      "id": 5,
+      "workspaceId": 4,
+      "workspaceName": "Sala de Conferencias 3",
+      "workspaceDescription": "Espacio amplio para presentaciones y eventos",
+      "startTime": "2025-05-20T10:00:00.000Z",
+      "endTime": "2025-05-20T12:00:00.000Z",
+      "numberOfPeople": 2,
+      "guests": "raul@example.com, alicia@example.com",
+      "status": "confirmed",
+      "createdAt": "2025-05-20T07:04:28.961Z"
+    },
+    {
+      "id": 3,
+      "workspaceId": 1,
+      "workspaceName": "Sala de Reuniones Principal",
+      "workspaceDescription": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+      "startTime": "2025-05-25T12:00:00.000Z",
+      "endTime": "2025-05-25T13:00:00.000Z",
+      "numberOfPeople": 3,
+      "guests": "gema@example.com victor@example.com julia@xample.com",
+      "status": "cancelled",
+      "createdAt": "2025-05-16T20:57:05.598Z"
+    },
+    {
+      "id": 4,
+      "workspaceId": 1,
+      "workspaceName": "Sala de Reuniones Principal",
+      "workspaceDescription": "Sala de reuniones con capacidad para 10 personas, equipada con proyector y pizarra",
+      "startTime": "2025-06-13T10:00:00.000Z",
+      "endTime": "2025-06-13T12:00:00.000Z",
+      "numberOfPeople": 2,
+      "guests": "john@example.com",
+      "status": "cancelled",
+      "createdAt": "2025-05-19T18:25:48.140Z"
     }
   ]
 }
 ```
 
-## Obtener un espacio de trabajo específico
 
-**1. Ruta**: GET http://localhost:5000/api/workspaces/{id}
+
+## Verificar la disponibilidad de un espacio
+
+**1. Ruta**: GET http://localhost:5000/api/reservations/check-availability?workspaceId=4&startTime=2025-05-01T10:00:00&endTime=2025-05-20T12:00:00
 **2. Body**: No hace falta, no se envían datos.
 **3. Response**:
 
 ```
 {
-  "workspace": {
-    "id": 1,
-    "name": "Sala de Reuniones Principal (Actualizada)",
-    "description": "Sala de reuniones actualizada con capacidad para 12 personas",
-    "capacity": 12,
-    "company_id": 1,
-    "qr": null,
-    "is_available": true,
-    "equipment": {
-      "wifi": true,
-      "pizarra": true,
-      "cafetera": true,
-      "enchufes": 10,
-      "proyector": true,
-      "videoconferencia": true
-    },
-    "created_at": "2025-05-14T15:17:52.565Z",
-    "updated_at": "2025-05-14T15:23:41.070Z",
-    "deleted_at": null,
-    "createdAt": "2025-05-14T15:17:52.565Z",
-    "updatedAt": "2025-05-14T15:23:41.070Z",
-    "deletedAt": null
-  }
+  "workspaceId": 4,
+  "startTime": "2025-05-01T10:00:00",
+  "endTime": "2025-05-20T12:00:00",
+  "available": false,
+  "capacity": 30
+}
+
+{
+  "workspaceId": 6,
+  "startTime": "2025-05-01T10:00:00",
+  "endTime": "2025-05-20T12:00:00",
+  "available": true,
+  "capacity": 10
 }
 ```
 
 
-# Logout
 
-### Comprobación con Postman o ThunderClient
 
-**1. Ruta**: POST http://localhost:5000/api/users/logout
-**2. Headers**: 
-```
-Key: Authoritation
-Value: Bearer [token-del-usuario]
-```
+## Obtener todas las reservas de un workspace
 
+**1. Ruta**: GET http://localhost:5000/api/reservations/workspace/{idWorkspace}
+**2. Body**: No hace falta, no se envían datos.
 **3. Response**:
-Logout correcto:
+
 ```
 {
-    "success": true,
-    "message": "Sesión cerrada correctamente"
+  "workspaceId": 1,
+  "workspaceName": "Sala de Reuniones Principal",
+  "reservations": [
+    {
+      "id": 1,
+      "startTime": "2025-05-20T10:00:00.000Z",
+      "endTime": "2025-05-20T12:00:00.000Z",
+      "numberOfPeople": 3,
+      "guests": "john@example.com",
+      "user": {
+        "id": 1,
+        "name": "Juan Pérez",
+        "email": "admin@miempresa.com"
+      }
+    },
+    {
+      "id": 2,
+      "startTime": "2025-05-21T10:00:00.000Z",
+      "endTime": "2025-05-21T12:00:00.000Z",
+      "numberOfPeople": 10,
+      "guests": null,
+      "user": {
+        "id": 1,
+        "name": "Juan Pérez",
+        "email": "admin@miempresa.com"
+      }
+    }
+  ]
 }
 ```
-Logout con un token que ya está ha sido usado:
-```
-{
-    "message": "Sesión cerrada. Debe iniciar sesión nuevamente"
-}
-```
-Si no se indica el token:
-```
-{
-    "message": "Acceso denegado. Se requiere token de autenticación"
-}
-```
+
+
