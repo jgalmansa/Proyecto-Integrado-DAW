@@ -19,6 +19,38 @@ class User extends Model {
   async comparePassword(password) {
     return bcrypt.compare(password, this.password);
   }
+
+  /**
+   * Helper para obtener sesiones activas del usuario
+   * @returns {Promise<UserSession[]>} - Array de sesiones activas
+   */
+  async getActiveSessions() {
+    const UserSession = sequelize.models.UserSession;
+    return await UserSession.findAll({
+      where: {
+        user_id: this.id,
+        status: 'active'
+      }
+    });
+  }
+
+  /**
+   * Helper para invalidar todas las sesiones del usuario
+   * @returns {Promise<number>} - Número de sesiones invalidadas
+   */
+  async invalidateAllSessions() {
+    const UserSession = sequelize.models.UserSession;
+    const [updatedCount] = await UserSession.update(
+      { status: 'inactive' },
+      { 
+        where: { 
+          user_id: this.id,
+          status: 'active'
+        } 
+      }
+    );
+    return updatedCount;
+  }
 }
 
 User.init({
