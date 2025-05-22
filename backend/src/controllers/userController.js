@@ -2,7 +2,6 @@
 import { User, Company } from '../../models/index.js';
 import { hashPassword, verifyCredentials, verifyToken } from '../services/authService.js';
 import { Op } from 'sequelize';
-import { blacklistToken } from '../services/redisService.js';
 
 /**
  * Inicia sesión con un usuario y contraseña
@@ -173,7 +172,6 @@ export const logout = async (req, res) => {
 
     // Añadimos el token a la lista negra en redis. Si ha expirado o a punto de hacerlo se mete en la lista negra
     const blacklistDuration = tiemToExpire > 0 ? tiemToExpire : 3600;
-    await blacklistToken(token, blacklistDuration);
 
     // Registrar la hora del logout. Es opcional
     if (req.user) {

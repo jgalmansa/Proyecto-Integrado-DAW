@@ -1,0 +1,116 @@
+// backend/index.js
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import path from 'path';
+import sequelize from './backend/config/db.js';
+
+// Importación de rutas
+import companyRoutes from './backend/src/routes/companyRoutes.js';
+import userRoutes from './backend/src/routes/userRoutes.js';
+import workspaceRoutes from './backend/src/routes/workspaceRoutes.js';
+import reservationRoutes from './backend/src/routes/reservationRoutes.js';
+import notificationRoutes from './backend/src/routes/notificationRoutes.js';
+import { scheduleReservationReminders } from './backend/src/utils/scheduler.js';
+
+// Configuración de variables de entorno
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middlewares
+app.use(cors());
+app.use(express.json());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+
+// Rutas de API
+app.use('/api/companies', companyRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/reservations', reservationRoutes);
+app.use('/api/notifications', notificationRoutes);
+
+// Rutas específicas para páginas HTML
+app.get('/', (req, res) => {
+  console.log('Ruta / accedida');
+});
+
+app.get('/register', (req, res) => {
+  console.log('Ruta /register accedida');
+});
+
+app.use((req, res, next) => {
+  console.log(`[LOG] ${req.method} ${req.url}`);
+  next();
+});
+
+
+// Manejo de rutas no encontradas (debe ir al final)
+app.use((req, res) => {
+  console.log(`Ruta no encontrada: ${req.url}`);
+  res.status(404).json({
+    message: 'Ruta no encontrada'
+  });
+});
+
+// Manejo global de errores
+app.use((err, req, res, next) => {
+  console.error('❌ Error:', err);
+  
+  res.status(err.status || 500).json({
+    message: err.message || 'Error interno del servidor',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  });
+});
+
+/**
+ * Inicia el servidor Express, autenticando la conexión a la base de datos
+ * y estableciendo el puerto de escucha.
+ *
+ * @async
+ * @returns {void}
+ * @throws {Error} Si no se puede conectar con la base de datos
+ */
+const startServer = async () => {
+  try {
+    console.log('Variables de entorno:');
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '***' : 'undefined');
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_PORT:', process.env.DB_PORT);
+    await sequelize.authenticate();
+    console.log('📦 Conexión a la base de datos establecida correctamente');
+
+    app.listen(PORT, () => {
+      console.clear();
+      console.log('=== 🚀 Servidor iniciado ===');
+      console.log(`📡 Puerto: ${PORT}`);
+      console.log(`🌐 URL: http://localhost:${PORT}`);
+      console.log(`🔑 Modo: ${process.env.NODE_ENV || 'desarrollo'}`);
+      console.log('===========================\n');
+      
+      // Debug: Mostrar rutas registradas
+      console.log('📋 Rutas registradas:');
+      console.log('  GET /');
+      console.log('  GET /register');
+      console.log('  POST /api/companies/*');
+      console.log('  POST /api/users/*');
+      console.log('  Archivos estáticos: /frontend/public');
+      console.log('===========================\n');
+    });
+  } catch (error) {
+    console.error('❌ Error al conectar con la base de datos:', error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
+
+// Manejo de errores no manejados
+process.on('unhandledRejection', (error) => {
+  console.error('❌ Error no manejado:', error.message);
+  process.exit(1);
+});

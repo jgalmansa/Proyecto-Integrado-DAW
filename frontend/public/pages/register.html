@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro | Coworkly</title>
+  <link href="/css/output.css" rel="stylesheet" />
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-md rounded p-6 w-full max-w-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">Registro</h1>
+
+    <!-- Selector de tipo de registro -->
+    <div class="mb-4">
+      <label class="block font-medium mb-2">Tipo de registro:</label>
+      <select id="registerType" class="w-full border rounded px-3 py-2">
+        <option value="">Selecciona una opción</option>
+        <option value="company">Empresa</option>
+        <option value="user">Usuario</option>
+      </select>
+    </div>
+
+    <!-- Formulario de Empresa -->
+    <form id="companyForm" class="hidden space-y-4">
+      <input name="name" type="text" placeholder="Nombre de la empresa" required class="w-full border rounded px-3 py-2" />
+      <input name="email" type="email" placeholder="Correo de la empresa" required class="w-full border rounded px-3 py-2" />
+      <input name="address" type="text" placeholder="Dirección" class="w-full border rounded px-3 py-2" />
+      <input name="phone" type="text" placeholder="Teléfono" class="w-full border rounded px-3 py-2" />
+      <input name="adminEmail" type="email" placeholder="Correo del administrador" required class="w-full border rounded px-3 py-2" />
+      <input name="adminPassword" type="password" placeholder="Contraseña" required class="w-full border rounded px-3 py-2" />
+      <input name="adminPasswordConfirm" type="password" placeholder="Confirmar contraseña" required class="w-full border rounded px-3 py-2" />
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Registrar Empresa</button>
+    </form>
+
+    <!-- Formulario de Usuario -->
+    <form id="userForm" class="hidden space-y-4">
+      <input name="email" type="email" placeholder="Correo" required class="w-full border rounded px-3 py-2" />
+      <input name="code" type="text" placeholder="Código de invitación" required class="w-full border rounded px-3 py-2" />
+      <input name="password" type="password" placeholder="Contraseña" required class="w-full border rounded px-3 py-2" />
+      <input name="passwordConfirm" type="password" placeholder="Confirmar contraseña" required class="w-full border rounded px-3 py-2" />
+      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Registrar Usuario</button>
+    </form>
+
+    <div id="message" class="mt-4 text-sm text-center"></div>
+  </div>
+
+  <script>
+    const registerType = document.getElementById('registerType');
+    const companyForm = document.getElementById('companyForm');
+    const userForm = document.getElementById('userForm');
+    const message = document.getElementById('message');
+
+    registerType.addEventListener('change', () => {
+      const type = registerType.value;
+      companyForm.classList.add('hidden');
+      userForm.classList.add('hidden');
+      if (type === 'company') companyForm.classList.remove('hidden');
+      else if (type === 'user') userForm.classList.remove('hidden');
+    });
+
+    companyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(companyForm);
+      const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        address: formData.get('address'),
+        phone: formData.get('phone'),
+        admin: {
+          email: formData.get('adminEmail'),
+          password: formData.get('adminPassword'),
+          passwordConfirm: formData.get('adminPasswordConfirm')
+        }
+      };
+
+      if (data.admin.password !== data.admin.passwordConfirm) {
+        message.textContent = 'Las contraseñas no coinciden';
+        message.className = 'text-red-500 mt-4';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/companies/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          message.textContent = 'Empresa registrada con éxito';
+          message.className = 'text-green-600 mt-4';
+          companyForm.reset();
+        } else {
+          message.textContent = result.message || 'Error al registrar empresa';
+          message.className = 'text-red-500 mt-4';
+        }
+      } catch (error) {
+        message.textContent = 'Error en la conexión con el servidor';
+        message.className = 'text-red-500 mt-4';
+      }
+    });
+
+    userForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(userForm);
+      const data = {
+        email: formData.get('email'),
+        invitationCode: formData.get('code'),
+        password: formData.get('password'),
+        passwordConfirm: formData.get('passwordConfirm')
+      };
+
+      if (data.password !== data.passwordConfirm) {
+        message.textContent = 'Las contraseñas no coinciden';
+        message.className = 'text-red-500 mt-4';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/users/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (res.ok) {
+          message.textContent = 'Usuario registrado con éxito';
+          message.className = 'text-green-600 mt-4';
+          userForm.reset();
+        } else {
+          message.textContent = result.message || 'Error al registrar usuario';
+          message.className = 'text-red-500 mt-4';
+        }
+      } catch (error) {
+        message.textContent = 'Error en la conexión con el servidor';
+        message.className = 'text-red-500 mt-4';
+      }
+    });
+  </script>
+</body>
+</html>

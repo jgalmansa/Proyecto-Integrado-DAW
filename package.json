@@ -1,11 +1,61 @@
 {
+  "name": "coworkly-project",
+  "version": "1.0.0",
+  "description": "Sistema de gestión de espacios de coworking",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "npm run build:css",
+    "build:css": "npx @tailwindcss/cli -i ./frontend/src/input.css -o ./frontend/public/css/output.css",
+    "watch:css": "npx @tailwindcss/cli -i ./frontend/src/input.css -o ./frontend/public/css/output.css --watch",
+    "serve:frontend": "serve -s frontend/public -l 3000",
+    "dev:full": "concurrently \"npm run dev\" \"npm run watch:css\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:migrate": "cd backend && npx sequelize-cli db:migrate",
+    "db:migrate:undo": "cd backend && npx sequelize-cli db:migrate:undo",
+    "db:seed": "cd backend && npx sequelize-cli db:seed:all",
+    "db:seed:undo": "cd backend && npx sequelize-cli db:seed:undo:all",
+    "setup": "npm install && npm run db:migrate && npm run db:seed && npm run build:css",
+    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules"
+  },
+  "keywords": [
+    "coworking",
+    "reservation",
+    "workspace",
+    "management"
+  ],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "@tailwindcss/cli": "^4.1.7",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "node-schedule": "^2.1.1",
+    "nodemailer": "^6.10.0",
+    "pg": "^8.14.1",
+    "pg-hstore": "^2.3.4",
+    "qrcode": "^1.5.4",
+    "sequelize": "^6.37.7",
     "serve": "^14.2.4",
     "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.6",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.9",
+    "postcss": "^8.5.3",
     "sequelize-cli": "^6.6.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
