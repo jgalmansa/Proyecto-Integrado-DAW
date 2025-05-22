@@ -1,6 +1,6 @@
 // src/controllers/userController.js
 import { User, Company } from '../../database/models/index.js';
-import { hashPassword, verifyCredentials, verifyToken } from '../services/authService.js';
+import { hashPassword, verifyCredentials, verifyToken, invalidateSession } from '../services/authService.js';
 import { Op } from 'sequelize';
 
 /**
@@ -153,36 +153,33 @@ export const checkInvitationCode = async (req, res) => {
 export const logout = async (req, res) => {
   try {
     const token = req.token;
+    const user = req.user;
 
     if (!token) {
-      return res.status(400).json({ message: 'No se ha proporcionado un token váido'})
+      return res.status(400).json({ 
+        success: false,
+        message: 'No se ha proporcionado un token válido'
+      });
     }
 
-    //Verificamos el token para obtener el tiempo de expiración
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return res.status(400).json({ messsage: 'Token inválido'});
+    // Invalidar la sesión en la base de datos
+    const sessionInvalidated = await invalidateSession(token);
+    
+    if (!sessionInvalidated) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'No se pudo invalidar la sesión' 
+      });
     }
 
-    // Calculamos el tiempo hasta que expire
-    const currentTime = Math.floor(Date.now()/1000);
-    const expireTime = decoded.exp;
-    const tiemToExpire = expireTime - currentTime;
-
-
-    // Añadimos el token a la lista negra en redis. Si ha expirado o a punto de hacerlo se mete en la lista negra
-    const blacklistDuration = tiemToExpire > 0 ? tiemToExpire : 3600;
-
-    // Registrar la hora del logout. Es opcional
-    if (req.user) {
-      // Intenta actualizar solo si el modelo User lo soporta
+    // Opcional: Registrar la hora del logout si el modelo User lo soporta
+    if (user) {
       try {
         await User.update(
-          { last_login: new Date() }, // O last_logout si existe ese campo
-          { where: { id: req.user.id } }
+          { last_login: new Date() }, // o last_logout si tienes ese campo
+          { where: { id: user.id } }
         );
       } catch (updateError) {
-        // Si falla porque el campo no existe, simplemente lo ignoramos
         console.warn('No se pudo actualizar el campo de logout:', updateError.message);
       }
     }
@@ -192,9 +189,11 @@ export const logout = async (req, res) => {
       message: 'Sesión cerrada correctamente'
     });
 
-
   } catch (error) {
-    console.error('Error al cerrar sesión: ', error);
-    return res.status(500).json({ message: 'Error interno del servidor'});
+    console.error('Error al cerrar sesión:', error);
+    return res.status(500).json({ 
+      success: false,
+      message: 'Error interno del servidor'
+    });
   }
-}
+};

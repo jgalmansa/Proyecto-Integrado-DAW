@@ -1,6 +1,5 @@
 import { User } from '../../database/models/index.js';
-import { verifyToken } from '../services/authService.js';
-
+import { verifyToken, verifyActiveSession } from '../services/authService.js';
 
 /**
  * Middleware de autenticación para usuarios que intentan acceder a rutas protegidas.
@@ -23,6 +22,12 @@ export const authenticateToken = async (req, res, next) => {
     if (!decoded) {
       return res.status(403).json({ message: 'Token inválido o expirado' });
     }
+
+    // Verificar que la sesión está activa en la base de datos
+    const activeSession = await verifyActiveSession(token);
+    if (!activeSession) {
+      return res.status(403).json({ message: 'Sesión inválida o expirada' });
+    }
     
     // Verificar que el usuario existe y está activo
     const user = await User.findOne({
@@ -37,6 +42,7 @@ export const authenticateToken = async (req, res, next) => {
     // Agregar usuario + token a la solicitud para que estén disponibles en los controladores
     req.user = user;
     req.token = token;
+    req.session = activeSession;
     next();
   } catch (error) {
     console.error('Error en autenticación:', error);

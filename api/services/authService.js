@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { User } from '../../database/models/index.js';
+import { UserSession } from '../../database/models/index.js';
 
 dotenv.config();
 
@@ -81,12 +82,16 @@ export const verifyCredentials = async (email, password) => {
       return { success: false, message: 'Contraseña incorrecta' };
     }
     
-    // Actualizar último login
-    await user.update({ last_login: new Date() });
-    
     // Generar token (usar la función generateToken existente)
     const token = generateToken(user);
+
+    // Crear sesión en la base de datos
+    await createUserSession(user.id, token);
     
+    // Actualizar último login
+    await user.update({ last_login: new Date() });
+
+    console.log("Login completado exitosamente");
     return {
       success: true,
       token,
@@ -103,5 +108,65 @@ export const verifyCredentials = async (email, password) => {
   } catch (error) {
     console.error('Error en verificación de credenciales:', error);
     return { success: false, message: 'Error interno del servidor' };
+  }
+};
+
+/**
+ * Crea una nueva sesión de usuario en la base de datos
+ * @param {number} userId - ID del usuario
+ * @param {string} token - Token JWT generado
+ * @returns {Promise<UserSession>} - Sesión creada
+ */
+export const createUserSession = async (userId, token) => {
+  try {
+    // Invalidar sesiones anteriores del usuario (opcional - para logout de otros dispositivos)
+    // await UserSession.invalidateUserSessions(userId);
+    
+    // Crear nueva sesión
+    const session = await UserSession.create({
+      user_id: userId,
+      token: token,
+      status: 'active'
+    });
+    
+    return session;
+  } catch (error) {
+    console.error('Error al crear sesión:', error);
+    throw error;
+  }
+};
+
+/**
+ * Invalida una sesión específica (logout)
+ * @param {string} token - Token de la sesión a invalidar
+ * @returns {Promise<boolean>} - True si se invalidó correctamente
+ */
+export const invalidateSession = async (token) => {
+  try {
+    const session = await UserSession.findOne({ where: { token, status: 'active' } });
+    
+    if (!session) {
+      return false; // Sesión no encontrada o ya inactiva
+    }
+    
+    await session.deactivate();
+    return true;
+  } catch (error) {
+    console.error('Error al invalidar sesión:', error);
+    throw error;
+  }
+};
+
+/**
+ * Verifica si una sesión está activa
+ * @param {string} token - Token a verificar
+ * @returns {Promise<UserSession|null>} - Sesión si está activa, null si no
+ */
+export const verifyActiveSession = async (token) => {
+  try {
+    return await UserSession.findActiveByToken(token);
+  } catch (error) {
+    console.error('Error al verificar sesión:', error);
+    return null;
   }
 };
