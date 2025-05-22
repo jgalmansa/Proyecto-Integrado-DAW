@@ -1,6 +1,5 @@
 import { User } from '../../models/index.js';
 import { verifyToken } from '../services/authService.js';
-import { isTokenBlacklisted } from '../services/redisService.js';
 
 
 /**
@@ -16,12 +15,6 @@ export const authenticateToken = async (req, res, next) => {
     
     if (!token) {
       return res.status(401).json({ message: 'Acceso denegado. Se requiere token de autenticación' });
-    }
-
-    // Verificar si el token está en la lista negra, es decir si ha sio invalidado por ejemplo por un logout
-    const isBlacklisted = await isTokenBlacklisted(token);
-    if (isBlacklisted) {
-      return res.status(401).json({ message: 'Sesión cerrada. Debe iniciar sesión nuevamente' });
     }
 
     // Verificar token usando la función existente en authService
