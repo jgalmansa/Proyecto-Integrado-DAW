@@ -1,18 +1,18 @@
-// backend/index.js
+// index.js
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
-import sequelize from './backend/config/db.js';
+import sequelize from './database/config/db.js';
 
 // Importación de rutas
-import companyRoutes from './backend/src/routes/companyRoutes.js';
-import userRoutes from './backend/src/routes/userRoutes.js';
-import workspaceRoutes from './backend/src/routes/workspaceRoutes.js';
-import reservationRoutes from './backend/src/routes/reservationRoutes.js';
-import notificationRoutes from './backend/src/routes/notificationRoutes.js';
-import { scheduleReservationReminders } from './backend/src/utils/scheduler.js';
+import companyRoutes from './api/routes/companyRoutes.js';
+import userRoutes from './api/routes/userRoutes.js';
+import workspaceRoutes from './api/routes/workspaceRoutes.js';
+import reservationRoutes from './api/routes/reservationRoutes.js';
+import notificationRoutes from './api/routes/notificationRoutes.js';
+import { scheduleReservationReminders } from './api/utils/scheduler.js';
 
 // Configuración de variables de entorno
 dotenv.config();
@@ -25,6 +25,9 @@ app.use(cors());
 app.use(express.json());
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
+// Servir archivos estáticos desde la carpeta src
+app.use('/assets', express.static(path.join(process.cwd(), 'src', 'assets')));
+
 // Rutas de API
 app.use('/api/companies', companyRoutes);
 app.use('/api/users', userRoutes);
@@ -35,17 +38,18 @@ app.use('/api/notifications', notificationRoutes);
 // Rutas específicas para páginas HTML
 app.get('/', (req, res) => {
   console.log('Ruta / accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'index.html'));
 });
 
 app.get('/register', (req, res) => {
   console.log('Ruta /register accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'register.html'));
 });
 
 app.use((req, res, next) => {
   console.log(`[LOG] ${req.method} ${req.url}`);
   next();
 });
-
 
 // Manejo de rutas no encontradas (debe ir al final)
 app.use((req, res) => {
@@ -76,11 +80,12 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     console.log('Variables de entorno:');
-console.log('DB_USER:', process.env.DB_USER);
-console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '***' : 'undefined');
-console.log('DB_NAME:', process.env.DB_NAME);
-console.log('DB_HOST:', process.env.DB_HOST);
-console.log('DB_PORT:', process.env.DB_PORT);
+    console.log('DB_USER:', process.env.DB_USER);
+    console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '***' : 'undefined');
+    console.log('DB_NAME:', process.env.DB_NAME);
+    console.log('DB_HOST:', process.env.DB_HOST);
+    console.log('DB_PORT:', process.env.DB_PORT);
+    
     await sequelize.authenticate();
     console.log('📦 Conexión a la base de datos establecida correctamente');
 
