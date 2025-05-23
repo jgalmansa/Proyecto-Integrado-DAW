@@ -46,6 +46,16 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'register.html'));
 });
 
+app.get('/login', (req, res) => {
+  console.log('Ruta /login accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'login.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  console.log('Ruta /dashboard accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'dashboard.html'));
+});
+
 app.use((req, res, next) => {
   console.log(`[LOG] ${req.method} ${req.url}`);
   next();
