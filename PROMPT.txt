@@ -35,7 +35,32 @@ Base de datos: PostgreSQL y Sequelize.
 
 La estructura actual del proyecto es:
 PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW> Show-Tree
-└─ backend
+└─ api
+  └─ controllers
+    └─ companyController.js
+    └─ notificationController.js
+    └─ reservationController.js
+    └─ userController.js
+    └─ workspaceController.js
+  └─ middlewares
+    └─ authMiddleware.js
+    └─ companyValidationMiddleware.js
+    └─ reservationValidationMiddleware.js
+    └─ userValidationMiddleware.js
+    └─ workspaceValidationMiddleware.js
+  └─ routes
+    └─ companyRoutes.js
+    └─ notificationRoutes.js
+    └─ reservationRoutes.js
+    └─ userRoutes.js
+    └─ workspaceRoutes.js
+  └─ services
+    └─ authService.js
+    └─ notificationService.js
+  └─ utils
+    └─ invitationCodeGenerator.js
+    └─ scheduler.js
+└─ database
   └─ config
     └─ config.js
     └─ db.js
@@ -61,49 +86,23 @@ PS C:\Users\Jose M\Desktop\PI\Proyecto-Integrado-DAW> Show-Tree
     └─ 20250515000002-seed-domains.cjs
     └─ 20250515000003-seed-users.cjs
     └─ 20250515000004-seed-workspaces.cjs
-  └─ src
-    └─ config
-      └─ vacio.txt
-    └─ controllers
-      └─ companyController.js
-      └─ notificationController.js
-      └─ reservationController.js
-      └─ userController.js
-      └─ workspaceController.js
-    └─ middlewares
-      └─ authMiddleware.js
-      └─ companyValidationMiddleware.js
-      └─ reservationValidationMiddleware.js
-      └─ userValidationMiddleware.js
-      └─ workspaceValidationMiddleware.js
-    └─ models
-      └─ vacio.txt
-    └─ routes
-      └─ companyRoutes.js
-      └─ notificationRoutes.js
-      └─ reservationRoutes.js
-      └─ userRoutes.js
-      └─ workspaceRoutes.js
-    └─ services
-      └─ authService.js
-      └─ notificationService.js
-      └─ redisService.js
-      └─ vacio.txt
-    └─ utils
-      └─ invitationCodeGenerator.js
-      └─ scheduler.js
-  └─ PROMPT.txt
-└─ frontend
-  └─ public
+└─ node_modules
+└─ src
+  └─ assets
     └─ css
       └─ output.css
-    └─ pages
-      └─ register.html
-    └─ index.html
-  └─ src
-    └─ input.css
-└─ node_modules
+    └─ js
+      └─ home.js
+      └─ login.js
+  └─ pages
+    └─ dashboard.html
+    └─ login.html
+    └─ register.html
+  └─ index.html
+  └─ input.css
+└─ .env
 └─ .gitignore
+└─ .sequelizerc
 └─ index.js
 └─ package.json
 └─ README.md
