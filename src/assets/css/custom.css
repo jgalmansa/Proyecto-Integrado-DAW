@@ -1,8 +1,27 @@
-
-*{
+* {
     scroll-behavior: smooth;
 }
 
-button{
+button {
     cursor: pointer;
+}
+
+.nav-link {
+    @apply text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center;
+}
+
+.nav-link.active {
+    @apply text-blue-600 bg-blue-50;
+}
+
+.dashboard-section {
+    @apply transition-all duration-300;
+}
+
+.reservation-filter {
+    @apply px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors;
+}
+
+.reservation-filter.active {
+    @apply text-white bg-blue-600;
 }
