@@ -1,25 +1,59 @@
 // Configuración de la API
 const API_BASE_URL = '/api';
 
+// Función para obtener el token del localStorage o sessionStorage
+function getAuthToken() {
+    // Primero intentar localStorage, luego sessionStorage
+    return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
+}
+
 // Función para hacer peticiones autenticadas
 async function apiRequest(endpoint, options = {}) {
+    const fullUrl = `${API_BASE_URL}${endpoint}`;
+    const token = getAuthToken();
+    
+    console.log('🌐 Intentando petición a:', fullUrl);
+    console.log('🔑 Token disponible:', token ? 'Sí' : 'No');
+    
+    // Si no hay token, redirigir al login
+    if (!token) {
+        console.error('❌ No hay token de autenticación');
+        window.location.href = '/login';
+        return;
+    }
+    
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const response = await fetch(fullUrl, {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`, // 🔑 CAMBIO CLAVE: Bearer token en lugar de cookies
                 ...options.headers,
-            },
-            credentials: 'include' // Para incluir cookies de sesión
+            }
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        console.log(`📡 Respuesta de ${fullUrl}:`, response.status, response.statusText);
+        
+        // Si el token es inválido, redirigir al login
+        if (response.status === 401 || response.status === 403) {
+            console.error('❌ Token inválido o expirado');
+            localStorage.removeItem('authToken');
+            sessionStorage.removeItem('authToken');
+            window.location.href = '/login';
+            return;
         }
         
-        return await response.json();
+        if (!response.ok) {
+            console.error(`❌ Error ${response.status} para ${fullUrl}`);
+            throw new Error(`HTTP error! status: ${response.status} for ${fullUrl}`);
+        }
+        
+        const data = await response.json();
+        console.log(`✅ Datos recibidos de ${fullUrl}:`, data);
+        return data;
+        
     } catch (error) {
-        console.error('API request failed:', error);
+        console.error(`💥 Petición falló para ${fullUrl}:`, error);
         throw error;
     }
 }
@@ -55,11 +89,13 @@ function getTimeUntilNext(reservations) {
 
 // Función para verificar si es administrador
 async function isAdmin() {
+    console.log('🔐 Verificando si es administrador...');
     try {
-        const userInfo = await apiRequest('/users/me');
+        const userInfo = await apiRequest('/users/me'); //
+        console.log('👤 Info del usuario:', userInfo);
         return userInfo.isAdmin;
     } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error('❌ Error checking admin status:', error);
         return false;
     }
 }
@@ -77,7 +113,6 @@ async function loadWorkspaceStats() {
         
         // Calcular espacios disponibles ahora
         const now = new Date();
-        const currentHour = now.getHours();
         const activeReservations = reservations.filter(r => {
             const startTime = new Date(r.startTime);
             const endTime = new Date(r.endTime);
@@ -158,7 +193,7 @@ async function loadUserStats() {
         }
         
         const users = await apiRequest('/users');
-        const activeUsers = users.filter(u => u.isActive !== false).length;
+        const activeUsers = users.filter(u => u.is_active !== false).length;
         
         // Calcular crecimiento (simulado por ahora)
         const growth = Math.floor(Math.random() * 20) - 5; // Entre -5% y +15%
@@ -176,16 +211,7 @@ async function loadUserStats() {
     }
 }
 
-
-/**
- * Loads and updates statistics for the dashboard.
- * 
- * This function concurrently fetches data and updates the statistics
- * for workspaces, reservations, and users on the dashboard. It handles
- * any errors that occur during the fetching process by logging them to
- * the console.
- */
-
+// Función principal para cargar todas las estadísticas
 async function loadDashboardStats() {
     try {
         await Promise.all([
@@ -198,8 +224,27 @@ async function loadDashboardStats() {
     }
 }
 
+// Función para verificar autenticación al cargar la página
+function checkAuth() {
+    const token = getAuthToken();
+    if (!token) {
+        console.log('❌ No hay token, redirigiendo al login...');
+        window.location.href = '/login';
+        return false;
+    }
+    return true;
+}
+
 // Cargar estadísticas al cargar la página
-document.addEventListener('DOMContentLoaded', loadDashboardStats);
+document.addEventListener('DOMContentLoaded', () => {
+    if (checkAuth()) {
+        loadDashboardStats();
+    }
+});
 
 // Actualizar estadísticas cada 5 minutos
-setInterval(loadDashboardStats, 5 * 60 * 1000);
+setInterval(() => {
+    if (checkAuth()) {
+        loadDashboardStats();
+    }
+}, 5 * 60 * 1000);
