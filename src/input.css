@@ -1,9 +1,2 @@
 @import "tailwindcss";
-
-*{
-    scroll-behavior: smooth;
-}
-
-button{
-    cursor: pointer;
-}
+@import "./assets/css/custom.css";

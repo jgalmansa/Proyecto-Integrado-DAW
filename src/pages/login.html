@@ -97,6 +97,11 @@
 
     <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md mt-[110px] mb-[70px] mx-auto">
         <div class="text-center">
+            <div class="mb-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                    <i class="fas fa-building text-white text-2xl"></i>
+                </div>
+            </div>
             <h1 class="text-3xl font-bold text-gray-800">Coworkly</h1>
             <p class="mt-2 text-sm text-gray-600">Gestión de espacios colaborativos</p>
         </div>
@@ -156,19 +161,25 @@
             
             <div>
                 <button type="submit" 
-                    class="group cursor-pointer relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                        <i class="fas fa-sign-in-alt"></i>
-                    </span>
-                    Iniciar Sesión
+                    class="inline-flex items-center justify-center px-8 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition duration-300 shadow-lg shadow-indigo-200 group w-full">
+                    <span>Iniciar Sesión</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 ml-2 transform group-hover:translate-x-1 transition-transform duration-300"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
                 </button>
             </div>
         </form>
         
-        <div class="mt-6 text-center">
-            <p class="text-sm text-gray-600">
+        <!-- Register Link -->
+        <div class="pt-4 text-center border-t border-gray-100">
+            <p class="text-sm text-gray-600 leading-relaxed">
                 ¿No tienes una cuenta? Contacta con tu administrador para obtener un código de invitación y 
-                <a href="/register" class="font-medium text-blue-600 hover:text-blue-500">regístrate aquí</a>.
+                <a href="/register" class="font-semibold text-blue-600 hover:text-blue-700 transition-colors duration-200 focus:outline-none focus:underline">
+                    regístrate aquí
+                </a>.
             </p>
         </div>
     </div>
