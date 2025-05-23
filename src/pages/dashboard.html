@@ -1,1 +1,660 @@
-Has llegado al Dashboard
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Coworkly</title>
+    <link href="../assets/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-800">Coworkly</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Notificaciones -->
+                    <div class="relative">
+                        <button id="notifications-btn" class="p-2 text-gray-400 hover:text-gray-500 relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">0</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Perfil de usuario -->
+                    <div class="relative">
+                        <button id="user-menu-btn" class="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span id="user-initials" class="text-white text-sm font-medium">U</span>
+                            </div>
+                            <span id="user-name" class="hidden sm:block">Usuario</span>
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                        
+                        <!-- Dropdown del usuario -->
+                        <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user mr-2"></i>Mi Perfil
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-cog mr-2"></i>Configuración
+                            </a>
+                            <hr class="my-1">
+                            <a href="#" id="logout-btn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex h-screen pt-16">
+        <!-- Sidebar -->
+        <nav class="w-64 bg-white shadow-sm border-r border-gray-200">
+            <div class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100 active" data-section="dashboard">
+                            <i class="fas fa-home mr-3"></i>
+                            Dashboard
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100" data-section="calendar">
+                            <i class="fas fa-calendar-alt mr-3"></i>
+                            Calendario
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100" data-section="workspaces">
+                            <i class="fas fa-building mr-3"></i>
+                            Espacios de Trabajo
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100" data-section="reservations">
+                            <i class="fas fa-bookmark mr-3"></i>
+                            Mis Reservas
+                        </button>
+                    </li>
+                    <li>
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100" data-section="notifications">
+                            <i class="fas fa-bell mr-3"></i>
+                            Notificaciones
+                        </button>
+                    </li>
+                    
+                    <!-- Secciones solo para administradores -->
+                    <li class="admin-only hidden">
+                        <hr class="my-3 border-gray-200">
+                        <h3 class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Administración
+                        </h3>
+                    </li>
+                    <li class="admin-only hidden">
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100" data-section="manage-workspaces">
+                            <i class="fas fa-cogs mr-3"></i>
+                            Gestión de Espacios
+                        </button>
+                    </li>
+                    <li class="admin-only hidden">
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100" data-section="manage-users">
+                            <i class="fas fa-users-cog mr-3"></i>
+                            Gestión de Usuarios
+                        </button>
+                    </li>
+                    <li class="admin-only hidden">
+                        <button class="nav-item w-full flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100" data-section="company-settings">
+                            <i class="fas fa-building mr-3"></i>
+                            Ajustes de Empresa
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Contenido principal -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Dashboard Overview -->
+            <div id="dashboard-section" class="section-content p-6">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Bienvenido a tu Dashboard</h2>
+                    <p class="text-gray-600">Gestiona tus reservas y espacios de trabajo</p>
+                </div>
+
+                <!-- Resumen rápido -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-blue-100 rounded-lg">
+                                <i class="fas fa-bookmark text-blue-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Reservas Activas</p>
+                                <p id="active-reservations" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-green-100 rounded-lg">
+                                <i class="fas fa-calendar-check text-green-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Próxima Reserva</p>
+                                <p id="next-reservation" class="text-sm font-bold text-gray-900">Sin reservas</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-yellow-100 rounded-lg">
+                                <i class="fas fa-building text-yellow-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Espacios Disponibles</p>
+                                <p id="available-spaces" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="flex items-center">
+                            <div class="p-2 bg-red-100 rounded-lg">
+                                <i class="fas fa-bell text-red-600"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Notificaciones</p>
+                                <p id="unread-notifications" class="text-2xl font-bold text-gray-900">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones rápidas -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Acciones Rápidas</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button class="nav-item flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50" data-section="calendar">
+                            <div class="text-center">
+                                <i class="fas fa-plus-circle text-2xl text-blue-500 mb-2"></i>
+                                <p class="text-sm font-medium text-gray-700">Nueva Reserva</p>
+                            </div>
+                        </button>
+                        
+                        <button class="nav-item flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50" data-section="workspaces">
+                            <div class="text-center">
+                                <i class="fas fa-search text-2xl text-green-500 mb-2"></i>
+                                <p class="text-sm font-medium text-gray-700">Explorar Espacios</p>
+                            </div>
+                        </button>
+                        
+                        <button class="nav-item flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50" data-section="reservations">
+                            <div class="text-center">
+                                <i class="fas fa-list text-2xl text-purple-500 mb-2"></i>
+                                <p class="text-sm font-medium text-gray-700">Ver Mis Reservas</p>
+                            </div>
+                        </button>
+                    </div>
+                    
+                    <!-- Acciones rápidas solo para administradores -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 admin-only">
+                        <button id="create-workspace-btn" class="nav-item flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50" data-section="manage-workspaces">
+                            <div class="text-center">
+                                <i class="fas fa-plus-circle text-2xl text-blue-500 mb-2"></i>
+                                <p class="text-sm font-medium text-gray-700">Crear Espacio</p>
+                            </div>
+                        </button>
+                        
+                        <button class="nav-item flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-green-500 hover:bg-green-50" data-section="manage-users">
+                            <div class="text-center">
+                                <i class="fas fa-user-plus text-2xl text-green-500 mb-2"></i>
+                                <p class="text-sm font-medium text-gray-700">Invitar Usuario</p>
+                            </div>
+                        </button>
+                        
+                        <button class="nav-item flex items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-500 hover:bg-purple-50" data-section="company-settings">
+                            <div class="text-center">
+                                <i class="fas fa-cog text-2xl text-purple-500 mb-2"></i>
+                                <p class="text-sm font-medium text-gray-700">Configuración</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Calendario -->
+            <div id="calendar-section" class="section-content p-6 hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Calendario de Reservas</h2>
+                    <p class="text-gray-600">Selecciona una fecha y hora para ver espacios disponibles</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Calendario -->
+                    <div class="lg:col-span-2 bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Seleccionar Fecha</h3>
+                            <div class="flex items-center space-x-2">
+                                <button id="prev-month" class="p-2 hover:bg-gray-100 rounded">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <span id="current-month" class="font-medium text-gray-700"></span>
+                                <button id="next-month" class="p-2 hover:bg-gray-100 rounded">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1">
+                            <!-- El calendario se generará dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Panel de reserva rápida -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Reserva Rápida</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Seleccionada</label>
+                                <input type="date" id="selected-date" class="w-full p-2 border border-gray-300 rounded-md">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Hora de Inicio</label>
+                                <select id="start-time" class="w-full p-2 border border-gray-300 rounded-md">
+                                    <option value="">Seleccionar hora</option>
+                                    <!-- Las horas se generarán dinámicamente -->
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Duración</label>
+                                <select id="duration" class="w-full p-2 border border-gray-300 rounded-md">
+                                    <option value="1">1 hora</option>
+                                    <option value="2">2 horas</option>
+                                    <option value="3">3 horas</option>
+                                    <option value="4">4 horas</option>
+                                    <option value="8">Día completo</option>
+                                </select>
+                            </div>
+                            
+                            <button id="search-spaces" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                                Buscar Espacios Disponibles
+                            </button>
+                        </div>
+
+                        <!-- Espacios disponibles -->
+                        <div id="available-spaces-list" class="mt-6 hidden">
+                            <h4 class="font-medium text-gray-800 mb-3">Espacios Disponibles</h4>
+                            <div id="spaces-container" class="space-y-2">
+                                <!-- Los espacios se mostrarán aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Espacios de Trabajo -->
+            <div id="workspaces-section" class="section-content p-6 hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Espacios de Trabajo</h2>
+                    <p class="text-gray-600">Explora y reserva nuestros espacios colaborativos</p>
+                </div>
+
+                <!-- Filtros -->
+                <div class="bg-white rounded-lg shadow p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
+                            <select id="capacity-filter" class="w-full p-2 border border-gray-300 rounded-md">
+                                <option value="">Todas</option>
+                                <option value="1-5">1-5 personas</option>
+                                <option value="6-10">6-10 personas</option>
+                                <option value="11-20">11-20 personas</option>
+                                <option value="20+">Más de 20</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                            <select id="type-filter" class="w-full p-2 border border-gray-300 rounded-md">
+                                <option value="">Todos</option>
+                                <option value="meeting">Sala de reuniones</option>
+                                <option value="coworking">Coworking</option>
+                                <option value="office">Oficina privada</option>
+                                <option value="event">Sala de eventos</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Equipamiento</label>
+                            <select id="equipment-filter" class="w-full p-2 border border-gray-300 rounded-md">
+                                <option value="">Cualquiera</option>
+                                <option value="projector">Proyector</option>
+                                <option value="whiteboard">Pizarra</option>
+                                <option value="tv">TV/Monitor</option>
+                                <option value="wifi">WiFi</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-end">
+                            <button id="apply-filters" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                                Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de espacios -->
+                <div id="workspaces-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Los espacios se cargarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Sección Mis Reservas -->
+            <div id="reservations-section" class="section-content p-6 hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Mis Reservas</h2>
+                    <p class="text-gray-600">Gestiona tus reservas actuales y pasadas</p>
+                </div>
+
+                <!-- Tabs -->
+                <div class="mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-8">
+                            <button class="reservation-tab py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600 active" data-tab="current">
+                                Reservas Actuales
+                            </button>
+                            <button class="reservation-tab py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700" data-tab="history">
+                                Historial
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Reservas actuales -->
+                <div id="current-reservations" class="tab-content">
+                    <div id="current-reservations-list" class="space-y-4">
+                        <!-- Las reservas se cargarán dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Historial de reservas -->
+                <div id="history-reservations" class="tab-content hidden">
+                    <div id="history-reservations-list" class="space-y-4">
+                        <!-- El historial se cargará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Notificaciones -->
+            <div id="notifications-section" class="section-content p-6 hidden">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Notificaciones</h2>
+                    <p class="text-gray-600">Mantente al día con tus reservas y avisos importantes</p>
+                </div>
+
+                <!-- Filtros de notificaciones -->
+                <div class="mb-6">
+                    <div class="flex space-x-4">
+                        <button class="notification-filter px-4 py-2 bg-blue-600 text-white rounded-md active" data-filter="all">
+                            Todas
+                        </button>
+                        <button class="notification-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" data-filter="personal">
+                            Personales
+                        </button>
+                        <button class="notification-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" data-filter="global">
+                            Globales
+                        </button>
+                        <button class="notification-filter px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300" data-filter="unread">
+                            No leídas
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de notificaciones -->
+                <div id="notifications-list" class="space-y-4">
+                    <!-- Las notificaciones se cargarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- SECCIONES DE ADMINISTRADOR -->
+            
+            <!-- Sección Gestión de Espacios -->
+            <div id="manage-workspaces-section" class="section-content p-6 hidden admin-only">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Gestión de Espacios</h2>
+                        <p class="text-gray-600">Administra los espacios de trabajo de tu empresa</p>
+                    </div>
+                    <button id="create-workspace-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Crear Espacio
+                    </button>
+                </div>
+
+                <!-- Filtros de administración -->
+                <div class="bg-white rounded-lg shadow p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                            <select id="status-filter" class="w-full p-2 border border-gray-300 rounded-md">
+                                <option value="">Todos</option>
+                                <option value="available">Disponibles</option>
+                                <option value="unavailable">No disponibles</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                            <select id="admin-type-filter" class="w-full p-2 border border-gray-300 rounded-md">
+                                <option value="">Todos</option>
+                                <option value="meeting">Sala de reuniones</option>
+                                <option value="coworking">Coworking</option>
+                                <option value="office">Oficina privada</option>
+                                <option value="event">Sala de eventos</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ordenar por</label>
+                            <select id="sort-filter" class="w-full p-2 border border-gray-300 rounded-md">
+                                <option value="name">Nombre</option>
+                                <option value="capacity">Capacidad</option>
+                                <option value="created">Fecha de creación</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-end">
+                            <button id="apply-admin-filters" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                                Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de espacios -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Nombre
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Capacidad
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Estado
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Equipamiento
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Fecha de Creación
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Acciones
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-workspaces-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Los espacios se cargarán dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sección Gestión de Usuarios -->
+            <div id="manage-users-section" class="section-content p-6 hidden admin-only">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Gestión de Usuarios</h2>
+                        <p class="text-gray-600">Administra los usuarios de tu empresa</p>
+                    </div>
+                    <button id="invite-user-btn" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center">
+                        <i class="fas fa-user-plus mr-2"></i> Invitar Usuario
+                    </button>
+                </div>
+                
+                <!-- Contenido de gestión de usuarios -->
+            </div>
+
+            <!-- Sección Ajustes de Empresa -->
+            <div id="company-settings-section" class="section-content p-6 hidden admin-only">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Ajustes de Empresa</h2>
+                    <p class="text-gray-600">Configura los ajustes de tu empresa</p>
+                </div>
+                
+                <!-- Contenido de ajustes de empresa -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para detalles de reserva -->
+    <div id="reservation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">Detalles de la Reserva</h3>
+                        <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div id="modal-content">
+                        <!-- El contenido se cargará dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear/editar espacio de trabajo (solo admin) -->
+    <div id="workspace-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 id="workspace-modal-title" class="text-lg font-semibold text-gray-800">Crear Nuevo Espacio</h3>
+                        <button id="close-workspace-modal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <form id="workspace-form" class="space-y-4">
+                        <input type="hidden" id="workspace-id">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="workspace-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Espacio</label>
+                                <input type="text" id="workspace-name" class="w-full p-2 border border-gray-300 rounded-md" required>
+                            </div>
+                            
+                            <div>
+                                <label for="workspace-capacity" class="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
+                                <input type="number" id="workspace-capacity" min="1" class="w-full p-2 border border-gray-300 rounded-md" required>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="workspace-description" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                            <textarea id="workspace-description" rows="3" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Equipamiento</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-projector" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">Proyector</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-whiteboard" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">Pizarra</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-tv" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">TV/Monitor</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-wifi" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">WiFi</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-ac" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">A/C</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-phone" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">Teléfono</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-coffee" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">Café</span>
+                                </label>
+                                
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" id="equipment-water" class="rounded text-blue-600">
+                                    <span class="text-sm text-gray-700">Agua</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="workspace-available" class="rounded text-blue-600" checked>
+                            <label for="workspace-available" class="text-sm text-gray-700">Espacio disponible para reservas</label>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 pt-4">
+                            <button type="button" id="cancel-workspace" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancelar
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                Guardar Espacio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/dashboard.js"></script>
+</body>
+</html>
