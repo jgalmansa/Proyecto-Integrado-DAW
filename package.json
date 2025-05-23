@@ -13,12 +13,11 @@
     "serve:frontend": "serve -s frontend/public -l 3000",
     "dev:full": "concurrently \"npm run dev\" \"npm run watch:css\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "db:migrate": "cd backend && npx sequelize-cli db:migrate",
-    "db:migrate:undo": "cd backend && npx sequelize-cli db:migrate:undo",
-    "db:seed": "cd backend && npx sequelize-cli db:seed:all",
-    "db:seed:undo": "cd backend && npx sequelize-cli db:seed:undo:all",
-    "setup": "npm install && npm run db:migrate && npm run db:seed && npm run build:css",
-    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules"
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:seed:undo": "npx sequelize-cli db:seed:undo:all",
+    "setup": "npm install && npm run db:migrate && npm run db:seed && npm run build:css"
   },
   "keywords": [
     "coworking",
