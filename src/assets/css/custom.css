@@ -25,3 +25,47 @@ button {
 .reservation-filter.active {
     @apply text-white bg-blue-600;
 }
+
+
+
+/* Estilos para el dropdown de notificaciones */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Animación suave para el dropdown */
+#notifications-dropdown {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mejorar el scroll del dropdown */
+#dropdown-notifications-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#dropdown-notifications-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#dropdown-notifications-list::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+#dropdown-notifications-list::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

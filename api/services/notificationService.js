@@ -1,5 +1,7 @@
 import { Notification } from '../../database/models/index.js';
 
+
+
 /**
  * Crea una notificación personal para un usuario
  * @param {Number} userId - ID del usuario
@@ -22,6 +24,47 @@ export const createPersonalNotification = async (userId, message, reservationId 
   }
 };
 
+
+
+/**
+ * Crea una notificación de confirmación de reserva
+ * @param {Number} reservationId - ID de la reserva
+ * @returns {Promise<Object>} - Resultado de la operación
+ */
+export const createReservationConfirmation = async (reservationId) => {
+  try {
+    // Importar los modelos necesarios
+    const { Reservation, Workspace } = await import('../../database/models/index.js');
+    
+    // Obtener la reserva con datos del espacio
+    const reservation = await Reservation.findByPk(reservationId, {
+      include: [{ model: Workspace, attributes: ['name'] }]
+    });
+    
+    if (!reservation) {
+      return { success: false, message: 'Reserva no encontrada' };
+    }
+    
+    // Formatear fecha para el mensaje
+    const startTime = new Date(reservation.start_time);
+    const formattedDate = startTime.toLocaleDateString('es-ES');
+    const formattedTime = startTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    
+    // Crear mensaje de confirmación simple
+    const message = `Reserva confirmada para ${reservation.Workspace.name} el ${formattedDate} a las ${formattedTime}`;
+    
+    // Crear la notificación
+    await createPersonalNotification(reservation.user_id, message, reservationId);
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error al crear confirmación de reserva:', error);
+    throw new Error('No se pudo crear la confirmación');
+  }
+};
+
+
+
 /**
  * Crea una notificación global para los usuarios de una empresa
  * @param {Number} companyId - ID de la empresa
@@ -32,7 +75,7 @@ export const createPersonalNotification = async (userId, message, reservationId 
 export const createGlobalNotification = async (companyId, message, excludeUserIds = []) => {
   try {
     // Importar el modelo User aquí para evitar dependencias circulares
-    const { User } = await import('../../models/index.js');
+    const { User } = await import('../../database/models/index.js');
     
     // Obtener todos los usuarios de la empresa
     const users = await User.findAll({
@@ -70,7 +113,7 @@ export const createGlobalNotification = async (companyId, message, excludeUserId
 export const createReservationReminder = async (reservationId) => {
   try {
     // Importar los modelos necesarios
-    const { Reservation, Workspace } = await import('../../models/index.js');
+    const { Reservation, Workspace } = await import('../../database/models/index.js');
     
     // Obtener la reserva con datos del espacio
     const reservation = await Reservation.findByPk(reservationId, {
@@ -83,8 +126,8 @@ export const createReservationReminder = async (reservationId) => {
     
     // Formatear fecha para el mensaje
     const startTime = new Date(reservation.start_time);
-    const formattedDate = startTime.toLocaleDateString();
-    const formattedTime = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formattedDate = startTime.toLocaleDateString('es-ES');
+    const formattedTime = startTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
     
     // Crear mensaje de recordatorio
     const message = `RECORDATORIO: Tienes una reserva para ${reservation.Workspace.name} hoy ${formattedDate} a las ${formattedTime}.`;

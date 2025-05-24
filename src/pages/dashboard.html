@@ -24,15 +24,55 @@
             
             <div class="flex items-center space-x-4">
                 <!-- Notificaciones -->
-                <div class="relative">
-                    <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                <div class="relative" id="notifications-container">
+                    <button id="notifications-button" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
                         </svg>
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
                     </button>
+                    
+                    <!-- Dropdown de notificaciones -->
+                    <div id="notifications-dropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+                        <!-- Header del dropdown -->
+                        <div class="flex items-center justify-between p-4 border-b border-gray-100">
+                            <h3 class="text-sm font-semibold text-gray-900">Notificaciones</h3>
+                            <button id="mark-all-read" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                Marcar todas como leídas
+                            </button>
+                        </div>
+                        
+                        <!-- Lista de notificaciones -->
+                        <div id="dropdown-notifications-list" class="max-h-96 overflow-y-auto">
+                            <!-- Loading state -->
+                            <div id="notifications-loading" class="p-4 text-center">
+                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                                <p class="text-sm text-gray-500 mt-2">Cargando notificaciones...</p>
+                            </div>
+                            
+                            <!-- Empty state -->
+                            <div id="notifications-empty" class="p-8 text-center hidden">
+                                <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                                </svg>
+                                <p class="text-sm text-gray-500">No tienes notificaciones</p>
+                            </div>
+                            
+                            <!-- Contenedor de notificaciones -->
+                            <div id="dropdown-notifications-container">
+                                <!-- Las notificaciones se cargarán aquí dinámicamente -->
+                            </div>
+                        </div>
+                        
+                        <!-- Footer del dropdown -->
+                        <div class="p-3 border-t border-gray-100 bg-gray-50 rounded-b-lg">
+                            <button id="view-all-notifications" class="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-1">
+                                Ver todas las notificaciones
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                
+                                
                 <!-- Perfil de usuario -->
                 <div class="flex items-center space-x-3 border-l pl-4">
                     <div class="text-right">
@@ -292,10 +332,10 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Notificaciones</h3>
-                        <button class="text-sm text-blue-600 hover:text-blue-800 font-medium">Ver todas</button>
+                        <button id="view-all-notifications" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Ver todas</button>
                     </div>
                     <div class="space-y-4">
-                        <div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
+                        <!--<div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
                             <div class="bg-red-100 p-1 rounded-full">
                                 <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -332,7 +372,7 @@
                                 <p class="text-xs text-gray-600 mt-1">Área Coworking B - Mañana 9:00</p>
                                 <p class="text-xs text-gray-500 mt-1">Hace 1 hora</p>
                             </div>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
             </div>
@@ -470,4 +510,5 @@
         </main>
     </div>
     <script src="../assets/js/dashboard.js"></script>
+    <script src="../assets/js/notifications.js"></script>
 </body>

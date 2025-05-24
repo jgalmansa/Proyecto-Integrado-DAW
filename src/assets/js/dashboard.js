@@ -109,7 +109,9 @@ async function loadWorkspaceStats() {
         // Obtener reservas de hoy para calcular disponibilidad
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
-        const reservations = await apiRequest(`/reservations?date=${todayStr}`);
+        const reservationsData = await apiRequest(`/reservations?date=${todayStr}`);
+        const reservations = reservationsData.reservations || [];
+
         
         // Calcular espacios disponibles ahora
         const now = new Date();
@@ -139,11 +141,12 @@ async function loadReservationStats() {
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
         
-        // Reservas de hoy (todas)
-        const todayReservations = await apiRequest(`/reservations?date=${todayStr}`);
-        
-        // Mis reservas
-        const myReservations = await apiRequest('/reservations/my');
+        // Reservas de hoy (todas) y mis reservas
+        const todayReservationsData = await apiRequest(`/reservations?date=${todayStr}`);
+        const todayReservations = todayReservationsData.reservations || [];
+
+        const myReservationsData = await apiRequest('/reservations/my');
+        const myReservations = myReservationsData.reservations || [];
         
         // Filtrar reservas activas del usuario
         const now = new Date();
