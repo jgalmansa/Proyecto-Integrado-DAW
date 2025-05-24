@@ -4,6 +4,8 @@ import {
   createReservation,
   getUserReservations,
   getReservationById,
+  getMyTodayReservations,
+  getAllReservations,
   updateReservation,
   cancelReservation,
   checkAvailability,
@@ -24,14 +26,24 @@ const router = express.Router();
 // Rutas protegidas (requieren autenticación)
 router.use(authenticateToken);
 
-// Crear una nueva reserva
-router.post('/', validateCreateReservation, createReservation);
+
+// Verificar disponibilidad de un espacio
+router.get('/check-availability', validateCheckAvailability, checkAvailability);
 
 // Obtener reservas del usuario actual
 router.get('/user', getUserReservations);
 
-// Verificar disponibilidad de un espacio
-router.get('/check-availability', validateCheckAvailability, checkAvailability);
+// Obtener las reservas del usuario (para dashboard - NUEVA RUTA)
+router.get('/my', getUserReservations);
+
+// Obtener las reservas del dia para los recordatorios
+router.get('/my-reservations', getMyTodayReservations);
+
+// Crear una nueva reserva
+router.post('/', validateCreateReservation, createReservation);
+
+// Obtener todas las reservas
+router.get('/', getAllReservations);
 
 // Obtener una reserva específica por ID
 router.get('/:id', validateGetReservation, getReservationById);

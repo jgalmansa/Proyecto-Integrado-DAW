@@ -1,5 +1,9 @@
 @import "tailwindcss";
+@import "./assets/css/custom.css";
 
-*{
-    scroll-behavior: smooth;
+/* variables de colores */
+:root {
+    --color-primary: #3B82F6;
+    --color-secondary: #1E40AF;
+    --color-accent: #F59E0B;
 }

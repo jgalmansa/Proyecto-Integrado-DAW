@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, checkInvitationCode, login, logout } from '../controllers/userController.js';
+import { registerUser, checkInvitationCode, login, logout, getCurrentUser } from '../controllers/userController.js';
 import { validateUserRegistration, validateLogin } from '../middlewares/userValidationMiddleware.js';
 import  { authenticateToken } from '../middlewares/authMiddleware.js';
 
@@ -17,5 +17,7 @@ router.post('/login', validateLogin, login);
 // Ruta para logout
 router.post('/logout', authenticateToken, logout);
 
+// Agregar esta línea después de las rutas existentes
+router.get('/me', authenticateToken, getCurrentUser);
 
 export default router;

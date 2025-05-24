@@ -197,3 +197,22 @@ export const logout = async (req, res) => {
     });
   }
 };
+
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    // req.user ya está disponible gracias al middleware authenticateToken
+    res.json({
+      id: req.user.id,
+      email: req.user.email,
+      first_namename: req.user.first_name,
+      last_name: req.user.last_name,
+      company_id: req.user.company_id,
+      role: req.user.role,
+      is_active: req.user.is_active,
+    });
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
