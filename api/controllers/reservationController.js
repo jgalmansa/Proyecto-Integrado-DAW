@@ -98,23 +98,50 @@ export const createReservation = async (req, res) => {
     if (conflictingReservation) {
       return res.status(409).json({ message: 'El espacio ya está reservado en ese horario' });
     }
+
+    // Obtener los usuarios invitados que existen en la empresa
+    const userGuestIds = guests.filter(guest => Number.isInteger(guest));
+    let invitedUsers = [];
     
-    // Crear la reserva, guardando 'guests' como JSON
-    const newReservation = await Reservation.create({
-      user_id: userId,
-      workspace_id: workspaceId,
-      guests: JSON.stringify(guests),
-      number_of_people: numberOfPeople,
-      start_time: start,
-      end_time: end,
-      status: 'confirmed'
-    });
+    if (userGuestIds.length > 0) {
+      invitedUsers = await User.findAll({
+        where: { id: userGuestIds, company_id: companyId, is_active: true }
+      });
+    }
     
+    // Crear lista de todos los participantes (creador + invitados válidos)
+    const allParticipants = [
+      { id: userId, isCreator: true },
+      ...invitedUsers.map(user => ({ id: user.id, isCreator: false }))
+    ];
+    
+    // Crear reservas para todos los participantes
+    const createdReservations = [];
+    
+    for (const participant of allParticipants) {
+      const reservation = await Reservation.create({
+        user_id: participant.id,
+        workspace_id: workspaceId,
+        guests: JSON.stringify(guests), // Mantener la lista completa de invitados en cada reserva
+        number_of_people: numberOfPeople,
+        start_time: start,
+        end_time: end,
+        status: 'confirmed'
+      });
+      
+      createdReservations.push({
+        reservationId: reservation.id,
+        userId: participant.id,
+        isCreator: participant.isCreator
+      });
+    }
+
     // Crear notificación para el usuario creador
+    const creatorReservation = createdReservations.find(r => r.isCreator);
     await createPersonalNotification(
       userId,
       `Has reservado ${workspace.name} para el ${start.toLocaleDateString()} de ${start.toLocaleTimeString()} a ${end.toLocaleTimeString()}.`,
-      newReservation.id
+      creatorReservation.reservationId
     );
 
     // Notificar a los administradores si es necesario
@@ -127,44 +154,41 @@ export const createReservation = async (req, res) => {
         await createPersonalNotification(
           admin.id,
           `Nueva reserva creada por ${req.user.first_name} ${req.user.last_name} para ${workspace.name}.`,
-          newReservation.id
+          creatorReservation.reservationId
         );
       }
     }
 
-    // Notificar solo a los invitados que son usuarios de la empresa (no a "Invitado Externo")
-    if (Array.isArray(guests) && guests.length > 0) {
-      const userGuestIds = guests.filter(guest => Number.isInteger(guest));
+    // Notificar a los invitados que son usuarios de la empresa
+    for (const guestUser of invitedUsers) {
+      const guestReservation = createdReservations.find(r => r.userId === guestUser.id);
       
-      if (userGuestIds.length > 0) {
-        const invitedUsers = await User.findAll({
-          where: { id: userGuestIds, company_id: companyId, is_active: true }
-        });
-        
-        for (const guestUser of invitedUsers) {
-          await createPersonalNotification(
-            guestUser.id,
-            `Has sido invitado por ${req.user.first_name} ${req.user.last_name} ` +
-            `a la reserva de ${workspace.name} el ${start.toLocaleDateString()} ` +
-            `de ${start.toLocaleTimeString()} a ${end.toLocaleTimeString()}.`,
-            newReservation.id
-          );
-        }
-      }
+      await createPersonalNotification(
+        guestUser.id,
+        `Has sido invitado por ${req.user.first_name} ${req.user.last_name} ` +
+        `a la reserva de ${workspace.name} el ${start.toLocaleDateString()} ` +
+        `de ${start.toLocaleTimeString()} a ${end.toLocaleTimeString()}.`,
+        guestReservation.reservationId
+      );
     }
     
-    // Responder con la reserva creada
+    // Responder con información de todas las reservas creadas
     return res.status(201).json({
-      message: 'Reserva creada exitosamente',
+      message: 'Reservas creadas exitosamente para todos los participantes',
       reservation: {
-        id: newReservation.id,
-        workspaceId: newReservation.workspace_id,
+        id: creatorReservation.reservationId, // ID de la reserva del creador como principal
+        workspaceId: workspaceId,
         workspaceName: workspace.name,
-        startTime: newReservation.start_time,
-        endTime: newReservation.end_time,
-        numberOfPeople: newReservation.number_of_people,
+        startTime: start,
+        endTime: end,
+        numberOfPeople: numberOfPeople,
         guests: guests,
-        status: newReservation.status
+        status: 'confirmed',
+        participantReservations: createdReservations.map(r => ({
+          reservationId: r.reservationId,
+          userId: r.userId,
+          isCreator: r.isCreator
+        }))
       }
     });
     
