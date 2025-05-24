@@ -9,7 +9,9 @@ import {
   updateReservation,
   cancelReservation,
   checkAvailability,
-  getWorkspaceReservations
+  getWorkspaceReservations,
+  getTodaysReservations,
+  getActiveReservationsNow
 } from '../controllers/reservationController.js';
 import { 
   validateCreateReservation,
@@ -44,6 +46,12 @@ router.post('/', validateCreateReservation, createReservation);
 
 // Obtener todas las reservas
 router.get('/', getAllReservations);
+
+// Obtener todas las reservas de la empresa para hoy (solo admins)
+router.get('/today', getTodaysReservations);
+
+// Obtener todas las reservas activas ahora (opcionalmente restringir a admins si lo deseas)
+router.get('/active-now', getActiveReservationsNow);
 
 // Obtener una reserva específica por ID
 router.get('/:id', validateGetReservation, getReservationById);

@@ -7,7 +7,7 @@ function getAuthToken() {
     return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 }
 
-// Función para hacer peticiones autenticadas
+// Función para hacer peticiones autenticadas - VERSION CORREGIDA
 async function apiRequest(endpoint, options = {}) {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
     const token = getAuthToken();
@@ -65,15 +65,17 @@ function formatNumber(num) {
 
 // Función para obtener el tiempo hasta la próxima reserva
 function getTimeUntilNext(reservations) {
+    if (!reservations || reservations.length === 0) return 'ninguna próxima';
+    
     const now = new Date();
     const upcoming = reservations
-        .filter(r => new Date(r.startTime) > now)
-        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        .filter(r => new Date(r.startTime || r.start_time) > now)
+        .sort((a, b) => new Date(a.startTime || a.start_time) - new Date(b.startTime || b.start_time));
     
     if (upcoming.length === 0) return 'ninguna próxima';
     
     const nextReservation = upcoming[0];
-    const timeDiff = new Date(nextReservation.startTime) - now;
+    const timeDiff = new Date(nextReservation.startTime || nextReservation.start_time) - now;
     const hours = Math.floor(timeDiff / (1000 * 60 * 60));
     const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
     
@@ -87,11 +89,11 @@ function getTimeUntilNext(reservations) {
     }
 }
 
-// Función para verificar si es administrador
+// Función para verificar si es administrador - CORREGIDA
 async function isAdmin() {
     console.log('🔐 Verificando si es administrador...');
     try {
-        const userInfo = await apiRequest('/users/me'); //
+        const userInfo = await apiRequest('/users/me'); // 🔧 Ahora usando la ruta correcta
         console.log('👤 Info del usuario:', userInfo);
         return userInfo.isAdmin;
     } catch (error) {
@@ -103,66 +105,97 @@ async function isAdmin() {
 // Función para cargar estadísticas de espacios de trabajo
 async function loadWorkspaceStats() {
     try {
-        const workspaces = await apiRequest('/workspaces');
-        const totalWorkspaces = workspaces.length;
-        
-        // Obtener reservas de hoy para calcular disponibilidad
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        const reservationsData = await apiRequest(`/reservations?date=${todayStr}`);
-        const reservations = reservationsData.reservations || [];
+        const workspacesResponse = await apiRequest('/workspaces');
+        // Extraemos el array real de espacios
+        const workspaceList = Array.isArray(workspacesResponse)
+            ? workspacesResponse
+            : Array.isArray(workspacesResponse.data)
+                ? workspacesResponse.data
+                : Array.isArray(workspacesResponse.workspaces)
+                    ? workspacesResponse.workspaces
+                    : [];
 
-        
-        // Calcular espacios disponibles ahora
-        const now = new Date();
-        const activeReservations = reservations.filter(r => {
-            const startTime = new Date(r.startTime);
-            const endTime = new Date(r.endTime);
-            return now >= startTime && now <= endTime;
-        });
-        
-        const occupiedWorkspaces = new Set(activeReservations.map(r => r.workspaceId));
-        const availableWorkspaces = totalWorkspaces - occupiedWorkspaces.size;
-        
+        const totalWorkspaces = workspaceList.length;
+
+        // Filtramos los que están marcados como disponibles en la DB
+        const physicallyAvailable = workspaceList.filter(ws => ws.is_available);
+        let availableCount = physicallyAvailable.length;
+
+        // Consultamos las reservas activas en este momento
+        try {
+            // Por esta (temporalmente para debug):
+            console.log('URL completa que se va a llamar:', '/reservations/active-now');
+            const activeReservations = await apiRequest('/reservations/active-now');
+            // const activeReservations = await apiRequest('/reservations/active-now');
+            console.log('Reservas activas recibidas:', activeReservations);
+
+            // Creamos un set con los workspace_id ocupados ahora mismo
+            const occupiedWorkspaceIds = new Set(
+                activeReservations.map(r => r.workspace_id)
+            );
+            console.log('IDs de espacios ocupados:', Array.from(occupiedWorkspaceIds));
+
+            // Filtramos los disponibles físicamente que NO están ocupados ahora
+            const currentlyAvailable = physicallyAvailable.filter(ws => !occupiedWorkspaceIds.has(ws.id));
+            availableCount = currentlyAvailable.length;
+            console.log('Espacios físicamente disponibles:', physicallyAvailable.map(ws => ws.id));
+            console.log('Espacios disponibles después de filtrar ocupados:', currentlyAvailable.map(ws => ws.id));
+
+            availableCount = currentlyAvailable.length;
+
+        } catch (reservationError) {
+            console.log('No se pudieron cargar reservas activas para calcular disponibilidad:', reservationError);
+        }
         // Actualizar DOM
-        document.getElementById('total-workspaces').textContent = formatNumber(totalWorkspaces);
-        document.getElementById('available-workspaces').textContent = `${formatNumber(availableWorkspaces)} disponibles`;
-        
+        document.getElementById('total-workspaces').textContent     = formatNumber(totalWorkspaces);
+        document.getElementById('available-workspaces').textContent = `${formatNumber(availableCount)}`;
+
     } catch (error) {
         console.error('Error loading workspace stats:', error);
-        document.getElementById('total-workspaces').textContent = '--';
+        document.getElementById('total-workspaces').textContent     = '--';
         document.getElementById('available-workspaces').textContent = 'Error al cargar';
     }
 }
 
+
+
+
 // Función para cargar estadísticas de reservas
 async function loadReservationStats() {
     try {
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const { reservations: myReservations } = await apiRequest('/reservations/user');
         
-        // Reservas de hoy (todas) y mis reservas
-        const todayReservationsData = await apiRequest(`/reservations?date=${todayStr}`);
-        const todayReservations = todayReservationsData.reservations || [];
-
-        const myReservationsData = await apiRequest('/reservations/my');
-        const myReservations = myReservationsData.reservations || [];
+        const now = new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // Filtrar reservas de hoy
+        const todayReservations = myReservations.filter(r => {
+            const startTime = new Date(r.startTime || r.start_time);
+            return startTime >= today && startTime < tomorrow;
+        });
         
         // Filtrar reservas activas del usuario
-        const now = new Date();
         const activeReservations = myReservations.filter(r => {
-            const startTime = new Date(r.startTime);
-            const endTime = new Date(r.endTime);
+            const startTime = new Date(r.startTime || r.start_time);
+            const endTime = new Date(r.endTime || r.end_time);
             return now >= startTime && now <= endTime;
         });
         
-        // Próximas reservas
-        const upcomingCount = todayReservations.filter(r => new Date(r.startTime) > now).length;
-        const timeUntilNext = getTimeUntilNext(todayReservations);
+        // Próximas reservas del usuario
+        const upcomingReservations = myReservations.filter(r => {
+            const startTime = new Date(r.startTime || r.start_time);
+            return startTime > now;
+        });
         
-        // Actualizar DOM
+        const timeUntilNext = getTimeUntilNext(upcomingReservations);
+        
+        // Actualizar DOM - Por ahora mostramos las reservas del usuario
+        // En un futuro podrías crear una ruta para obtener todas las reservas del día
         document.getElementById('today-reservations').textContent = formatNumber(todayReservations.length);
-        document.getElementById('upcoming-reservations').textContent = `${formatNumber(upcomingCount)} próximas`;
+        document.getElementById('upcoming-reservations').textContent = `${formatNumber(upcomingReservations.length)} próximas`;
         document.getElementById('next-reservation-time').textContent = timeUntilNext;
         
         document.getElementById('my-reservations').textContent = formatNumber(myReservations.length);
@@ -181,25 +214,31 @@ async function loadReservationStats() {
         console.error('Error loading reservation stats:', error);
         document.getElementById('today-reservations').textContent = '--';
         document.getElementById('my-reservations').textContent = '--';
+        document.getElementById('upcoming-reservations').textContent = '--';
+        document.getElementById('next-reservation-time').textContent = 'Error';
     }
 }
 
-// Función para cargar estadísticas de usuarios (solo admin)
 async function loadUserStats() {
     try {
-        const isUserAdmin = await isAdmin();
+        // Obtener estadísticas del nuevo endpoint
+        const response = await apiRequest('/users/stats');
         
-        if (!isUserAdmin) {
-            // Ocultar la tarjeta de usuarios si no es admin
-            document.getElementById('admin-stats-card').style.display = 'none';
-            return;
+        // La respuesta ahora tiene la estructura: { success: true, data: { active: 142, total: 150, ... } }
+        const stats = response.data;
+        const activeUsers = stats.active;
+        
+        // Calcular crecimiento real basado en registros recientes vs total
+        // O mantener simulado si prefieres
+        let growth;
+        if (stats.recentRegistrations && stats.total > 0) {
+            // Crecimiento real basado en registros de últimos 30 días
+            growth = Math.round((stats.recentRegistrations / stats.total) * 100);
+        } else {
+            // Crecimiento simulado como backup
+            growth = Math.floor(Math.random() * 20) - 5; // Entre -5% y +15%
         }
         
-        const users = await apiRequest('/users');
-        const activeUsers = users.filter(u => u.is_active !== false).length;
-        
-        // Calcular crecimiento (simulado por ahora)
-        const growth = Math.floor(Math.random() * 20) - 5; // Entre -5% y +15%
         const growthText = growth >= 0 ? `+${growth}%` : `${growth}%`;
         const growthClass = growth >= 0 ? 'text-green-600' : 'text-red-600';
         
@@ -210,7 +249,19 @@ async function loadUserStats() {
         
     } catch (error) {
         console.error('Error loading user stats:', error);
-        document.getElementById('active-users').textContent = '--';
+        
+        // Manejo de errores mejorado
+        const activeUsersElement = document.getElementById('active-users');
+        const usersGrowthElement = document.getElementById('users-growth');
+        
+        if (activeUsersElement) {
+            activeUsersElement.textContent = '--';
+        }
+        
+        if (usersGrowthElement) {
+            usersGrowthElement.textContent = '--';
+            usersGrowthElement.className = 'text-gray-500 font-medium';
+        }
     }
 }
 
