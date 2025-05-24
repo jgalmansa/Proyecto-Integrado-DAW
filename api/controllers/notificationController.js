@@ -35,11 +35,11 @@ export const getUserNotifications = async (req, res) => {
       include: [
         {
           model: Reservation,
-          attributes: ['id', 'start_time', 'end_time'],
+          attributes: ['id', 'start_time', 'end_time', 'number_of_people', 'guests'],
           include: [
             {
               model: Workspace,
-              attributes: ['id', 'name']
+              attributes: ['id', 'name', 'description', 'capacity', 'equipment']
             }
           ]
         }
@@ -62,9 +62,14 @@ export const getUserNotifications = async (req, res) => {
           id: notification.Reservation.id,
           startTime: notification.Reservation.start_time,
           endTime: notification.Reservation.end_time,
+          numberOfPeople: notification.Reservation.number_of_people,
+          guests: notification.Reservation.guests,
           workspace: {
             id: notification.Reservation.Workspace?.id,
-            name: notification.Reservation.Workspace?.name
+            name: notification.Reservation.Workspace?.name,
+            description: notification.Reservation.Workspace?.description,
+            capacity: notification.Reservation.Workspace?.capacity,
+            equipment: notification.Reservation.Workspace?.equipment
           }
         };
       }

@@ -172,6 +172,8 @@ export const logout = async (req, res) => {
       });
     }
 
+    console.log('✅ Logout exitoso para token:', token.substring(0, 20) + '...');
+
     // Opcional: Registrar la hora del logout si el modelo User lo soporta
     if (user) {
       try {
