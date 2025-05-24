@@ -494,3 +494,65 @@ export const getUserById = async (req, res) => {
     });
   }
 };
+
+/**
+ * Busca usuarios por email, nombre o apellido, y devuelve una lista de
+ * hasta 10 resultados.
+ * 
+ * @param {Object} req - Objeto de solicitud de Express con el parámetro
+ *   `q` que contiene el texto de búsqueda.
+ * @param {Object} res - Objeto de respuesta de Express para enviar la
+ *   respuesta al cliente.
+ * 
+ * @returns {Promise<Object>} - Resultado de la consulta:
+ *   - success: Verdadero si la consulta fue exitosa.
+ *   - users: Arreglo de objetos con los campos id, email y name.
+ * 
+ * @throws {Error} Si ocurre un error al buscar usuarios, responde con un
+ *   estado 500 y un mensaje de error.
+ */
+export const findUserByEmail = async (req, res) => {
+  try {
+    const { q } = req.query;
+    const companyId = req.user.company_id;
+
+    if (!q || q.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: 'Query debe tener al menos 2 caracteres'
+      });
+    }
+
+    const users = await User.findAll({
+      where: {
+        company_id: companyId,
+        is_active: true,
+        id: { [Op.ne]: req.user.id }, // Excluir al usuario actual
+        [Op.or]: [
+          { email: { [Op.iLike]: `%${q}%` } },
+          { first_name: { [Op.iLike]: `%${q}%` } },
+          { last_name: { [Op.iLike]: `%${q}%` } }
+        ]
+      },
+      attributes: ['id', 'email', 'first_name', 'last_name'],
+      limit: 10
+    });
+
+    const formattedUsers = users.map(user => ({
+      id: user.id,
+      email: user.email,
+      name: `${user.first_name} ${user.last_name}`
+    }));
+
+    res.json({
+      success: true,
+      users: formattedUsers
+    });
+  } catch (error) {
+    console.error('Error searching users:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+}

@@ -1,13 +1,38 @@
 // Configuración de la API
 const API_BASE_URL = '/api';
 
-// Función para obtener el token del localStorage o sessionStorage
+/**
+ * Recupera el token de autenticación guardado en el almacenamiento del lado
+ * del cliente.
+ *
+ * Primero intenta buscar el token en localStorage, y si no lo encuentra,
+ * busca en sessionStorage. Si no existe en ninguno de los dos, devuelve null.
+ *
+ * @returns {string | null} El token de autenticación o null si no existe.
+ */
 function getAuthToken() {
     // Primero intentar localStorage, luego sessionStorage
     return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 }
 
-// Función para hacer peticiones autenticadas - VERSION CORREGIDA
+/**
+ * Realiza una solicitud HTTP a la API con autenticación mediante token.
+ *
+ * Esta función construye la URL completa usando el endpoint proporcionado 
+ * y envía una solicitud fetch con las opciones especificadas. Si no hay 
+ * token de autenticación disponible, redirige al usuario a la pantalla de login.
+ * También maneja respuestas no autorizadas redirigiendo al login y lanza 
+ * un error en caso de que la solicitud falle.
+ *
+ * @param {string} endpoint - El endpoint de la API al que se realizará la solicitud.
+ * @param {object} [options={}] - Opciones adicionales para la solicitud fetch,
+ *                                como método, cuerpo, y cabeceras adicionales.
+ * @returns {Promise<object>} Los datos de respuesta de la API en formato JSON.
+ *
+ * @throws {Error} Si ocurre un error durante la solicitud o si la respuesta 
+ *                 no es exitosa.
+ */
+
 async function apiRequest(endpoint, options = {}) {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
     const token = getAuthToken();
@@ -58,12 +83,25 @@ async function apiRequest(endpoint, options = {}) {
     }
 }
 
-// Función para formatear números
+/**
+ * Formatea un número según las convenciones del idioma español ( España ).
+ * 
+ * @param {Number} num - Número a formatear
+ * @returns {String} Número formateado
+ * @example
+ * formatNumber(123456.789) // '123.456,79'
+ */
 function formatNumber(num) {
     return new Intl.NumberFormat('es-ES').format(num);
 }
 
-// Función para obtener el tiempo hasta la próxima reserva
+/**
+ * Devuelve una cadena con el tiempo hasta la próxima reserva (en minutos o horas)
+ * o 'ninguna próxima' si no hay reservas futuras.
+ * 
+ * @param {Array<Object>} reservations - Lista de reservas del usuario actual
+ * @returns {String} Tiempo hasta la próxima reserva
+ */
 function getTimeUntilNext(reservations) {
     if (!reservations || reservations.length === 0) return 'ninguna próxima';
     
@@ -89,7 +127,10 @@ function getTimeUntilNext(reservations) {
     }
 }
 
-// Función para verificar si es administrador - CORREGIDA
+/**
+ * Verifica si el usuario actual es administrador.
+ * @returns {boolean} true si el usuario es administrador, false en caso contrario
+ */
 async function isAdmin() {
     console.log('🔐 Verificando si es administrador...');
     try {
@@ -102,7 +143,23 @@ async function isAdmin() {
     }
 }
 
-// Función para cargar estadísticas de espacios de trabajo
+/**
+ * Carga estadísticas de los espacios de trabajo desde el endpoint /workspaces.
+ *
+ * Realiza una solicitud a la API para obtener la lista de espacios de trabajo,
+ * determinando el número total de espacios y los actualmente disponibles.
+ * Los espacios disponibles son aquellos que están marcados como disponibles
+ * en la base de datos y que no tienen reservas activas en este momento.
+ *
+ * Actualiza el DOM con el número total de espacios y la cantidad de espacios
+ * disponibles actualmente.
+ *
+ * @returns {Promise<void>}
+ *
+ * @throws {Error} Si ocurre un error al obtener las estadísticas, se
+ *   mostrará un mensaje de error en la consola y se actualizará el DOM
+ *   para indicar un error al cargar.
+ */
 async function loadWorkspaceStats() {
     try {
         const workspacesResponse = await apiRequest('/workspaces');
@@ -158,9 +215,20 @@ async function loadWorkspaceStats() {
 }
 
 
-
-
-// Función para cargar estadísticas de reservas
+/**
+ * Función para cargar estadísticas de reservas del usuario actual.
+ * 
+ * Se encarga de llamar a la API para obtener las reservas del usuario
+ * actual y mostrar estadísticas en el dashboard.
+ * 
+ * - Carga las reservas del usuario actual.
+ * - Filtra las reservas activas actualmente.
+ * - Filtra las reservas de hoy.
+ * - Calcula el tiempo hasta la próxima reserva.
+ * - Actualiza el DOM con los resultados.
+ * 
+ * @throws {Error} Si ocurre un error al llamar a la API o al procesar los resultados.
+ */
 async function loadReservationStats() {
     try {
         const { reservations: myReservations } = await apiRequest('/reservations/user');
@@ -219,6 +287,17 @@ async function loadReservationStats() {
     }
 }
 
+/**
+ * Carga estadísticas de usuarios desde el endpoint /users/stats.
+ * 
+ * Actualiza el DOM con el número de usuarios activos y el crecimiento
+ * en porcentaje en los últimos 30 días.
+ * 
+ * @returns {Promise<void>}
+ * 
+ * @throws {Error} Si ocurre un error al obtener las estadísticas, se
+ *   mostrará un mensaje de error en la consola.
+ */
 async function loadUserStats() {
     try {
         // Obtener estadísticas del nuevo endpoint
@@ -265,7 +344,12 @@ async function loadUserStats() {
     }
 }
 
-// Función principal para cargar todas las estadísticas
+/**
+ * Carga las estadísticas generales del dashboard, incluyendo
+ * información de espacios de trabajo, reservas y usuarios.
+ *
+ * @returns {Promise<void>}
+ */
 async function loadDashboardStats() {
     try {
         await Promise.all([
@@ -278,7 +362,11 @@ async function loadDashboardStats() {
     }
 }
 
-// Función para verificar autenticación al cargar la página
+/**
+ * Verificar si hay un token de autenticación almacenado.
+ * Si no hay token, redirigir a la pantalla de login.
+ * @returns {boolean} true si hay un token, false en caso contrario.
+ */
 function checkAuth() {
     const token = getAuthToken();
     if (!token) {
