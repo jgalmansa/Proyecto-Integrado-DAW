@@ -578,6 +578,63 @@
                                 >
                             </div>
                         </div>
+
+                        <!-- Sección de Invitados -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                                Invitados (opcional)
+                            </label>
+                            
+                            <!-- Buscador de usuarios -->
+                            <div class="relative mb-3">
+                                <input 
+                                    type="text" 
+                                    id="guest-search" 
+                                    placeholder="Buscar usuarios por email..."
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
+                                >
+                                <div id="guest-search-results" class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                    <!-- Resultados de búsqueda aparecerán aquí -->
+                                </div>
+                            </div>
+
+                            <!-- Lista de invitados seleccionados -->
+                            <div id="selected-guests" class="space-y-2">
+                                <!-- Los invitados seleccionados aparecerán aquí -->
+                            </div>
+
+                            <!-- Campo para invitados externos -->
+                            <div class="mt-3 w-full">
+                                <div class="flex items-center gap-2 w-full justify-between">
+                                    <input 
+                                        type="number" 
+                                        id="external-guests-count" 
+                                        placeholder="0"
+                                        min="0"
+                                        max="99"
+                                        value="0"
+                                        class="w-20 px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-gray-50 focus:bg-white text-center"
+                                    >
+                                    <span class="text-gray-700 font-medium">
+                                        Invitado(s) Externo(s)
+                                    </span>
+                                    <button 
+                                        type="button" 
+                                        id="add-external-guest" 
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+                                    >
+                                        Añadir
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Especifica la cantidad de invitados externos a añadir
+                                </p>
+                            </div>
+                        </div>
+
                         <!-- Espacios disponibles -->
                         <div id="available-spaces-container" class="hidden">
                             <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">

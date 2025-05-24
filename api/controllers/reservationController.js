@@ -11,7 +11,7 @@ import { createPersonalNotification, createGlobalNotification, createReservation
 const parseGuestsData = (guestsData) => {
   if (!guestsData) return [];
   if (Array.isArray(guestsData)) return guestsData;
-  
+
   try {
     return JSON.parse(guestsData);
   } catch (error) {
@@ -40,45 +40,48 @@ export const createReservation = async (req, res) => {
     const { workspaceId, guests = [], startTime, endTime } = req.body;
     const userId = req.user.id;
     const companyId = req.user.company_id;
-    
-    // Calcular automáticamente el número de personas
-    const numberOfPeople = calculateNumberOfPeople(guests);
-    
+
+    // Extraer invitados externos del body si los hay
+    const { externalGuests = [] } = req.body;
+
+    // Calcular automáticamente el número de personas (usuarios + externos + creador)
+    const numberOfPeople = 1 + guests.length + externalGuests.length;
+
     // Verificar que el espacio de trabajo existe y pertenece a la misma empresa
-    const workspace = await Workspace.findOne({ 
-      where: { 
-        id: workspaceId, 
+    const workspace = await Workspace.findOne({
+      where: {
+        id: workspaceId,
         company_id: companyId,
         is_available: true
-      } 
+      }
     });
-    
+
     if (!workspace) {
       return res.status(404).json({ message: 'Espacio de trabajo no encontrado o no disponible' });
     }
-    
+
     // Verificar si el número de personas excede la capacidad
     if (numberOfPeople > workspace.capacity) {
-      return res.status(400).json({ 
-        message: `El número de personas (${numberOfPeople}) excede la capacidad del espacio (máximo: ${workspace.capacity})` 
+      return res.status(400).json({
+        message: `El número de personas (${numberOfPeople}) excede la capacidad del espacio (máximo: ${workspace.capacity})`
       });
     }
-    
+
     // Convertir a objetos Date para comparaciones
     const start = new Date(startTime);
     const end = new Date(endTime);
-    
+
     // Validar que la fecha de inicio sea anterior a la de fin
     if (start >= end) {
       return res.status(400).json({ message: 'La hora de inicio debe ser anterior a la hora de fin' });
     }
-    
+
     // Validar que la reserva sea para una fecha futura
     const now = new Date();
     if (start < now) {
       return res.status(400).json({ message: 'No se pueden hacer reservas para fechas pasadas' });
     }
-    
+
     // Verificar disponibilidad (que no haya otra reserva en ese horario)
     const conflictingReservation = await Reservation.findOne({
       where: {
@@ -94,7 +97,7 @@ export const createReservation = async (req, res) => {
         deleted_at: null
       }
     });
-    
+
     if (conflictingReservation) {
       return res.status(409).json({ message: 'El espacio ya está reservado en ese horario' });
     }
@@ -102,22 +105,22 @@ export const createReservation = async (req, res) => {
     // Obtener los usuarios invitados que existen en la empresa
     const userGuestIds = guests.filter(guest => Number.isInteger(guest));
     let invitedUsers = [];
-    
+
     if (userGuestIds.length > 0) {
       invitedUsers = await User.findAll({
         where: { id: userGuestIds, company_id: companyId, is_active: true }
       });
     }
-    
+
     // Crear lista de todos los participantes (creador + invitados válidos)
     const allParticipants = [
       { id: userId, isCreator: true },
       ...invitedUsers.map(user => ({ id: user.id, isCreator: false }))
     ];
-    
+
     // Crear reservas para todos los participantes
     const createdReservations = [];
-    
+
     for (const participant of allParticipants) {
       const reservation = await Reservation.create({
         user_id: participant.id,
@@ -128,7 +131,7 @@ export const createReservation = async (req, res) => {
         end_time: end,
         status: 'confirmed'
       });
-      
+
       createdReservations.push({
         reservationId: reservation.id,
         userId: participant.id,
@@ -149,7 +152,7 @@ export const createReservation = async (req, res) => {
       const admins = await User.findAll({
         where: { company_id: companyId, role: 'admin', is_active: true }
       });
-      
+
       for (const admin of admins) {
         await createPersonalNotification(
           admin.id,
@@ -162,7 +165,7 @@ export const createReservation = async (req, res) => {
     // Notificar a los invitados que son usuarios de la empresa
     for (const guestUser of invitedUsers) {
       const guestReservation = createdReservations.find(r => r.userId === guestUser.id);
-      
+
       await createPersonalNotification(
         guestUser.id,
         `Has sido invitado por ${req.user.first_name} ${req.user.last_name} ` +
@@ -171,7 +174,7 @@ export const createReservation = async (req, res) => {
         guestReservation.reservationId
       );
     }
-    
+
     // Responder con información de todas las reservas creadas
     return res.status(201).json({
       message: 'Reservas creadas exitosamente para todos los participantes',
@@ -191,7 +194,7 @@ export const createReservation = async (req, res) => {
         }))
       }
     });
-    
+
   } catch (error) {
     console.error('Error al crear reserva:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
@@ -208,14 +211,14 @@ export const getUserReservations = async (req, res) => {
   try {
     const userId = req.user.id;
     const { status, timeframe } = req.query;
-    
+
     let whereClause = { user_id: userId, deleted_at: null };
-    
+
     // Filtrar por estado si se proporciona
     if (status && ['pending', 'confirmed', 'cancelled'].includes(status)) {
       whereClause.status = status;
     }
-    
+
     // Filtrar por periodo de tiempo
     const now = new Date();
     if (timeframe === 'upcoming') {
@@ -226,7 +229,7 @@ export const getUserReservations = async (req, res) => {
       whereClause.start_time = { [Op.lte]: now };
       whereClause.end_time = { [Op.gte]: now };
     }
-    
+
     const reservations = await Reservation.findAll({
       where: whereClause,
       include: [
@@ -237,7 +240,7 @@ export const getUserReservations = async (req, res) => {
       ],
       order: [['start_time', 'ASC']]
     });
-    
+
     const formattedReservations = reservations.map(reservation => ({
       id: reservation.id,
       workspaceId: reservation.workspace_id,
@@ -250,12 +253,12 @@ export const getUserReservations = async (req, res) => {
       status: reservation.status,
       createdAt: reservation.created_at
     }));
-    
+
     return res.status(200).json({
       message: 'Reservas obtenidas correctamente',
       reservations: formattedReservations
     });
-    
+
   } catch (error) {
     console.error('Error al obtener reservas del usuario:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
@@ -273,15 +276,15 @@ export const getReservationById = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
     const isAdmin = req.user.role === 'admin';
-    
+
     // Construir la consulta
     let whereClause = { id, deleted_at: null };
-    
+
     // Si no es admin, solo puede ver sus propias reservas
     if (!isAdmin) {
       whereClause.user_id = userId;
     }
-    
+
     const reservation = await Reservation.findOne({
       where: whereClause,
       include: [
@@ -295,11 +298,11 @@ export const getReservationById = async (req, res) => {
         }
       ]
     });
-    
+
     if (!reservation) {
       return res.status(404).json({ message: 'Reserva no encontrada' });
     }
-    
+
     const formattedReservation = {
       id: reservation.id,
       workspaceId: reservation.workspace_id,
@@ -324,12 +327,12 @@ export const getReservationById = async (req, res) => {
       createdAt: reservation.created_at,
       updatedAt: reservation.updated_at
     };
-    
+
     return res.status(200).json({
       message: 'Reserva obtenida correctamente',
       reservation: formattedReservation
     });
-    
+
   } catch (error) {
     console.error('Error al obtener reserva por ID:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
@@ -346,12 +349,12 @@ export const getReservationById = async (req, res) => {
 export const getMyTodayReservations = async (req, res) => {
   try {
     const userId = req.user.id;
-    
+
     // Obtener inicio y fin del día actual
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-    
+
     const reservations = await Reservation.findAll({
       where: {
         user_id: userId,
@@ -370,7 +373,7 @@ export const getMyTodayReservations = async (req, res) => {
       ],
       order: [['start_time', 'ASC']]
     });
-    
+
     // Formatear para el frontend (específico para notificaciones)
     const formattedReservations = reservations.map(reservation => ({
       id: reservation.id,
@@ -379,12 +382,12 @@ export const getMyTodayReservations = async (req, res) => {
       workspace_name: reservation.Workspace.name,
       status: reservation.status
     }));
-    
+
     return res.status(200).json({
       message: 'Reservas de hoy obtenidas correctamente',
       reservations: formattedReservations
     });
-    
+
   } catch (error) {
     console.error('Error al obtener reservas de hoy:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
@@ -402,9 +405,9 @@ export const getAllReservations = async (req, res) => {
     const { date, status } = req.query;
     const userId = req.user.id;
     const userCompanyId = req.user.company_id;
-    
-    let whereClause = { 
-      deleted_at: null 
+
+    let whereClause = {
+      deleted_at: null
     };
 
     // Solo mostrar reservas de la misma empresa
@@ -412,7 +415,7 @@ export const getAllReservations = async (req, res) => {
       where: { company_id: userCompanyId },
       attributes: ['id']
     });
-    
+
     const workspaceIds = companyWorkspaces.map(w => w.id);
     whereClause.workspace_id = { [Op.in]: workspaceIds };
 
@@ -421,7 +424,7 @@ export const getAllReservations = async (req, res) => {
       const filterDate = new Date(date);
       const startOfDay = new Date(filterDate.getFullYear(), filterDate.getMonth(), filterDate.getDate());
       const endOfDay = new Date(filterDate.getFullYear(), filterDate.getMonth(), filterDate.getDate() + 1);
-      
+
       whereClause.start_time = {
         [Op.gte]: startOfDay,
         [Op.lt]: endOfDay
@@ -533,18 +536,18 @@ export const updateReservation = async (req, res) => {
     // Preparar datos para actualizar
     const updateData = {};
     let newNumberOfPeople = reservation.number_of_people;
-    
+
     // Si se actualizan los guests, recalcular número de personas
     if (guests !== undefined) {
       newNumberOfPeople = calculateNumberOfPeople(guests);
-      
+
       // Validar capacidad
       if (newNumberOfPeople > reservation.Workspace.capacity) {
         return res.status(400).json({
           message: `El número de personas (${newNumberOfPeople}) excede la capacidad del espacio (máximo: ${reservation.Workspace.capacity})`
         });
       }
-      
+
       updateData.guests = JSON.stringify(guests);
       updateData.number_of_people = newNumberOfPeople;
     }
@@ -595,19 +598,19 @@ export const updateReservation = async (req, res) => {
     // Manejar cambios en los invitados
     let newParticipantIds = [reservation.user_id]; // Siempre incluir al creador original
     let invitedUsers = [];
-    
+
     if (guests !== undefined) {
       const userGuestIds = guests.filter(guest => Number.isInteger(guest));
-      
+
       if (userGuestIds.length > 0) {
         invitedUsers = await User.findAll({
-          where: { 
-            id: userGuestIds, 
-            company_id: reservation.Workspace.company_id, 
-            is_active: true 
+          where: {
+            id: userGuestIds,
+            company_id: reservation.Workspace.company_id,
+            is_active: true
           }
         });
-        
+
         newParticipantIds = [...newParticipantIds, ...invitedUsers.map(u => u.id)];
       }
     } else {
@@ -630,7 +633,7 @@ export const updateReservation = async (req, res) => {
     // Crear nuevas reservas para participantes que no tenían una
     const existingUserIds = relatedReservations.map(r => r.user_id);
     const newUserIds = newParticipantIds.filter(id => !existingUserIds.includes(id));
-    
+
     for (const newUserId of newUserIds) {
       const newReservation = await Reservation.create({
         user_id: newUserId,
@@ -649,13 +652,13 @@ export const updateReservation = async (req, res) => {
       await createPersonalNotification(
         participantId,
         `La reserva para ${reservation.Workspace.name} ha sido modificada.`,
-        participantId === reservation.user_id ? reservation.id : 
-        updatedReservations.find(rId => {
-          // Encontrar la reserva correspondiente a este usuario
-          const userReservation = relatedReservations.find(r => r.user_id === participantId) ||
-                                 { id: updatedReservations[updatedReservations.length - 1] };
-          return userReservation.id;
-        })
+        participantId === reservation.user_id ? reservation.id :
+          updatedReservations.find(rId => {
+            // Encontrar la reserva correspondiente a este usuario
+            const userReservation = relatedReservations.find(r => r.user_id === participantId) ||
+              { id: updatedReservations[updatedReservations.length - 1] };
+            return userReservation.id;
+          })
       );
     }
 
@@ -768,7 +771,7 @@ export const cancelReservation = async (req, res) => {
     for (const relatedReservation of relatedReservations) {
       await relatedReservation.update({ status: 'cancelled' });
       cancelledReservationIds.push(relatedReservation.id);
-      
+
       // Recopilar información de usuarios afectados
       if (relatedReservation.User) {
         affectedUsers.push({
@@ -784,11 +787,11 @@ export const cancelReservation = async (req, res) => {
     // Determinar quién canceló la reserva para las notificaciones
     const cancelledBy = req.user;
     const cancellerName = `${cancelledBy.first_name} ${cancelledBy.last_name}`;
-    
+
     // Crear notificaciones personalizadas para cada usuario afectado
     for (const userInfo of affectedUsers) {
       let notificationMessage;
-      
+
       if (userInfo.isOriginalUser) {
         // Mensaje para el usuario que canceló
         notificationMessage = `Has cancelado tu reserva para ${reservation.Workspace.name}.`;
@@ -799,7 +802,7 @@ export const cancelReservation = async (req, res) => {
         // Mensaje para otros participantes
         notificationMessage = `La reserva de ${reservation.Workspace.name} en la que participabas ha sido cancelada por ${cancellerName}.`;
       }
-      
+
       await createPersonalNotification(
         userInfo.id,
         notificationMessage,
@@ -810,13 +813,13 @@ export const cancelReservation = async (req, res) => {
     // Notificar a los administradores si la cancelación fue hecha por un usuario regular
     if (!isAdmin && process.env.NOTIFY_ADMINS_ON_CANCELLATION === 'true') {
       const admins = await User.findAll({
-        where: { 
-          company_id: reservation.Workspace.company_id, 
-          role: 'admin', 
-          is_active: true 
+        where: {
+          company_id: reservation.Workspace.company_id,
+          role: 'admin',
+          is_active: true
         }
       });
-      
+
       for (const admin of admins) {
         await createPersonalNotification(
           admin.id,
@@ -856,29 +859,29 @@ export const checkAvailability = async (req, res) => {
   try {
     const { workspaceId, startTime, endTime, excludeReservationId } = req.query;
     const companyId = req.user.company_id;
-    
+
     // Verificar que el espacio existe y pertenece a la empresa
-    const workspace = await Workspace.findOne({ 
-      where: { 
-        id: workspaceId, 
+    const workspace = await Workspace.findOne({
+      where: {
+        id: workspaceId,
         company_id: companyId,
         is_available: true
-      } 
+      }
     });
-    
+
     if (!workspace) {
       return res.status(404).json({ message: 'Espacio de trabajo no encontrado o no disponible' });
     }
-    
+
     // Convertir a objetos Date
     const start = new Date(startTime);
     const end = new Date(endTime);
-    
+
     // Validar fechas
     if (start >= end) {
       return res.status(400).json({ message: 'La hora de inicio debe ser anterior a la hora de fin' });
     }
-    
+
     // Construir la consulta de conflictos
     let whereClause = {
       workspace_id: workspaceId,
@@ -892,14 +895,14 @@ export const checkAvailability = async (req, res) => {
       ],
       deleted_at: null
     };
-    
+
     // Si se proporciona ID de reserva a excluir (útil para actualizaciones)
     if (excludeReservationId) {
       whereClause.id = { [Op.ne]: excludeReservationId };
     }
-    
+
     const conflictingReservation = await Reservation.findOne({ where: whereClause });
-    
+
     return res.status(200).json({
       workspaceId: Number(workspaceId),
       startTime,
@@ -907,7 +910,7 @@ export const checkAvailability = async (req, res) => {
       available: !conflictingReservation,
       capacity: workspace.capacity
     });
-    
+
   } catch (error) {
     console.error('Error al verificar disponibilidad:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
@@ -925,42 +928,42 @@ export const getWorkspaceReservations = async (req, res) => {
     const { workspaceId } = req.params;
     const { startDate, endDate } = req.query;
     const companyId = req.user.company_id;
-    
+
     // Verificar que el espacio existe y pertenece a la empresa
-    const workspace = await Workspace.findOne({ 
-      where: { 
-        id: workspaceId, 
+    const workspace = await Workspace.findOne({
+      where: {
+        id: workspaceId,
         company_id: companyId
-      } 
+      }
     });
-    
+
     if (!workspace) {
       return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
     }
-    
+
     // Construir consulta de fechas
     let whereClause = {
       workspace_id: workspaceId,
       status: 'confirmed',
       deleted_at: null
     };
-    
+
     // Si se proporcionan fechas, filtrar por rango
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
-      
+
       whereClause[Op.or] = [
         // Reservas que empiezan dentro del rango
         {
-          start_time: { 
+          start_time: {
             [Op.gte]: start,
             [Op.lte]: end
           }
         },
         // Reservas que terminan dentro del rango
         {
-          end_time: { 
+          end_time: {
             [Op.gte]: start,
             [Op.lte]: end
           }
@@ -972,7 +975,7 @@ export const getWorkspaceReservations = async (req, res) => {
         }
       ];
     }
-    
+
     const reservations = await Reservation.findAll({
       where: whereClause,
       include: [
@@ -983,7 +986,7 @@ export const getWorkspaceReservations = async (req, res) => {
       ],
       order: [['start_time', 'ASC']]
     });
-    
+
     const formattedReservations = reservations.map(reservation => ({
       id: reservation.id,
       startTime: reservation.start_time,
@@ -996,13 +999,13 @@ export const getWorkspaceReservations = async (req, res) => {
         email: reservation.User.email
       }
     }));
-    
+
     return res.status(200).json({
       workspaceId: Number(workspaceId),
       workspaceName: workspace.name,
       reservations: formattedReservations
     });
-    
+
   } catch (error) {
     console.error('Error al obtener reservas del espacio:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
@@ -1019,20 +1022,20 @@ export const getTodaysReservations = async (req, res) => {
   try {
     const companyId = req.user.company_id;
     const isAdmin = req.user.role === 'admin';
-    
+
     // Solo los administradores pueden ver todas las reservas del día
     if (!isAdmin) {
       return res.status(403).json({ message: 'No tienes permisos para ver estas reservas' });
     }
-    
+
     // Obtener inicio y fin del día actual
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
     const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-    
+
     const reservations = await Reservation.findAll({
       where: {
-        start_time: { 
+        start_time: {
           [Op.gte]: startOfDay,
           [Op.lte]: endOfDay
         },
@@ -1052,7 +1055,7 @@ export const getTodaysReservations = async (req, res) => {
       ],
       order: [['start_time', 'ASC']]
     });
-    
+
     const formattedReservations = reservations.map(reservation => ({
       id: reservation.id,
       workspaceId: reservation.workspace_id,
@@ -1074,14 +1077,14 @@ export const getTodaysReservations = async (req, res) => {
       status: reservation.status,
       createdAt: reservation.created_at
     }));
-    
+
     return res.status(200).json({
       message: 'Reservas del día obtenidas correctamente',
       date: now.toISOString().split('T')[0],
       totalReservations: formattedReservations.length,
       reservations: formattedReservations
     });
-    
+
   } catch (error) {
     console.error('Error al obtener reservas del día:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
@@ -1190,7 +1193,7 @@ export const getAvailableSpaces = async (req, res) => {
     });
 
     const workspacesWithAvailability = await Promise.all(availabilityPromises);
-    
+
     // Filtrar solo los disponibles
     const availableSpaces = workspacesWithAvailability.filter(ws => ws.available);
 

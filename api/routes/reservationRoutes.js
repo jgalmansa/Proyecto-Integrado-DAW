@@ -41,6 +41,7 @@ router.get('/user', getUserReservations);
 // Obtener las reservas del usuario (para dashboard - NUEVA RUTA)
 router.get('/my', getUserReservations);
 
+
 // Obtener las reservas del dia para los recordatorios
 router.get('/my-reservations', getMyTodayReservations);
 

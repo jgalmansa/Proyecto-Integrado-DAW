@@ -1,5 +1,5 @@
 import express from 'express';
-import { registerUser, checkInvitationCode, login, logout, getCurrentUser, getUsers, getUserStats, getUserById } from '../controllers/userController.js';
+import { registerUser, checkInvitationCode, login, logout, getCurrentUser, getUsers, getUserStats, getUserById, findUserByEmail } from '../controllers/userController.js';
 import { validateUserRegistration, validateLogin } from '../middlewares/userValidationMiddleware.js';
 import  { authenticateToken } from '../middlewares/authMiddleware.js';
 
@@ -7,6 +7,8 @@ const router = express.Router();
 
 // GET /api/users - Obtener todos los usuarios (requiere permisos de usuario o admin)
 router.get('/', authenticateToken, getUsers);
+
+router.get('/search', authenticateToken, findUserByEmail);
 
 // GET /api/users/stats - Obtener estadísticas de usuarios
 router.get('/stats', authenticateToken, getUserStats);
