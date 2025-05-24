@@ -949,3 +949,36 @@ export const getTodaysReservations = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
+/**
+ * Obtiene todas las reservas activas en este momento
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Array>} - Lista de reservas activas en este momento
+ */
+export const getActiveReservationsNow = async (req, res) => {
+  try {
+    const now = new Date();
+    console.log('Buscando reservas activas para:', now);
+
+    const activeReservations = await Reservation.findAll({
+      where: {
+        start_time: { [Op.lte]: now },
+        end_time: { [Op.gte]: now },
+        status: 'confirmed',
+        deleted_at: null
+      },
+      attributes: ['id', 'workspace_id', 'start_time', 'end_time'],
+      order: [['start_time', 'ASC']]
+    });
+
+    console.log('Reservas activas encontradas:', activeReservations.length);
+    console.log('Datos:', activeReservations);
+
+    return res.status(200).json(activeReservations);
+  } catch (error) {
+    console.error('Error al obtener reservas activas:', error);
+    return res.status(500).json({ message: 'Error al obtener reservas activas' });
+  }
+};

@@ -121,28 +121,35 @@ async function loadWorkspaceStats() {
         const physicallyAvailable = workspaceList.filter(ws => ws.is_available);
         let availableCount = physicallyAvailable.length;
 
-        // Para calcular cuántos de esos están ocupados ahora:
+        // Consultamos las reservas activas en este momento
         try {
-            const userReservations = await apiRequest('/reservations/user');
-            const now = new Date();
+            // Por esta (temporalmente para debug):
+            console.log('URL completa que se va a llamar:', '/reservations/active-now');
+            const activeReservations = await apiRequest('/reservations/active-now');
+            // const activeReservations = await apiRequest('/reservations/active-now');
+            console.log('Reservas activas recibidas:', activeReservations);
 
-            // Contar solo las reservas activas de los espacios disponibles
-            const activeReservations = userReservations.filter(r => {
-                const startTime = new Date(r.startTime || r.start_time);
-                const endTime   = new Date(r.endTime   || r.end_time);
-                return now >= startTime && now <= endTime
-                    && physicallyAvailable.some(ws => ws.id === r.workspaceId);
-            });
+            // Creamos un set con los workspace_id ocupados ahora mismo
+            const occupiedWorkspaceIds = new Set(
+                activeReservations.map(r => r.workspace_id)
+            );
+            console.log('IDs de espacios ocupados:', Array.from(occupiedWorkspaceIds));
 
-            // Restamos los ocupados
-            availableCount = Math.max(0, availableCount - activeReservations.length);
+            // Filtramos los disponibles físicamente que NO están ocupados ahora
+            const currentlyAvailable = physicallyAvailable.filter(ws => !occupiedWorkspaceIds.has(ws.id));
+            availableCount = currentlyAvailable.length;
+            console.log('Espacios físicamente disponibles:', physicallyAvailable.map(ws => ws.id));
+            console.log('Espacios disponibles después de filtrar ocupados:', currentlyAvailable.map(ws => ws.id));
+
+            availableCount = currentlyAvailable.length;
+
         } catch (reservationError) {
-            console.log('No se pudieron cargar reservas para calcular disponibilidad:', reservationError);
+            console.log('No se pudieron cargar reservas activas para calcular disponibilidad:', reservationError);
         }
 
         // Actualizar DOM
         document.getElementById('total-workspaces').textContent     = formatNumber(totalWorkspaces);
-        document.getElementById('available-workspaces').textContent = `${formatNumber(availableCount)} disponibles`;
+        document.getElementById('available-workspaces').textContent = `${formatNumber(availableCount)}`;
 
     } catch (error) {
         console.error('Error loading workspace stats:', error);
@@ -150,6 +157,7 @@ async function loadWorkspaceStats() {
         document.getElementById('available-workspaces').textContent = 'Error al cargar';
     }
 }
+
 
 
 
