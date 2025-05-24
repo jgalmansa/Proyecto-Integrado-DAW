@@ -11,7 +11,8 @@ import {
   checkAvailability,
   getWorkspaceReservations,
   getTodaysReservations,
-  getActiveReservationsNow
+  getActiveReservationsNow,
+  getAvailableSpaces
 } from '../controllers/reservationController.js';
 import { 
   validateCreateReservation,
@@ -19,7 +20,8 @@ import {
   validateCancelReservation,
   validateGetReservation,
   validateCheckAvailability,
-  validateGetWorkspaceReservations
+  validateGetWorkspaceReservations,
+  validateGetAvailableSpaces
 } from '../middlewares/reservationValidationMiddleware.js';
 import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
 
@@ -28,6 +30,7 @@ const router = express.Router();
 // Rutas protegidas (requieren autenticación)
 router.use(authenticateToken);
 
+router.get('/available-spaces', validateGetAvailableSpaces, getAvailableSpaces);
 
 // Verificar disponibilidad de un espacio
 router.get('/check-availability', validateCheckAvailability, checkAvailability);

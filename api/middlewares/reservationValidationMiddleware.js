@@ -221,3 +221,31 @@ export const validateGetWorkspaceReservations = [
     next();
   }
 ];
+
+/**
+ * Middleware para validar los parámetros al obtener las reservas de hoy
+ */
+export const validateGetAvailableSpaces = [
+  query('date')
+    .notEmpty().withMessage('La fecha es requerida')
+    .isDate().withMessage('La fecha debe tener un formato válido (YYYY-MM-DD)'),
+    
+  query('startTime')
+    .notEmpty().withMessage('La hora de inicio es requerida')
+    .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage('La hora de inicio debe tener formato HH:MM'),
+    
+  query('endTime')
+    .notEmpty().withMessage('La hora de fin es requerida')
+    .matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).withMessage('La hora de fin debe tener formato HH:MM'),
+    
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false,
+        errors: errors.array() 
+      });
+    }
+    next();
+  }
+];

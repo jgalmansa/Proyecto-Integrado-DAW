@@ -1098,7 +1098,6 @@ export const getTodaysReservations = async (req, res) => {
 export const getActiveReservationsNow = async (req, res) => {
   try {
     const now = new Date();
-    console.log('Buscando reservas activas para:', now);
 
     const activeReservations = await Reservation.findAll({
       where: {
@@ -1111,12 +1110,105 @@ export const getActiveReservationsNow = async (req, res) => {
       order: [['start_time', 'ASC']]
     });
 
-    console.log('Reservas activas encontradas:', activeReservations.length);
-    console.log('Datos:', activeReservations);
-
     return res.status(200).json(activeReservations);
   } catch (error) {
     console.error('Error al obtener reservas activas:', error);
     return res.status(500).json({ message: 'Error al obtener reservas activas' });
+  }
+};
+
+/**
+ * Obtiene los espacios de trabajo disponibles para una fecha y rango de tiempo específicos.
+ *
+ * @param {Object} req - Objeto de solicitud de Express que incluye los parámetros de consulta: `date`, `startTime`, y `endTime`.
+ * @param {Object} res - Objeto de respuesta de Express para devolver los espacios disponibles.
+ *
+ * @returns {Promise<Object>} - Retorna un objeto JSON con los espacios disponibles y su información.
+ *
+ * @throws {Error} - Retorna un error 400 si faltan parámetros o si la hora de inicio es posterior a la de fin. 
+ *   Retorna un error 500 si ocurre un error interno del servidor.
+ */
+export const getAvailableSpaces = async (req, res) => {
+  try {
+    const { date, startTime, endTime } = req.query;
+    const companyId = req.user.company_id;
+
+    // Validar que los parámetros estén presentes
+    if (!date || !startTime || !endTime) {
+      return res.status(400).json({
+        success: false,
+        message: 'Fecha, hora de inicio y hora de fin son requeridas'
+      });
+    }
+
+    // Combinar fecha con horarios para crear objetos Date completos
+    const startDateTime = new Date(`${date}T${startTime}`);
+    const endDateTime = new Date(`${date}T${endTime}`);
+
+    // Validar fechas
+    if (startDateTime >= endDateTime) {
+      return res.status(400).json({
+        success: false,
+        message: 'La hora de inicio debe ser anterior a la hora de fin'
+      });
+    }
+
+    // Obtener todos los espacios de la empresa
+    const allWorkspaces = await Workspace.findAll({
+      where: {
+        company_id: companyId,
+        is_available: true
+      },
+      order: [['name', 'ASC']]
+    });
+
+    // Para cada workspace, verificar si está disponible
+    const availabilityPromises = allWorkspaces.map(async (workspace) => {
+      // Buscar reservas conflictivas
+      const conflictingReservation = await Reservation.findOne({
+        where: {
+          workspace_id: workspace.id,
+          status: 'confirmed',
+          [Op.or]: [
+            {
+              start_time: { [Op.lt]: endDateTime },
+              end_time: { [Op.gt]: startDateTime }
+            }
+          ],
+          deleted_at: null
+        }
+      });
+
+      return {
+        id: workspace.id,
+        name: workspace.name,
+        description: workspace.description,
+        capacity: workspace.capacity,
+        equipment: workspace.equipment,
+        available: !conflictingReservation
+      };
+    });
+
+    const workspacesWithAvailability = await Promise.all(availabilityPromises);
+    
+    // Filtrar solo los disponibles
+    const availableSpaces = workspacesWithAvailability.filter(ws => ws.available);
+
+    return res.status(200).json({
+      success: true,
+      date,
+      startTime,
+      endTime,
+      totalSpaces: allWorkspaces.length,
+      availableSpaces: availableSpaces,
+      unavailableCount: allWorkspaces.length - availableSpaces.length
+    });
+
+  } catch (error) {
+    console.error('Error al obtener espacios disponibles:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
   }
 };
