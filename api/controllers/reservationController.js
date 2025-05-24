@@ -349,7 +349,7 @@ export const updateReservation = async (req, res) => {
     const userId = req.user.id;
     const isAdmin = req.user.role === 'admin';
 
-    // Buscar la reserva incluyendo el workspace asociado
+    // Buscar la reserva principal incluyendo el workspace asociado
     const reservation = await Reservation.findOne({
       where: {
         id,
@@ -380,22 +380,35 @@ export const updateReservation = async (req, res) => {
       return res.status(400).json({ message: 'No se pueden modificar reservas pasadas o en curso' });
     }
 
+    // Encontrar todas las reservas relacionadas (mismo workspace, mismas fechas, mismo número de personas)
+    const relatedReservations = await Reservation.findAll({
+      where: {
+        workspace_id: reservation.workspace_id,
+        start_time: reservation.start_time,
+        end_time: reservation.end_time,
+        number_of_people: reservation.number_of_people,
+        status: 'confirmed',
+        deleted_at: null
+      }
+    });
+
     // Preparar datos para actualizar
     const updateData = {};
+    let newNumberOfPeople = reservation.number_of_people;
     
     // Si se actualizan los guests, recalcular número de personas
     if (guests !== undefined) {
-      const numberOfPeople = calculateNumberOfPeople(guests);
+      newNumberOfPeople = calculateNumberOfPeople(guests);
       
       // Validar capacidad
-      if (numberOfPeople > reservation.Workspace.capacity) {
+      if (newNumberOfPeople > reservation.Workspace.capacity) {
         return res.status(400).json({
-          message: `El número de personas (${numberOfPeople}) excede la capacidad del espacio (máximo: ${reservation.Workspace.capacity})`
+          message: `El número de personas (${newNumberOfPeople}) excede la capacidad del espacio (máximo: ${reservation.Workspace.capacity})`
         });
       }
       
       updateData.guests = JSON.stringify(guests);
-      updateData.number_of_people = numberOfPeople;
+      updateData.number_of_people = newNumberOfPeople;
     }
 
     // Si se modifican las fechas, verificar disponibilidad
@@ -419,10 +432,11 @@ export const updateReservation = async (req, res) => {
       updateData.start_time = start;
       updateData.end_time = end;
 
-      // Verificar conflictos con otras reservas (excluyendo la actual)
+      // Verificar conflictos con otras reservas (excluyendo las relacionadas actuales)
+      const relatedIds = relatedReservations.map(r => r.id);
       const conflictingReservation = await Reservation.findOne({
         where: {
-          id: { [Op.ne]: parseInt(id) },
+          id: { [Op.notIn]: relatedIds },
           workspace_id: reservation.workspace_id,
           status: 'confirmed',
           [Op.or]: [
@@ -440,22 +454,15 @@ export const updateReservation = async (req, res) => {
       }
     }
 
-    // Actualizar la reserva
-    await reservation.update(updateData);
-
-    // Crear notificación para el usuario usando el servicio de notificaciones
-    await createPersonalNotification(
-      reservation.user_id,
-      `Tu reserva para ${reservation.Workspace.name} ha sido modificada.`,
-      reservation.id
-    );
-
-    // Si se actualizaron los guests, notificar a los nuevos invitados
-    if (guests !== undefined && Array.isArray(guests) && guests.length > 0) {
+    // Manejar cambios en los invitados
+    let newParticipantIds = [reservation.user_id]; // Siempre incluir al creador original
+    let invitedUsers = [];
+    
+    if (guests !== undefined) {
       const userGuestIds = guests.filter(guest => Number.isInteger(guest));
       
       if (userGuestIds.length > 0) {
-        const invitedUsers = await User.findAll({
+        invitedUsers = await User.findAll({
           where: { 
             id: userGuestIds, 
             company_id: reservation.Workspace.company_id, 
@@ -463,18 +470,69 @@ export const updateReservation = async (req, res) => {
           }
         });
         
-        for (const guestUser of invitedUsers) {
-          await createPersonalNotification(
-            guestUser.id,
-            `La reserva de ${reservation.Workspace.name} en la que participas ha sido modificada.`,
-            reservation.id
-          );
-        }
+        newParticipantIds = [...newParticipantIds, ...invitedUsers.map(u => u.id)];
+      }
+    } else {
+      // Si no se modifican los guests, mantener los participantes actuales
+      newParticipantIds = relatedReservations.map(r => r.user_id);
+    }
+
+    // Actualizar todas las reservas relacionadas existentes
+    const updatedReservations = [];
+    for (const relatedReservation of relatedReservations) {
+      if (newParticipantIds.includes(relatedReservation.user_id)) {
+        await relatedReservation.update(updateData);
+        updatedReservations.push(relatedReservation.id);
+      } else {
+        // Si el usuario ya no está en la lista, cancelar su reserva
+        await relatedReservation.update({ status: 'cancelled' });
       }
     }
 
-    // Responder con la reserva actualizada
-    const updatedReservation = await Reservation.findByPk(id, {
+    // Crear nuevas reservas para participantes que no tenían una
+    const existingUserIds = relatedReservations.map(r => r.user_id);
+    const newUserIds = newParticipantIds.filter(id => !existingUserIds.includes(id));
+    
+    for (const newUserId of newUserIds) {
+      const newReservation = await Reservation.create({
+        user_id: newUserId,
+        workspace_id: reservation.workspace_id,
+        guests: updateData.guests || reservation.guests,
+        number_of_people: updateData.number_of_people || reservation.number_of_people,
+        start_time: updateData.start_time || reservation.start_time,
+        end_time: updateData.end_time || reservation.end_time,
+        status: 'confirmed'
+      });
+      updatedReservations.push(newReservation.id);
+    }
+
+    // Notificar a todos los participantes actuales
+    for (const participantId of newParticipantIds) {
+      await createPersonalNotification(
+        participantId,
+        `La reserva para ${reservation.Workspace.name} ha sido modificada.`,
+        participantId === reservation.user_id ? reservation.id : 
+        updatedReservations.find(rId => {
+          // Encontrar la reserva correspondiente a este usuario
+          const userReservation = relatedReservations.find(r => r.user_id === participantId) ||
+                                 { id: updatedReservations[updatedReservations.length - 1] };
+          return userReservation.id;
+        })
+      );
+    }
+
+    // Notificar a usuarios removidos (si los hay)
+    const removedUserIds = existingUserIds.filter(id => !newParticipantIds.includes(id));
+    for (const removedUserId of removedUserIds) {
+      await createPersonalNotification(
+        removedUserId,
+        `Has sido removido de la reserva de ${reservation.Workspace.name}.`,
+        relatedReservations.find(r => r.user_id === removedUserId)?.id
+      );
+    }
+
+    // Responder con la reserva actualizada (la del creador original)
+    const updatedMainReservation = await Reservation.findByPk(reservation.id, {
       include: [
         {
           model: Workspace,
@@ -484,16 +542,17 @@ export const updateReservation = async (req, res) => {
     });
 
     return res.status(200).json({
-      message: 'Reserva actualizada correctamente',
+      message: 'Reservas actualizadas correctamente para todos los participantes',
       reservation: {
-        id: updatedReservation.id,
-        workspaceId: updatedReservation.workspace_id,
-        workspaceName: updatedReservation.Workspace.name,
-        startTime: updatedReservation.start_time,
-        endTime: updatedReservation.end_time,
-        numberOfPeople: updatedReservation.number_of_people,
-        guests: parseGuestsData(updatedReservation.guests),
-        status: updatedReservation.status
+        id: updatedMainReservation.id,
+        workspaceId: updatedMainReservation.workspace_id,
+        workspaceName: updatedMainReservation.Workspace.name,
+        startTime: updatedMainReservation.start_time,
+        endTime: updatedMainReservation.end_time,
+        numberOfPeople: updatedMainReservation.number_of_people,
+        guests: parseGuestsData(updatedMainReservation.guests),
+        status: updatedMainReservation.status,
+        participantReservations: updatedReservations
       }
     });
 
@@ -515,7 +574,7 @@ export const cancelReservation = async (req, res) => {
     const userId = req.user.id;
     const isAdmin = req.user.role === 'admin';
 
-    // Buscar la reserva
+    // Buscar la reserva principal
     const reservation = await Reservation.findOne({
       where: {
         id,
@@ -546,43 +605,101 @@ export const cancelReservation = async (req, res) => {
       return res.status(400).json({ message: 'No se pueden cancelar reservas que ya han finalizado' });
     }
 
-    // Cancelar la reserva
-    await reservation.update({ status: 'cancelled' });
-
-    // Crear notificación para el usuario creador
-    await createPersonalNotification(
-      reservation.user_id,
-      `Tu reserva para ${reservation.Workspace.name} ha sido cancelada.`,
-      reservation.id
-    );
-
-    // Notificar a los invitados que la reserva fue cancelada
-    const guests = parseGuestsData(reservation.guests);
-    if (Array.isArray(guests) && guests.length > 0) {
-      const userGuestIds = guests.filter(guest => Number.isInteger(guest));
-      
-      if (userGuestIds.length > 0) {
-        const invitedUsers = await User.findAll({
-          where: { 
-            id: userGuestIds, 
-            company_id: reservation.Workspace.company_id, 
-            is_active: true 
-          }
-        });
-        
-        for (const guestUser of invitedUsers) {
-          await createPersonalNotification(
-            guestUser.id,
-            `La reserva de ${reservation.Workspace.name} en la que participabas ha sido cancelada.`,
-            reservation.id
-          );
+    // Encontrar todas las reservas relacionadas (mismo workspace, mismas fechas, mismo número de personas)
+    const relatedReservations = await Reservation.findAll({
+      where: {
+        workspace_id: reservation.workspace_id,
+        start_time: reservation.start_time,
+        end_time: reservation.end_time,
+        number_of_people: reservation.number_of_people,
+        status: 'confirmed',
+        deleted_at: null
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'first_name', 'last_name', 'email']
         }
+      ]
+    });
+
+    // Cancelar todas las reservas relacionadas
+    const cancelledReservationIds = [];
+    const affectedUsers = [];
+
+    for (const relatedReservation of relatedReservations) {
+      await relatedReservation.update({ status: 'cancelled' });
+      cancelledReservationIds.push(relatedReservation.id);
+      
+      // Recopilar información de usuarios afectados
+      if (relatedReservation.User) {
+        affectedUsers.push({
+          id: relatedReservation.User.id,
+          name: `${relatedReservation.User.first_name} ${relatedReservation.User.last_name}`,
+          email: relatedReservation.User.email,
+          reservationId: relatedReservation.id,
+          isOriginalUser: relatedReservation.user_id === userId
+        });
+      }
+    }
+
+    // Determinar quién canceló la reserva para las notificaciones
+    const cancelledBy = req.user;
+    const cancellerName = `${cancelledBy.first_name} ${cancelledBy.last_name}`;
+    
+    // Crear notificaciones personalizadas para cada usuario afectado
+    for (const userInfo of affectedUsers) {
+      let notificationMessage;
+      
+      if (userInfo.isOriginalUser) {
+        // Mensaje para el usuario que canceló
+        notificationMessage = `Has cancelado tu reserva para ${reservation.Workspace.name}.`;
+      } else if (isAdmin && userId !== userInfo.id) {
+        // Mensaje cuando un admin cancela la reserva de otro usuario
+        notificationMessage = `Tu reserva para ${reservation.Workspace.name} ha sido cancelada por un administrador.`;
+      } else {
+        // Mensaje para otros participantes
+        notificationMessage = `La reserva de ${reservation.Workspace.name} en la que participabas ha sido cancelada por ${cancellerName}.`;
+      }
+      
+      await createPersonalNotification(
+        userInfo.id,
+        notificationMessage,
+        userInfo.reservationId
+      );
+    }
+
+    // Notificar a los administradores si la cancelación fue hecha por un usuario regular
+    if (!isAdmin && process.env.NOTIFY_ADMINS_ON_CANCELLATION === 'true') {
+      const admins = await User.findAll({
+        where: { 
+          company_id: reservation.Workspace.company_id, 
+          role: 'admin', 
+          is_active: true 
+        }
+      });
+      
+      for (const admin of admins) {
+        await createPersonalNotification(
+          admin.id,
+          `${cancellerName} ha cancelado una reserva para ${reservation.Workspace.name}.`,
+          reservation.id
+        );
       }
     }
 
     return res.status(200).json({
-      message: 'Reserva cancelada correctamente',
-      reservationId: reservation.id
+      message: 'Reservas canceladas correctamente para todos los participantes',
+      details: {
+        originalReservationId: reservation.id,
+        cancelledReservations: cancelledReservationIds,
+        affectedUsers: affectedUsers.map(user => ({
+          userId: user.id,
+          userName: user.name,
+          reservationId: user.reservationId
+        })),
+        totalCancelled: cancelledReservationIds.length
+      }
     });
 
   } catch (error) {
