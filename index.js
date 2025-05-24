@@ -71,6 +71,11 @@ app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'dashboard.html'));
 });
 
+app.get('/notifications', (req, res) => {
+  console.log('Ruta /notifications accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'notifications.html'));
+});
+
 app.use((req, res, next) => {
   console.log(`[LOG] ${req.method} ${req.url}`);
   next();

@@ -7,6 +7,9 @@ import { verifyToken, verifyActiveSession } from '../services/authService.js';
  */
 
 export const authenticateToken = async (req, res, next) => {
+  console.log('🔍 AUTH - Ruta:', req.method, req.path);
+  console.log('🔍 AUTH - Headers:', req.headers.authorization?.substring(0, 50) + '...');
+  
   try {
     // Obtener token del encabezado
     const authHeader = req.headers['authorization'];
@@ -17,15 +20,22 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     // Verificar token usando la función existente en authService
+    console.log('🔍 Verificando token...');
     const decoded = verifyToken(token);
-    
+    console.log('🔍 Token decodificado:', decoded);
+
     if (!decoded) {
+      console.log('❌ Token inválido');
       return res.status(403).json({ message: 'Token inválido o expirado' });
     }
 
     // Verificar que la sesión está activa en la base de datos
+    console.log('🔍 Verificando sesión activa...');
     const activeSession = await verifyActiveSession(token);
+    console.log('🔍 Sesión activa:', activeSession);
+
     if (!activeSession) {
+      console.log('❌ Sesión inválida');
       return res.status(403).json({ message: 'Sesión inválida o expirada' });
     }
     
