@@ -7,7 +7,8 @@ import {
   updateReservation,
   cancelReservation,
   checkAvailability,
-  getWorkspaceReservations
+  getWorkspaceReservations,
+  getTodaysReservations 
 } from '../controllers/reservationController.js';
 import { 
   validateCreateReservation,
@@ -29,6 +30,9 @@ router.post('/', validateCreateReservation, createReservation);
 
 // Obtener reservas del usuario actual
 router.get('/user', getUserReservations);
+
+// Obtener todas las reservas de la empresa para hoy (solo admins)
+router.get('/today', getTodaysReservations);
 
 // Verificar disponibilidad de un espacio
 router.get('/check-availability', validateCheckAvailability, checkAvailability);

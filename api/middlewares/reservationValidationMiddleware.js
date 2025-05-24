@@ -1,5 +1,7 @@
 // backend/src/middlewares/reservationValidationMiddleware.js
 import { body, param, query, validationResult } from 'express-validator';
+import { User } from '../../database/models/index.js';
+import { Op } from 'sequelize';
 
 /**
  * Middleware para validar los datos al crear una reserva
@@ -8,23 +10,57 @@ export const validateCreateReservation = [
   body('workspaceId')
     .notEmpty().withMessage('El ID del espacio de trabajo es requerido')
     .isInt().withMessage('El ID del espacio de trabajo debe ser un número entero'),
-    
-  body('numberOfPeople')
-    .notEmpty().withMessage('El número de personas es requerido')
-    .isInt({ min: 1 }).withMessage('El número de personas debe ser un número entero positivo'),
-    
+
   body('startTime')
     .notEmpty().withMessage('La hora de inicio es requerida')
     .isISO8601().withMessage('La hora de inicio debe tener un formato de fecha válido'),
-    
+
   body('endTime')
     .notEmpty().withMessage('La hora de fin es requerida')
     .isISO8601().withMessage('La hora de fin debe tener un formato de fecha válido'),
-    
+
+  // Validamos guests como un array que puede contener IDs de usuarios o "Invitado Externo"
   body('guests')
     .optional()
-    .isString().withMessage('Los invitados deben ser un texto'),
-    
+    .isArray().withMessage('Los invitados deben enviarse como un array')
+    .bail()
+    .custom((guests, { req }) => {
+      // Validar que cada elemento sea un entero (ID de usuario) o el string "Invitado Externo"
+      const validGuests = guests.every(guest => {
+        return Number.isInteger(guest) || guest === 'Invitado Externo';
+      });
+      
+      if (!validGuests) {
+        throw new Error('Cada invitado debe ser un ID de usuario válido o "Invitado Externo"');
+      }
+      return true;
+    })
+    .bail()
+    .custom(async (guests, { req }) => {
+      if (guests.length === 0) return true;
+      
+      const companyId = req.user.company_id;
+      // Filtrar solo los IDs de usuarios (no los "Invitado Externo")
+      const userIds = guests.filter(guest => Number.isInteger(guest));
+      
+      if (userIds.length > 0) {
+        // Verificar que todos los IDs de usuarios existan en la empresa
+        const count = await User.count({
+          where: {
+            id: { [Op.in]: userIds },
+            company_id: companyId,
+            is_active: true
+          }
+        });
+        
+        if (count !== userIds.length) {
+          throw new Error('Algunos usuarios invitados no existen o no pertenecen a tu empresa');
+        }
+      }
+      
+      return true;
+    }),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -41,23 +77,54 @@ export const validateUpdateReservation = [
   param('id')
     .notEmpty().withMessage('El ID de la reserva es requerido')
     .isInt().withMessage('El ID de la reserva debe ser un número entero'),
-    
-  body('numberOfPeople')
-    .optional()
-    .isInt({ min: 1 }).withMessage('El número de personas debe ser un número entero positivo'),
-    
+
   body('startTime')
     .optional()
     .isISO8601().withMessage('La hora de inicio debe tener un formato de fecha válido'),
-    
+
   body('endTime')
     .optional()
     .isISO8601().withMessage('La hora de fin debe tener un formato de fecha válido'),
-    
+
+  // Mismas validaciones para guests en actualización
   body('guests')
     .optional()
-    .isString().withMessage('Los invitados deben ser un texto'),
-    
+    .isArray().withMessage('Los invitados deben enviarse como un array')
+    .bail()
+    .custom((guests, { req }) => {
+      const validGuests = guests.every(guest => {
+        return Number.isInteger(guest) || guest === 'Invitado Externo';
+      });
+      
+      if (!validGuests) {
+        throw new Error('Cada invitado debe ser un ID de usuario válido o "Invitado Externo"');
+      }
+      return true;
+    })
+    .bail()
+    .custom(async (guests, { req }) => {
+      if (guests.length === 0) return true;
+      
+      const companyId = req.user.company_id;
+      const userIds = guests.filter(guest => Number.isInteger(guest));
+      
+      if (userIds.length > 0) {
+        const count = await User.count({
+          where: {
+            id: { [Op.in]: userIds },
+            company_id: companyId,
+            is_active: true
+          }
+        });
+        
+        if (count !== userIds.length) {
+          throw new Error('Algunos usuarios invitados no existen o no pertenecen a tu empresa');
+        }
+      }
+      
+      return true;
+    }),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

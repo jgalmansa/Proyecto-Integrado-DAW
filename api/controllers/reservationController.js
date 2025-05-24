@@ -4,6 +4,32 @@ import { createPersonalNotification, createGlobalNotification } from '../service
 
 
 /**
+ * Función auxiliar para parsear guests de forma segura
+ * @param {string|Array} guestsData - Datos de guests desde la BD o request
+ * @returns {Array} - Array de guests parseado
+ */
+const parseGuestsData = (guestsData) => {
+  if (!guestsData) return [];
+  if (Array.isArray(guestsData)) return guestsData;
+  
+  try {
+    return JSON.parse(guestsData);
+  } catch (error) {
+    console.error('Error parsing guests data:', error);
+    return [];
+  }
+};
+
+/**
+ * Función auxiliar para calcular número de personas
+ * @param {Array} guests - Array de invitados
+ * @returns {number} - Número total de personas (creador + invitados)
+ */
+const calculateNumberOfPeople = (guests = []) => {
+  return 1 + guests.length; // 1 (creador) + número de invitados
+};
+
+/**
  * Crea una nueva reserva de espacio
  * @param {Object} req - Objeto de solicitud de Express
  * @param {Object} res - Objeto de respuesta de Express
@@ -11,9 +37,12 @@ import { createPersonalNotification, createGlobalNotification } from '../service
  */
 export const createReservation = async (req, res) => {
   try {
-    const { workspaceId, guests, numberOfPeople, startTime, endTime } = req.body;
+    const { workspaceId, guests = [], startTime, endTime } = req.body;
     const userId = req.user.id;
     const companyId = req.user.company_id;
+    
+    // Calcular automáticamente el número de personas
+    const numberOfPeople = calculateNumberOfPeople(guests);
     
     // Verificar que el espacio de trabajo existe y pertenece a la misma empresa
     const workspace = await Workspace.findOne({ 
@@ -31,7 +60,7 @@ export const createReservation = async (req, res) => {
     // Verificar si el número de personas excede la capacidad
     if (numberOfPeople > workspace.capacity) {
       return res.status(400).json({ 
-        message: `El número de personas excede la capacidad del espacio (máximo: ${workspace.capacity})` 
+        message: `El número de personas (${numberOfPeople}) excede la capacidad del espacio (máximo: ${workspace.capacity})` 
       });
     }
     
@@ -70,18 +99,18 @@ export const createReservation = async (req, res) => {
       return res.status(409).json({ message: 'El espacio ya está reservado en ese horario' });
     }
     
-    // Crear la reserva
+    // Crear la reserva, guardando 'guests' como JSON
     const newReservation = await Reservation.create({
       user_id: userId,
       workspace_id: workspaceId,
-      guests: guests || null,
+      guests: JSON.stringify(guests),
       number_of_people: numberOfPeople,
       start_time: start,
       end_time: end,
-      status: 'confirmed'  // Confirmada por defecto
+      status: 'confirmed'
     });
     
-    // Crear notificación para el usuario usando el servicio de notificaciones
+    // Crear notificación para el usuario creador
     await createPersonalNotification(
       userId,
       `Has reservado ${workspace.name} para el ${start.toLocaleDateString()} de ${start.toLocaleTimeString()} a ${end.toLocaleTimeString()}.`,
@@ -102,6 +131,27 @@ export const createReservation = async (req, res) => {
         );
       }
     }
+
+    // Notificar solo a los invitados que son usuarios de la empresa (no a "Invitado Externo")
+    if (Array.isArray(guests) && guests.length > 0) {
+      const userGuestIds = guests.filter(guest => Number.isInteger(guest));
+      
+      if (userGuestIds.length > 0) {
+        const invitedUsers = await User.findAll({
+          where: { id: userGuestIds, company_id: companyId, is_active: true }
+        });
+        
+        for (const guestUser of invitedUsers) {
+          await createPersonalNotification(
+            guestUser.id,
+            `Has sido invitado por ${req.user.first_name} ${req.user.last_name} ` +
+            `a la reserva de ${workspace.name} el ${start.toLocaleDateString()} ` +
+            `de ${start.toLocaleTimeString()} a ${end.toLocaleTimeString()}.`,
+            newReservation.id
+          );
+        }
+      }
+    }
     
     // Responder con la reserva creada
     return res.status(201).json({
@@ -113,7 +163,7 @@ export const createReservation = async (req, res) => {
         startTime: newReservation.start_time,
         endTime: newReservation.end_time,
         numberOfPeople: newReservation.number_of_people,
-        guests: newReservation.guests,
+        guests: guests,
         status: newReservation.status
       }
     });
@@ -172,7 +222,7 @@ export const getUserReservations = async (req, res) => {
       startTime: reservation.start_time,
       endTime: reservation.end_time,
       numberOfPeople: reservation.number_of_people,
-      guests: reservation.guests,
+      guests: parseGuestsData(reservation.guests), // Parseamos de vuelta a array
       status: reservation.status,
       createdAt: reservation.created_at
     }));
@@ -245,7 +295,7 @@ export const getReservationById = async (req, res) => {
       startTime: reservation.start_time,
       endTime: reservation.end_time,
       numberOfPeople: reservation.number_of_people,
-      guests: reservation.guests,
+      guests: parseGuestsData(reservation.guests), // Parseamos de vuelta a array
       status: reservation.status,
       createdAt: reservation.created_at,
       updatedAt: reservation.updated_at
@@ -271,7 +321,7 @@ export const getReservationById = async (req, res) => {
 export const updateReservation = async (req, res) => {
   try {
     const { id } = req.params;
-    const { numberOfPeople, guests, startTime, endTime } = req.body;
+    const { guests, startTime, endTime } = req.body;
     const userId = req.user.id;
     const isAdmin = req.user.role === 'admin';
 
@@ -306,17 +356,23 @@ export const updateReservation = async (req, res) => {
       return res.status(400).json({ message: 'No se pueden modificar reservas pasadas o en curso' });
     }
 
-    // Validar número de personas
-    if (numberOfPeople && numberOfPeople > reservation.Workspace.capacity) {
-      return res.status(400).json({
-        message: `El número de personas excede la capacidad del espacio (máximo: ${reservation.Workspace.capacity})`
-      });
-    }
-
     // Preparar datos para actualizar
     const updateData = {};
-    if (numberOfPeople) updateData.number_of_people = numberOfPeople;
-    if (guests !== undefined) updateData.guests = guests;
+    
+    // Si se actualizan los guests, recalcular número de personas
+    if (guests !== undefined) {
+      const numberOfPeople = calculateNumberOfPeople(guests);
+      
+      // Validar capacidad
+      if (numberOfPeople > reservation.Workspace.capacity) {
+        return res.status(400).json({
+          message: `El número de personas (${numberOfPeople}) excede la capacidad del espacio (máximo: ${reservation.Workspace.capacity})`
+        });
+      }
+      
+      updateData.guests = JSON.stringify(guests);
+      updateData.number_of_people = numberOfPeople;
+    }
 
     // Si se modifican las fechas, verificar disponibilidad
     let start = reservation.start_time;
@@ -342,11 +398,10 @@ export const updateReservation = async (req, res) => {
       // Verificar conflictos con otras reservas (excluyendo la actual)
       const conflictingReservation = await Reservation.findOne({
         where: {
-          id: { [Op.ne]: parseInt(id) }, // Asegurarse de que id sea un número
+          id: { [Op.ne]: parseInt(id) },
           workspace_id: reservation.workspace_id,
           status: 'confirmed',
           [Op.or]: [
-            // La reserva modificada empieza durante una existente
             {
               start_time: { [Op.lt]: end },
               end_time: { [Op.gt]: start }
@@ -371,6 +426,29 @@ export const updateReservation = async (req, res) => {
       reservation.id
     );
 
+    // Si se actualizaron los guests, notificar a los nuevos invitados
+    if (guests !== undefined && Array.isArray(guests) && guests.length > 0) {
+      const userGuestIds = guests.filter(guest => Number.isInteger(guest));
+      
+      if (userGuestIds.length > 0) {
+        const invitedUsers = await User.findAll({
+          where: { 
+            id: userGuestIds, 
+            company_id: reservation.Workspace.company_id, 
+            is_active: true 
+          }
+        });
+        
+        for (const guestUser of invitedUsers) {
+          await createPersonalNotification(
+            guestUser.id,
+            `La reserva de ${reservation.Workspace.name} en la que participas ha sido modificada.`,
+            reservation.id
+          );
+        }
+      }
+    }
+
     // Responder con la reserva actualizada
     const updatedReservation = await Reservation.findByPk(id, {
       include: [
@@ -390,7 +468,7 @@ export const updateReservation = async (req, res) => {
         startTime: updatedReservation.start_time,
         endTime: updatedReservation.end_time,
         numberOfPeople: updatedReservation.number_of_people,
-        guests: updatedReservation.guests,
+        guests: parseGuestsData(updatedReservation.guests),
         status: updatedReservation.status
       }
     });
@@ -424,7 +502,7 @@ export const cancelReservation = async (req, res) => {
       include: [
         {
           model: Workspace,
-          attributes: ['id', 'name']
+          attributes: ['id', 'name', 'company_id']
         }
       ]
     });
@@ -447,12 +525,36 @@ export const cancelReservation = async (req, res) => {
     // Cancelar la reserva
     await reservation.update({ status: 'cancelled' });
 
-    // Crear notificación para el usuario usando el servicio de notificaciones
+    // Crear notificación para el usuario creador
     await createPersonalNotification(
       reservation.user_id,
       `Tu reserva para ${reservation.Workspace.name} ha sido cancelada.`,
       reservation.id
     );
+
+    // Notificar a los invitados que la reserva fue cancelada
+    const guests = parseGuestsData(reservation.guests);
+    if (Array.isArray(guests) && guests.length > 0) {
+      const userGuestIds = guests.filter(guest => Number.isInteger(guest));
+      
+      if (userGuestIds.length > 0) {
+        const invitedUsers = await User.findAll({
+          where: { 
+            id: userGuestIds, 
+            company_id: reservation.Workspace.company_id, 
+            is_active: true 
+          }
+        });
+        
+        for (const guestUser of invitedUsers) {
+          await createPersonalNotification(
+            guestUser.id,
+            `La reserva de ${reservation.Workspace.name} en la que participabas ha sido cancelada.`,
+            reservation.id
+          );
+        }
+      }
+    }
 
     return res.status(200).json({
       message: 'Reserva cancelada correctamente',
@@ -608,7 +710,7 @@ export const getWorkspaceReservations = async (req, res) => {
       startTime: reservation.start_time,
       endTime: reservation.end_time,
       numberOfPeople: reservation.number_of_people,
-      guests: reservation.guests,
+      guests: parseGuestsData(reservation.guests), // CORREGIDO: ahora parsea los guests
       user: {
         id: reservation.User.id,
         name: `${reservation.User.first_name} ${reservation.User.last_name}`,
@@ -624,6 +726,85 @@ export const getWorkspaceReservations = async (req, res) => {
     
   } catch (error) {
     console.error('Error al obtener reservas del espacio:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Obtiene todas las reservas de la empresa para el día actual (solo admins)
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Array>} - Lista de reservas del día
+ */
+export const getTodaysReservations = async (req, res) => {
+  try {
+    const companyId = req.user.company_id;
+    const isAdmin = req.user.role === 'admin';
+    
+    // Solo los administradores pueden ver todas las reservas del día
+    if (!isAdmin) {
+      return res.status(403).json({ message: 'No tienes permisos para ver estas reservas' });
+    }
+    
+    // Obtener inicio y fin del día actual
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    
+    const reservations = await Reservation.findAll({
+      where: {
+        start_time: { 
+          [Op.gte]: startOfDay,
+          [Op.lte]: endOfDay
+        },
+        status: { [Op.in]: ['confirmed', 'pending'] },
+        deleted_at: null
+      },
+      include: [
+        {
+          model: Workspace,
+          where: { company_id: companyId },
+          attributes: ['id', 'name', 'description', 'capacity']
+        },
+        {
+          model: User,
+          attributes: ['id', 'first_name', 'last_name', 'email']
+        }
+      ],
+      order: [['start_time', 'ASC']]
+    });
+    
+    const formattedReservations = reservations.map(reservation => ({
+      id: reservation.id,
+      workspaceId: reservation.workspace_id,
+      workspace: {
+        id: reservation.Workspace.id,
+        name: reservation.Workspace.name,
+        description: reservation.Workspace.description,
+        capacity: reservation.Workspace.capacity
+      },
+      user: {
+        id: reservation.User.id,
+        name: `${reservation.User.first_name} ${reservation.User.last_name}`,
+        email: reservation.User.email
+      },
+      startTime: reservation.start_time,
+      endTime: reservation.end_time,
+      numberOfPeople: reservation.number_of_people,
+      guests: parseGuestsData(reservation.guests),
+      status: reservation.status,
+      createdAt: reservation.created_at
+    }));
+    
+    return res.status(200).json({
+      message: 'Reservas del día obtenidas correctamente',
+      date: now.toISOString().split('T')[0],
+      totalReservations: formattedReservations.length,
+      reservations: formattedReservations
+    });
+    
+  } catch (error) {
+    console.error('Error al obtener reservas del día:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };

@@ -7,7 +7,7 @@ function getAuthToken() {
     return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 }
 
-// Función para hacer peticiones autenticadas
+// Función para hacer peticiones autenticadas - VERSION CORREGIDA
 async function apiRequest(endpoint, options = {}) {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
     const token = getAuthToken();
@@ -65,15 +65,17 @@ function formatNumber(num) {
 
 // Función para obtener el tiempo hasta la próxima reserva
 function getTimeUntilNext(reservations) {
+    if (!reservations || reservations.length === 0) return 'ninguna próxima';
+    
     const now = new Date();
     const upcoming = reservations
-        .filter(r => new Date(r.startTime) > now)
-        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+        .filter(r => new Date(r.startTime || r.start_time) > now)
+        .sort((a, b) => new Date(a.startTime || a.start_time) - new Date(b.startTime || b.start_time));
     
     if (upcoming.length === 0) return 'ninguna próxima';
     
     const nextReservation = upcoming[0];
-    const timeDiff = new Date(nextReservation.startTime) - now;
+    const timeDiff = new Date(nextReservation.startTime || nextReservation.start_time) - now;
     const hours = Math.floor(timeDiff / (1000 * 60 * 60));
     const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
     
@@ -87,11 +89,11 @@ function getTimeUntilNext(reservations) {
     }
 }
 
-// Función para verificar si es administrador
+// Función para verificar si es administrador - CORREGIDA
 async function isAdmin() {
     console.log('🔐 Verificando si es administrador...');
     try {
-        const userInfo = await apiRequest('/users/me'); //
+        const userInfo = await apiRequest('/users/me'); // 🔧 Ahora usando la ruta correcta
         console.log('👤 Info del usuario:', userInfo);
         return userInfo.isAdmin;
     } catch (error) {
@@ -103,63 +105,90 @@ async function isAdmin() {
 // Función para cargar estadísticas de espacios de trabajo
 async function loadWorkspaceStats() {
     try {
-        const workspaces = await apiRequest('/workspaces');
-        const totalWorkspaces = workspaces.length;
-        
-        // Obtener reservas de hoy para calcular disponibilidad
-        const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
-        const reservations = await apiRequest(`/reservations?date=${todayStr}`);
-        
-        // Calcular espacios disponibles ahora
-        const now = new Date();
-        const activeReservations = reservations.filter(r => {
-            const startTime = new Date(r.startTime);
-            const endTime = new Date(r.endTime);
-            return now >= startTime && now <= endTime;
-        });
-        
-        const occupiedWorkspaces = new Set(activeReservations.map(r => r.workspaceId));
-        const availableWorkspaces = totalWorkspaces - occupiedWorkspaces.size;
-        
+        const workspacesResponse = await apiRequest('/workspaces');
+        // Extraemos el array real de espacios
+        const workspaceList = Array.isArray(workspacesResponse)
+            ? workspacesResponse
+            : Array.isArray(workspacesResponse.data)
+                ? workspacesResponse.data
+                : Array.isArray(workspacesResponse.workspaces)
+                    ? workspacesResponse.workspaces
+                    : [];
+
+        const totalWorkspaces = workspaceList.length;
+
+        // Filtramos los que están marcados como disponibles en la DB
+        const physicallyAvailable = workspaceList.filter(ws => ws.is_available);
+        let availableCount = physicallyAvailable.length;
+
+        // Para calcular cuántos de esos están ocupados ahora:
+        try {
+            const userReservations = await apiRequest('/reservations/user');
+            const now = new Date();
+
+            // Contar solo las reservas activas de los espacios disponibles
+            const activeReservations = userReservations.filter(r => {
+                const startTime = new Date(r.startTime || r.start_time);
+                const endTime   = new Date(r.endTime   || r.end_time);
+                return now >= startTime && now <= endTime
+                    && physicallyAvailable.some(ws => ws.id === r.workspaceId);
+            });
+
+            // Restamos los ocupados
+            availableCount = Math.max(0, availableCount - activeReservations.length);
+        } catch (reservationError) {
+            console.log('No se pudieron cargar reservas para calcular disponibilidad:', reservationError);
+        }
+
         // Actualizar DOM
-        document.getElementById('total-workspaces').textContent = formatNumber(totalWorkspaces);
-        document.getElementById('available-workspaces').textContent = `${formatNumber(availableWorkspaces)} disponibles`;
-        
+        document.getElementById('total-workspaces').textContent     = formatNumber(totalWorkspaces);
+        document.getElementById('available-workspaces').textContent = `${formatNumber(availableCount)} disponibles`;
+
     } catch (error) {
         console.error('Error loading workspace stats:', error);
-        document.getElementById('total-workspaces').textContent = '--';
+        document.getElementById('total-workspaces').textContent     = '--';
         document.getElementById('available-workspaces').textContent = 'Error al cargar';
     }
 }
 
+
+
 // Función para cargar estadísticas de reservas
 async function loadReservationStats() {
     try {
+        const { reservations: myReservations } = await apiRequest('/reservations/user');
+        
+        const now = new Date();
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        today.setHours(0, 0, 0, 0);
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
         
-        // Reservas de hoy (todas)
-        const todayReservations = await apiRequest(`/reservations?date=${todayStr}`);
-        
-        // Mis reservas
-        const myReservations = await apiRequest('/reservations/my');
+        // Filtrar reservas de hoy
+        const todayReservations = myReservations.filter(r => {
+            const startTime = new Date(r.startTime || r.start_time);
+            return startTime >= today && startTime < tomorrow;
+        });
         
         // Filtrar reservas activas del usuario
-        const now = new Date();
         const activeReservations = myReservations.filter(r => {
-            const startTime = new Date(r.startTime);
-            const endTime = new Date(r.endTime);
+            const startTime = new Date(r.startTime || r.start_time);
+            const endTime = new Date(r.endTime || r.end_time);
             return now >= startTime && now <= endTime;
         });
         
-        // Próximas reservas
-        const upcomingCount = todayReservations.filter(r => new Date(r.startTime) > now).length;
-        const timeUntilNext = getTimeUntilNext(todayReservations);
+        // Próximas reservas del usuario
+        const upcomingReservations = myReservations.filter(r => {
+            const startTime = new Date(r.startTime || r.start_time);
+            return startTime > now;
+        });
         
-        // Actualizar DOM
+        const timeUntilNext = getTimeUntilNext(upcomingReservations);
+        
+        // Actualizar DOM - Por ahora mostramos las reservas del usuario
+        // En un futuro podrías crear una ruta para obtener todas las reservas del día
         document.getElementById('today-reservations').textContent = formatNumber(todayReservations.length);
-        document.getElementById('upcoming-reservations').textContent = `${formatNumber(upcomingCount)} próximas`;
+        document.getElementById('upcoming-reservations').textContent = `${formatNumber(upcomingReservations.length)} próximas`;
         document.getElementById('next-reservation-time').textContent = timeUntilNext;
         
         document.getElementById('my-reservations').textContent = formatNumber(myReservations.length);
@@ -178,6 +207,8 @@ async function loadReservationStats() {
         console.error('Error loading reservation stats:', error);
         document.getElementById('today-reservations').textContent = '--';
         document.getElementById('my-reservations').textContent = '--';
+        document.getElementById('upcoming-reservations').textContent = '--';
+        document.getElementById('next-reservation-time').textContent = 'Error';
     }
 }
 
