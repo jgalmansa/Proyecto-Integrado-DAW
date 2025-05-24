@@ -1,141 +1,588 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro | Coworkly</title>
-  <link href="/css/output.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coworkly - Registro</title>
+    <link href="../assets/css/output.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white shadow-md rounded p-6 w-full max-w-lg">
-    <h1 class="text-2xl font-bold mb-4 text-center">Registro</h1>
+<body class="">
+    <nav class="bg-white shadow-md fixed top-0 left-0 w-full z-999">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo y nombre -->
+                <div class="flex items-center">
+                    <a href="/" class="flex-shrink-0 flex items-center">
+                        <span class="text-indigo-600 font-bold text-2xl">CoWorkly</span>
+                    </a>
+                </div>
 
-    <!-- Selector de tipo de registro -->
-    <div class="mb-4">
-      <label class="block font-medium mb-2">Tipo de registro:</label>
-      <select id="registerType" class="w-full border rounded px-3 py-2">
-        <option value="">Selecciona una opción</option>
-        <option value="company">Empresa</option>
-        <option value="user">Usuario</option>
-      </select>
+                <!-- Enlaces de navegación para escritorio -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <a href="/"
+                        class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
+                    <a href="#features"
+                        class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Características</a>
+                    <a href="#contacto"
+                        class="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Contacto</a>
+                    <div class="flex items-center space-x-2 ml-4 pl-4 border-l border-gray-200">
+                        <a href="/login"
+                            class="px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 shadow-sm">Iniciar
+                            Sesión</a>
+                        <a href="/register"
+                            class="px-4 py-2 rounded-md text-sm font-medium text-indigo-600 border border-indigo-600 hover:bg-indigo-50 transition duration-150">Registrarse</a>
+                    </div>
+                </div>
+
+                <!-- Botón del menú hamburguesa para móvil -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-button"
+                        class="cursor-pointer inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-indigo-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                        aria-expanded="false">
+                        <span class="sr-only">Abrir menú principal</span>
+                        <!-- Icono del menú (hamburguesa) -->
+                        <svg id="menu-icon" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <!-- Icono para cerrar -->
+                        <svg id="close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú móvil (oculto por defecto) -->
+        <div class="md:hidden hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 bg-white border-t border-gray-200 h-[100vh] flex flex-col">
+                <ul>
+                    <li>
+                        <a href="#"
+                            class="block text-center px-3 py-2 rounded-md text-lg font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">
+                            Inicio
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#features"
+                            class="block text-center px-3 py-2 rounded-md text-lg font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">
+                            Características
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#"
+                            class="block text-center px-3 py-2 rounded-md text-lg font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-50">
+                            Contacto
+                        </a>
+                    </li>
+                </ul>
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <a href="/login"
+                        class="block w-full text-center px-4 py-2 rounded-md text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 transition duration-150 shadow-sm mb-2">
+                        Iniciar Sesión
+                    </a>
+                    <a href="/register"
+                        class="block w-full text-center px-4 py-2 rounded-md text-lg font-medium text-indigo-600 border border-indigo-600 hover:bg-indigo-50 transition duration-150">
+                        Registrarse
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md mt-[110px] mb-[70px] mx-auto">
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800">Coworkly</h1>
+            <p class="mt-2 text-sm text-gray-600">Gestión de espacios colaborativos</p>
+        </div>
+        
+        <!-- Selector de tipo de registro -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de registro:</label>
+            <select id="registerType" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <option value="">Selecciona una opción</option>
+                <option value="company">Empresa</option>
+                <option value="user">Usuario</option>
+            </select>
+        </div>
+
+        <!-- Formulario de Empresa -->
+        <form id="companyForm" class="hidden space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de la empresa</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-building text-gray-400"></i>
+                    </div>
+                    <input name="companyName" type="text" placeholder="Nombre de la empresa" required
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="companyName-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Correo de la empresa</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-gray-400"></i>
+                    </div>
+                    <input name="companyEmail" type="email" placeholder="empresa@dominio.com" required
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="companyEmail-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-phone text-gray-400"></i>
+                    </div>
+                    <input name="companyPhone" type="tel" placeholder="+34 123 456 789"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-map-marker-alt text-gray-400"></i>
+                    </div>
+                    <input name="companyAddress" type="text" placeholder="Dirección completa"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre del administrador</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <input name="adminFirstName" type="text" placeholder="Nombre" required
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="adminFirstName-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Apellido del administrador</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <input name="adminLastName" type="text" placeholder="Apellido"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Correo del administrador</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-gray-400"></i>
+                    </div>
+                    <input name="adminEmail" type="email" placeholder="admin@dominio.com" required
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="adminEmail-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+                    <input name="adminPassword" type="password" placeholder="••••••••" required
+                        class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button type="button" id="toggle-company-password" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <p id="adminPassword-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+                    <input name="adminPasswordConfirm" type="password" placeholder="••••••••" required
+                        class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button type="button" id="toggle-company-password-confirm" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <p id="adminPasswordConfirm-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Dominios permitidos (separados por comas)</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-globe text-gray-400"></i>
+                    </div>
+                    <input name="domains" type="text" placeholder="dominio.com, otrodominio.com"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Si no se especifica, se usará el dominio del correo de la empresa</p>
+            </div>
+
+            <div>
+                <button type="submit" 
+                    class="group cursor-pointer relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-building"></i>
+                    </span>
+                    Registrar Empresa
+                </button>
+            </div>
+        </form>
+
+        <!-- Formulario de Usuario -->
+        <form id="userForm" class="hidden space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Correo electrónico</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-envelope text-gray-400"></i>
+                    </div>
+                    <input name="email" type="email" placeholder="usuario@empresa.com" required
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="userEmail-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Código de invitación</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-key text-gray-400"></i>
+                    </div>
+                    <input name="invitationCode" type="text" placeholder="Código de 8 caracteres" required
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="invitationCode-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <input name="firstName" type="text" placeholder="Nombre" required
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <p id="firstName-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <input name="lastName" type="text" placeholder="Apellido" 
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+                    <input name="password" type="password" placeholder="••••••••" required
+                        class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button type="button" id="toggle-user-password" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <p id="password-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña</label>
+                <div class="mt-1 relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-gray-400"></i>
+                    </div>
+                    <input name="passwordConfirm" type="password" placeholder="••••••••" required
+                        class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                        <button type="button" id="toggle-user-password-confirm" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <p id="passwordConfirm-error" class="mt-1 text-sm text-red-600 hidden"></p>
+            </div>
+
+            <div>
+                <button type="submit" 
+                    class="group cursor-pointer relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <i class="fas fa-user-plus"></i>
+                    </span>
+                    Registrar Usuario
+                </button>
+            </div>
+        </form>
+
+        <div id="alert-container" class="hidden">
+            <!-- Aquí se mostrarán las alertas -->
+        </div>
+
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-600">
+                ¿Ya tienes una cuenta? 
+                <a href="/login" class="font-medium text-blue-600 hover:text-blue-500">Inicia sesión aquí</a>.
+            </p>
+        </div>
     </div>
 
-    <!-- Formulario de Empresa -->
-    <form id="companyForm" class="hidden space-y-4">
-      <input name="name" type="text" placeholder="Nombre de la empresa" required class="w-full border rounded px-3 py-2" />
-      <input name="email" type="email" placeholder="Correo de la empresa" required class="w-full border rounded px-3 py-2" />
-      <input name="address" type="text" placeholder="Dirección" class="w-full border rounded px-3 py-2" />
-      <input name="phone" type="text" placeholder="Teléfono" class="w-full border rounded px-3 py-2" />
-      <input name="adminEmail" type="email" placeholder="Correo del administrador" required class="w-full border rounded px-3 py-2" />
-      <input name="adminPassword" type="password" placeholder="Contraseña" required class="w-full border rounded px-3 py-2" />
-      <input name="adminPasswordConfirm" type="password" placeholder="Confirmar contraseña" required class="w-full border rounded px-3 py-2" />
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Registrar Empresa</button>
-    </form>
+    <footer class="bg-gradient-to-b from-gray-800 to-gray-900 text-white relative overflow-hidden">
+        <!-- Elementos decorativos de fondo -->
+        <div class="absolute top-0 left-1/4 w-64 h-64 bg-indigo-500 rounded-full opacity-5 blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-72 h-72 bg-blue-500 rounded-full opacity-5 blur-3xl"></div>
 
-    <!-- Formulario de Usuario -->
-    <form id="userForm" class="hidden space-y-4">
-      <input name="email" type="email" placeholder="Correo" required class="w-full border rounded px-3 py-2" />
-      <input name="code" type="text" placeholder="Código de invitación" required class="w-full border rounded px-3 py-2" />
-      <input name="password" type="password" placeholder="Contraseña" required class="w-full border rounded px-3 py-2" />
-      <input name="passwordConfirm" type="password" placeholder="Confirmar contraseña" required class="w-full border rounded px-3 py-2" />
-      <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Registrar Usuario</button>
-    </form>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
+            <!-- Sección superior -->
+            <div class="grid md:grid-cols-4 gap-x-12 gap-y-10">
+                <!-- Logo y descripción -->
+                <div class="col-span-1">
+                    <div class="flex items-center">
+                        <div
+                            class="h-10 w-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg shadow-lg flex items-center justify-center mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        <span class="text-white font-bold text-2xl">CoWorkly</span>
+                    </div>
+                    <p class="mt-4 text-gray-400 leading-relaxed">
+                        La solución integral para la gestión de espacios de trabajo colaborativo diseñada para optimizar
+                        recursos y mejorar la experiencia de tus equipos.
+                    </p>
+                    <div class="mt-6 bg-gray-700/50 backdrop-blur-sm rounded-lg p-4 border border-gray-700">
+                        <span class="text-sm font-medium text-gray-300">¿Necesitas ayuda?</span>
+                        <a href="mailto:soporte@coworkly.com"
+                            class="mt-2 inline-flex items-center text-indigo-400 hover:text-indigo-300 transition duration-300">
+                            Contacta con soporte
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
 
-    <div id="message" class="mt-4 text-sm text-center"></div>
-  </div>
+                <!-- Enlaces rápidos -->
+                <div class="col-span-1">
+                    <h3 class="text-lg font-semibold mb-5 flex items-center">
+                        <span class="h-5 w-1 bg-indigo-500 rounded-full mr-2"></span>
+                        Enlaces rápidos
+                    </h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Inicio
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#features"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Características
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Contacto
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Precios
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
-  <script>
-    const registerType = document.getElementById('registerType');
-    const companyForm = document.getElementById('companyForm');
-    const userForm = document.getElementById('userForm');
-    const message = document.getElementById('message');
+                <!-- Legal -->
+                <div class="col-span-1">
+                    <h3 class="text-lg font-semibold mb-5 flex items-center">
+                        <span class="h-5 w-1 bg-indigo-500 rounded-full mr-2"></span>
+                        Legal
+                    </h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Términos de uso
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Política de privacidad
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Cookies
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#"
+                                class="text-gray-400 hover:text-white transition duration-300 flex items-center group">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    class="h-4 w-4 mr-2 text-indigo-500 group-hover:translate-x-1 transition-transform duration-300"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Cumplimiento RGPD
+                            </a>
+                        </li>
+                    </ul>
+                </div>
 
-    registerType.addEventListener('change', () => {
-      const type = registerType.value;
-      companyForm.classList.add('hidden');
-      userForm.classList.add('hidden');
-      if (type === 'company') companyForm.classList.remove('hidden');
-      else if (type === 'user') userForm.classList.remove('hidden');
-    });
+                <!-- Contacto -->
+                <div class="col-span-1">
+                    <h3 class="text-lg font-semibold mb-5 flex items-center">
+                        <span class="h-5 w-1 bg-indigo-500 rounded-full mr-2"></span>
+                        Contacto
+                    </h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <div
+                                class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Email:</p>
+                                <a href="mailto:info@coworkly.com"
+                                    class="text-white hover:text-indigo-300 transition duration-300">info@coworkly.com</a>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div
+                                class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Teléfono:</p>
+                                <span class="text-white">+34 900 123 456</span>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div
+                                class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Dirección:</p>
+                                <span class="text-white">Pl. Pablo Ruiz Picasso, 1<br>28001 Madrid, España</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-    companyForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(companyForm);
-      const data = {
-        name: formData.get('name'),
-        email: formData.get('email'),
-        address: formData.get('address'),
-        phone: formData.get('phone'),
-        admin: {
-          email: formData.get('adminEmail'),
-          password: formData.get('adminPassword'),
-          passwordConfirm: formData.get('adminPasswordConfirm')
-        }
-      };
-
-      if (data.admin.password !== data.admin.passwordConfirm) {
-        message.textContent = 'Las contraseñas no coinciden';
-        message.className = 'text-red-500 mt-4';
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/companies/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        if (res.ok) {
-          message.textContent = 'Empresa registrada con éxito';
-          message.className = 'text-green-600 mt-4';
-          companyForm.reset();
-        } else {
-          message.textContent = result.message || 'Error al registrar empresa';
-          message.className = 'text-red-500 mt-4';
-        }
-      } catch (error) {
-        message.textContent = 'Error en la conexión con el servidor';
-        message.className = 'text-red-500 mt-4';
-      }
-    });
-
-    userForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(userForm);
-      const data = {
-        email: formData.get('email'),
-        invitationCode: formData.get('code'),
-        password: formData.get('password'),
-        passwordConfirm: formData.get('passwordConfirm')
-      };
-
-      if (data.password !== data.passwordConfirm) {
-        message.textContent = 'Las contraseñas no coinciden';
-        message.className = 'text-red-500 mt-4';
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/users/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        if (res.ok) {
-          message.textContent = 'Usuario registrado con éxito';
-          message.className = 'text-green-600 mt-4';
-          userForm.reset();
-        } else {
-          message.textContent = result.message || 'Error al registrar usuario';
-          message.className = 'text-red-500 mt-4';
-        }
-      } catch (error) {
-        message.textContent = 'Error en la conexión con el servidor';
-        message.className = 'text-red-500 mt-4';
-      }
-    });
-  </script>
+            <!-- Copyright -->
+            <div class="mt-10 pt-8 border-t border-gray-700/50 text-center">
+                <p class="text-gray-400">&copy; 2025 CoWorkly. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="../assets/js/registro.js" defer></script>
 </body>
 </html>
