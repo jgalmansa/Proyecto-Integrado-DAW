@@ -220,22 +220,26 @@ async function loadReservationStats() {
     }
 }
 
-// Función para cargar estadísticas de usuarios (solo admin)
 async function loadUserStats() {
     try {
-        const isUserAdmin = await isAdmin();
+        // Obtener estadísticas del nuevo endpoint
+        const response = await apiRequest('/users/stats');
         
-        if (!isUserAdmin) {
-            // Ocultar la tarjeta de usuarios si no es admin
-            document.getElementById('admin-stats-card').style.display = 'none';
-            return;
+        // La respuesta ahora tiene la estructura: { success: true, data: { active: 142, total: 150, ... } }
+        const stats = response.data;
+        const activeUsers = stats.active;
+        
+        // Calcular crecimiento real basado en registros recientes vs total
+        // O mantener simulado si prefieres
+        let growth;
+        if (stats.recentRegistrations && stats.total > 0) {
+            // Crecimiento real basado en registros de últimos 30 días
+            growth = Math.round((stats.recentRegistrations / stats.total) * 100);
+        } else {
+            // Crecimiento simulado como backup
+            growth = Math.floor(Math.random() * 20) - 5; // Entre -5% y +15%
         }
         
-        const users = await apiRequest('/users');
-        const activeUsers = users.filter(u => u.is_active !== false).length;
-        
-        // Calcular crecimiento (simulado por ahora)
-        const growth = Math.floor(Math.random() * 20) - 5; // Entre -5% y +15%
         const growthText = growth >= 0 ? `+${growth}%` : `${growth}%`;
         const growthClass = growth >= 0 ? 'text-green-600' : 'text-red-600';
         
@@ -246,7 +250,19 @@ async function loadUserStats() {
         
     } catch (error) {
         console.error('Error loading user stats:', error);
-        document.getElementById('active-users').textContent = '--';
+        
+        // Manejo de errores mejorado
+        const activeUsersElement = document.getElementById('active-users');
+        const usersGrowthElement = document.getElementById('users-growth');
+        
+        if (activeUsersElement) {
+            activeUsersElement.textContent = '--';
+        }
+        
+        if (usersGrowthElement) {
+            usersGrowthElement.textContent = '--';
+            usersGrowthElement.className = 'text-gray-500 font-medium';
+        }
     }
 }
 
