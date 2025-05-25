@@ -72,21 +72,23 @@
                         </div>
                     </div>
                 </div>
-                                
+                                    
                 <!-- Perfil de usuario -->
                 <div class="flex items-center space-x-3 border-l pl-4">
                     <div class="text-right">
-                        <p class="text-sm font-medium text-gray-900">Ana García</p>
-                        <p class="text-xs text-gray-500">Administrador</p>
+                        <p class="text-sm font-medium text-gray-900 user-name">Cargando...</p>
+                        <p class="text-xs text-gray-500 user-role">...</p>
                     </div>
                     <div class="w-8 h-8 bg-[#3B82F6] rounded-full flex items-center justify-center">
-                        <span class="text-white text-sm font-medium">AG</span>
+                        <span class="text-white text-sm font-medium user-avatar">??</span>
                     </div>
-                    <button class="text-gray-400 hover:text-gray-600">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
+                    <div class="relative">
+                        <button id="user-menu-button" class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -691,4 +693,5 @@
     <script src="../assets/js/notifications.js"></script>
     <script src="../assets/js/logout.js"></script>
     <script src="../assets/js/nueva-reserva.js"></script>
+    <script src="../assets/js/userSession.js"></script>
 </body>
