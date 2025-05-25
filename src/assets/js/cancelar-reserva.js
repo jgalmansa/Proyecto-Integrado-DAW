@@ -1,4 +1,3 @@
-// Clase para manejar el modal de cancelar reserva
 class CancelReservationModal {
     constructor() {
         this.modal = document.getElementById('cancel-reservation-modal');

@@ -657,6 +657,176 @@
             </div>
         </div>
 
+        <!-- MODAL EDITAR RESERVA -->
+        <div id="edit-reservation-modal"
+            class="hidden fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+            <!-- Contenedor del modal -->
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-hidden">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-orange-50">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                        <h2 class="text-xl font-bold text-orange-900">Editar Reserva</h2>
+                    </div>
+                    <button id="close-edit-modal"
+                        class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 overflow-y-auto max-h-[60vh]">
+                    <form id="edit-reservation-form" class="space-y-6">
+                        <!-- Información del espacio (solo lectura) -->
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
+                                </svg>
+                                <div>
+                                    <p class="font-semibold text-blue-900" id="edit-workspace-name">Nombre del Espacio
+                                    </p>
+                                    <p class="text-sm text-blue-700" id="edit-workspace-capacity">Capacidad: 0 personas
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fecha -->
+                        <div>
+                            <label for="edit-reservation-date"
+                                class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                Fecha
+                            </label>
+                            <input type="date" id="edit-reservation-date" name="date"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
+                                required>
+                        </div>
+
+                        <!-- Contenedor de horarios -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Hora de inicio -->
+                            <div>
+                                <label for="edit-start-time"
+                                    class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Hora de inicio
+                                </label>
+                                <input type="time" id="edit-start-time" name="startTime"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
+                                    required>
+                            </div>
+                            <!-- Hora de fin -->
+                            <div>
+                                <label for="edit-end-time"
+                                    class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Hora de fin
+                                </label>
+                                <input type="time" id="edit-end-time" name="endTime"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
+                                    required>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Invitados -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                                    </path>
+                                </svg>
+                                Invitados
+                            </label>
+
+                            <!-- Buscador de usuarios -->
+                            <div class="relative mb-3">
+                                <input type="text" id="edit-guest-search" placeholder="Buscar usuarios por email..."
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white">
+                                <div id="edit-guest-search-results"
+                                    class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                </div>
+                            </div>
+
+                            <!-- Lista de invitados seleccionados -->
+                            <div id="edit-selected-guests" class="space-y-2 mb-3">
+                            </div>
+
+                            <!-- Campo para invitados externos -->
+                            <div class="w-full">
+                                <div class="flex items-center gap-2 w-full justify-between">
+                                    <input type="number" id="edit-external-guests-count" placeholder="0" min="0"
+                                        max="99" value="0"
+                                        class="w-20 px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-gray-50 focus:bg-white text-center">
+                                    <span class="text-gray-700 font-medium">Invitado(s) Externo(s)</span>
+                                    <button type="button" id="edit-add-external-guest"
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                                        Añadir
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Especifica la cantidad de invitados externos a
+                                    añadir</p>
+                            </div>
+                        </div>
+
+                        <!-- Mensaje de estado -->
+                        <div id="edit-status-message" class="hidden rounded-xl p-4 border-l-4">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <div
+                    class="flex w-full flex-col sm:flex-row justify-between items-center p-6 border-t border-gray-100 bg-gray-50 space-y-3 sm:space-y-0">
+                    <button id="edit-check-availability" type="button"
+                        class="w-full sm:w-auto px-6 py-3 bg-orange-600 text-white font-semibold rounded-xl hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+                        <span>Verificar Disponibilidad</span>
+                    </button>
+
+                    <div class="flex w-full sm:w-auto justify-end items-center gap-3">
+                        <button id="edit-confirm-changes" type="button"
+                            class="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hidden flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Guardar Cambios</span>
+                        </button>
+                        <button id="edit-cancel-changes" type="button"
+                            class="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-xl transition-colors font-medium">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Modal de Cancelar Reserva -->
         <div id="cancel-reservation-modal"
             class="hidden fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
@@ -742,6 +912,7 @@
     <script src="../assets/js/notifications.js"></script>
     <script src="../assets/js/logout.js"></script>
     <script src="../assets/js/nueva-reserva.js"></script>
-    <script src="../assets/js/proximas-reservas.js"></script>
+    <script src="../assets/js/editar-reserva.js"></script>
     <script src="../assets/js/cancelar-reserva.js"></script>
+    <script src="../assets/js/proximas-reservas.js"></script>
 </body>

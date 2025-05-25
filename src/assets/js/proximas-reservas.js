@@ -1,4 +1,3 @@
-// reservations.js
 class ReservationsManager {
     constructor() {
         this.tableBody = document.getElementById('reservations-table-body');
@@ -31,8 +30,6 @@ class ReservationsManager {
 
     async loadReservations() {
         try {
-            console.log('Loading reservations...');
-            console.log('Auth token:', this.getAuthToken());
 
             const response = await fetch('/api/reservations/my', {
                 method: 'GET',
@@ -261,10 +258,12 @@ class ReservationsManager {
     }
 
     async editReservation(reservationId) {
-        // Esta función se puede personalizar según tu modal de edición
-        console.log('Edit reservation:', reservationId);
-        // Aquí podrías abrir un modal de edición
-        // editReservationModal.open(reservationId);
+        const reservation = this.getCurrentReservationData(reservationId);
+        if (reservation && window.editReservationModal) {
+            window.editReservationModal.open(reservation);
+        } else {
+            console.error('No se encontró la reserva o el modal no está disponible');
+        }
     }
 
     async cancelReservation(reservationId) {
@@ -403,6 +402,42 @@ class ReservationsManager {
 
         console.log('Found token:', token ? 'Token exists' : 'No token found');
         return token;
+    }
+
+    async editReservation(reservationId) {
+        console.log('🔍 DEBUG editReservation called with ID:', reservationId);
+        
+        // Verificar si existe window.editReservationModal
+        console.log('🔍 window.editReservationModal exists:', !!window.editReservationModal);
+        console.log('🔍 editReservationModal object:', window.editReservationModal);
+        
+        const reservation = this.getCurrentReservationData(reservationId);
+        console.log('🔍 Found reservation data:', reservation);
+        console.log('🔍 Current reservations array:', this.currentReservations);
+        
+        if (reservation && window.editReservationModal) {
+            console.log('✅ Opening modal with reservation:', reservation);
+            window.editReservationModal.open(reservation);
+        } else {
+            console.error('❌ No se encontró la reserva o el modal no está disponible');
+            console.error('- Reservation found:', !!reservation);
+            console.error('- Modal available:', !!window.editReservationModal);
+            
+            // Intentar crear el modal si no existe
+            if (!window.editReservationModal) {
+                console.log('🔧 Intentando crear el modal...');
+                try {
+                    window.editReservationModal = new EditReservationModal();
+                    console.log('✅ Modal creado exitosamente');
+                    
+                    if (reservation) {
+                        window.editReservationModal.open(reservation);
+                    }
+                } catch (error) {
+                    console.error('❌ Error creando el modal:', error);
+                }
+            }
+        }
     }
 }
 
