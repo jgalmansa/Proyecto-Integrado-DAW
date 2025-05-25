@@ -76,6 +76,11 @@ app.get('/notifications', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'notifications.html'));
 });
 
+app.get('/gestion-espacios', (req, res) => {
+  console.log('Ruta /gestion-espacios accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-espacios.html'));
+});
+
 app.use((req, res, next) => {
   console.log(`[LOG] ${req.method} ${req.url}`);
   next();
