@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function checkAdminSession() {
         const userData = getUserSessionData();
         if (!userData || userData.role !== 'admin') {
-            window.location.href = 'dashboard.html';
+            window.location.href = '/dashboard'; 
             return;
         }
         currentCompanyId = userData.company_id;

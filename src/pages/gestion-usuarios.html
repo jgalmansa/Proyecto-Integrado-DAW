@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coworkly - Gestión de Espacios</title>
+    <title>Coworkly - Gestión de Usuarios</title>
     <link href="../assets/css/output.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -18,7 +18,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-semibold text-gray-900">Coworkly</h1>
-                    <p class="text-sm text-gray-500">Gestión de Espacios</p>
+                    <p class="text-sm text-gray-500">Gestión de Usuarios</p>
                 </div>
             </div>
            
@@ -135,14 +135,14 @@
                 <div class="mb-6">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Administración</h3>
                    
-                    <a href="/gestion-usuarios" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                    <a href="/gestion-usuarios" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-[#3B82F6] text-white">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                         </svg>
                         <span>Gestión Usuarios</span>
                     </a>
                    
-                    <a href="/gestion-espacios" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-[#3B82F6] text-white">
+                    <a href="gestion-espacios" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                         </svg>
@@ -173,36 +173,36 @@
             <!-- Header -->
             <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Gestión de Espacios</h2>
-                    <p class="text-gray-600">Administra los espacios de trabajo de tu empresa</p>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Gestión de Usuarios</h2>
+                    <p class="text-gray-600">Administra los usuarios de tu empresa</p>
                 </div>
-                <button id="add-workspace-btn" class="bg-[#3B82F6] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#1E40AF] transition-colors flex items-center gap-2">
+                <button id="add-user-btn" class="bg-[#3B82F6] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#1E40AF] transition-colors flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
-                    <span>Añadir Espacio</span>
+                    <span>Añadir Usuario</span>
                 </button>
             </div>
 
-            <!-- Workspace List -->
+            <!-- User List -->
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead>
                             <tr class="border-b border-gray-200">
                                 <th class="text-left py-3 px-4 font-medium text-gray-900">Nombre</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Descripción</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Capacidad</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Disponibilidad</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-900">Email</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-900">Rol</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-900">Estado</th>
                                 <th class="text-left py-3 px-4 font-medium text-gray-900">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="workspaces-list" class="divide-y divide-gray-100">
+                        <tbody id="users-list" class="divide-y divide-gray-100">
                             <!-- Loading state -->
                             <tr>
                                 <td colspan="5" class="py-8 text-center">
                                     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                                    <p class="text-sm text-gray-500 mt-2">Cargando espacios...</p>
+                                    <p class="text-sm text-gray-500 mt-2">Cargando usuarios...</p>
                                 </td>
                             </tr>
                         </tbody>
@@ -212,60 +212,77 @@
         </main>
     </div>
 
-    <!-- Modal para añadir/editar espacio -->
-    <div id="workspace-modal" class="hidden fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
+    <!-- Modal para añadir/editar usuario -->
+    <div id="user-modal" class="hidden fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
             <!-- Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-blue-50">
-                <h2 class="text-xl font-bold text-blue-900" id="modal-title">Añadir Nuevo Espacio</h2>
-                <button id="close-modal" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                <h2 class="text-xl font-bold text-blue-900" id="user-modal-title">Añadir Nuevo Usuario</h2>
+                <button id="close-user-modal" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            
+           
             <!-- Body -->
             <div class="p-6">
-                <form id="workspace-form" class="space-y-4">
-                    <input type="hidden" id="workspace-id">
-                    
-                    <div>
-                        <label for="workspace-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                        <input type="text" id="workspace-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                <form id="user-form" class="space-y-4">
+                    <input type="hidden" id="user-id">
+                   
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="user-first-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" id="user-first-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
+                        <div>
+                            <label for="user-last-name" class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+                            <input type="text" id="user-last-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        </div>
                     </div>
-                    
+                   
                     <div>
-                        <label for="workspace-description" class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                        <textarea id="workspace-description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        <label for="user-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="user-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
                     </div>
-                    
+                   
                     <div>
-                        <label for="workspace-capacity" class="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
-                        <input type="number" id="workspace-capacity" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
-                    </div>
-                    
-                    <div>
-                        <label for="workspace-available" class="block text-sm font-medium text-gray-700 mb-1">Disponibilidad</label>
-                        <select id="workspace-available" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <option value="true">Disponible</option>
-                            <option value="false">No disponible</option>
+                        <label for="user-role" class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                        <select id="user-role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <option value="user">Usuario</option>
+                            <option value="admin">Administrador</option>
+                            <option value="manager">Gestor</option>
                         </select>
                     </div>
-                    
+                   
+                    <div id="password-fields">
+                        <div>
+                            <label for="user-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                            <input type="password" id="user-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="mt-2">
+                            <label for="user-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                            <input type="password" id="user-confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Deja en blanco para mantener la contraseña actual</p>
+                    </div>
+                   
                     <div>
-                        <label for="workspace-equipment" class="block text-sm font-medium text-gray-700 mb-1">Equipamiento (separado por comas)</label>
-                        <textarea id="workspace-equipment" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" placeholder="proyector, pantalla, wifi"></textarea>
+                        <label for="user-status" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select id="user-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
                     </div>
                 </form>
             </div>
-            
+           
             <!-- Footer -->
             <div class="flex justify-end p-6 border-t border-gray-100 bg-gray-50 space-x-3">
-                <button id="cancel-workspace" type="button" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors font-medium">
+                <button id="cancel-user" type="button" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors font-medium">
                     Cancelar
                 </button>
-                <button id="save-workspace" type="button" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <button id="save-user" type="button" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
                     Guardar
                 </button>
             </div>
@@ -273,11 +290,11 @@
     </div>
 
     <div id="success-toast" class="fixed top-6 right-6 bg-green-100 border-green-400 text-green-700 px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-500 z-50">
-        Espacio actualizado correctamente
+        Usuario actualizado correctamente
     </div>
 
     <!-- Scripts -->
-    <script src="../assets/js/gestion-espacios.js"></script>
+    <script src="../assets/js/gestion-usuarios.js"></script>
     <script src="../assets/js/notifications.js"></script>
     <script src="../assets/js/logout.js"></script>
     <script src="../assets/js/userSession.js"></script>
