@@ -17,7 +17,7 @@ class NotificationManager {
     }
 
     /**
-     * 🔧 FIX: Función unificada para obtener token
+     * Función unificada para obtener token
      */
     getAuthToken() {
         return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
@@ -36,7 +36,7 @@ class NotificationManager {
             await this.loadNotifications();
             await this.updateUnreadCount();
             
-            // 🔧 FIX: Manejo de errores específico para recordatorios
+            // Manejo de errores específico para recordatorios
             try {
                 await this.checkUpcomingReservations();
             } catch (reminderError) {
@@ -58,7 +58,7 @@ class NotificationManager {
      */
     async loadNotifications(limit = 10) {
         try {
-            const token = this.getAuthToken(); // 🔧 FIX: Usar función unificada
+            const token = this.getAuthToken(); //  Usar función unificada
             if (!token) {
                 throw new Error('Token de autenticación no encontrado');
             }
@@ -90,7 +90,7 @@ class NotificationManager {
      */
     async updateUnreadCount() {
         try {
-            const token = this.getAuthToken(); // 🔧 FIX: Usar función unificada
+            const token = this.getAuthToken(); //  Usar función unificada
             if (!token) return;
 
             const response = await fetch(`${this.apiBase}/unread-count`, {
@@ -111,14 +111,14 @@ class NotificationManager {
     }
 
     /**
-     * 🔧 FIX: Verifica reservas próximas con manejo robusto de diferentes formatos
+     *  Verifica reservas próximas con manejo robusto de diferentes formatos
      */
     async checkUpcomingReservations() {
         try {
             const token = this.getAuthToken();
             if (!token) return;
 
-            // 🔧 FIX: Usar endpoint correcto que devuelve formato snake_case
+            //  Usar endpoint correcto que devuelve formato snake_case
             const response = await fetch('/api/reservations/my-reservations', {
                 method: 'GET',
                 headers: {
@@ -137,7 +137,7 @@ class NotificationManager {
             
             reservations.forEach(reservation => {
                 try {
-                    // 🔧 FIX: Manejar tanto snake_case como camelCase
+                    //  Manejar tanto snake_case como camelCase
                     const startTimeValue = reservation.start_time || reservation.startTime;
                     const workspaceNameValue = reservation.workspace_name || reservation.workspaceName;
                     
@@ -203,9 +203,10 @@ class NotificationManager {
      */
     async markAsRead(notificationId) {
         try {
-            // 🔧 FIX: Manejar recordatorios (que no están en BD)
-            if (notificationId.startsWith('reminder_')) {
-                const reminder = this.reminderNotifications.find(n => n.id === notificationId);
+            const notificationIdStr = String(notificationId);
+            //  Manejar recordatorios (que no están en BD)
+            if (notificationIdStr.startsWith('reminder_')) {
+                const reminder = this.reminderNotifications.find(n => n.id === notificationIdStr);
                 if (reminder) {
                     reminder.isRead = true;
                     this.updateNotificationBadge();
@@ -216,7 +217,7 @@ class NotificationManager {
             const token = this.getAuthToken();
             if (!token) return false;
 
-            const response = await fetch(`${this.apiBase}/${notificationId}/read`, {
+            const response = await fetch(`${this.apiBase}/${notificationIdStr}/read`, {
                 method: 'PATCH',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -225,7 +226,7 @@ class NotificationManager {
             });
 
             if (response.ok) {
-                const notification = this.notifications.find(n => n.id === notificationId);
+                const notification = this.notifications.find(n => n.id === notificationIdStr);
                 if (notification && !notification.isRead) {
                     notification.isRead = true;
                     this.unreadCount = Math.max(0, this.unreadCount - 1);
@@ -241,10 +242,10 @@ class NotificationManager {
     }
 
     /**
-     * 🔧 FIX: Renderiza notificaciones con selector correcto
+     *  Renderiza notificaciones con selector correcto
      */
     renderDashboardNotifications() {
-        // 🔧 FIX: Usar ID específico en lugar de selector complejo
+        //  Usar ID específico en lugar de selector complejo
         const container = document.getElementById('notification-dashboard-container');
         
         if (!container) {
@@ -322,7 +323,7 @@ class NotificationManager {
     }
 
     /**
-     * 🔧 FIX: Formatea información de reserva con manejo robusto
+     *  Formatea información de reserva con manejo robusto
      */
     formatReservationInfo(reservation) {
         if (!reservation) return '';
@@ -413,10 +414,10 @@ class NotificationManager {
     }
 
     /**
-     * 🔧 FIX: Actualiza badge con selector correcto
+     *  Actualiza badge con selector correcto
      */
     updateNotificationBadge() {
-        const badge = document.getElementById('notification-badge'); // 🔧 FIX: Usar ID
+        const badge = document.getElementById('notification-badge'); //  Usar ID
         
         if (!badge) {
             console.warn('Badge de notificaciones no encontrado');
@@ -439,7 +440,7 @@ class NotificationManager {
     }
 
     /**
-     * 🔧 FIX: Mostrar estado de error al usuario
+     *  Mostrar estado de error al usuario
      */
     showErrorState() {
         const container = document.getElementById('notification-dashboard-container');
@@ -513,7 +514,7 @@ class NotificationManager {
         try {
             await this.loadNotifications(7);
             
-            // 🔧 FIX: Verificar si dropdown sigue abierto
+            //  Verificar si dropdown sigue abierto
             if (!dropdown.classList.contains('hidden')) {
                 this.renderDropdownNotifications();
             }
