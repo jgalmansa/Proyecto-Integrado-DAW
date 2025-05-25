@@ -377,134 +377,54 @@
                 </div>
             </div>
 
-            <!-- Próximas Reservas -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">Próximas Reservas</h3>
-                    <button id="new-reservation-proximas" class="bg-[#3B82F6] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#1E40AF] transition-colors">
-                        Nueva Reserva
-                    </button>
-                </div>
+            <!-- Mis Próximas Reservas -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Mis Próximas Reservas</h3>
+                        <a href="/reservations" id="view-all-reservations" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Ver todas</a>
+                    </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Espacio</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Fecha</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Hora</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Usuario</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Estado</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="bg-blue-100 p-2 rounded-lg">
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    <!-- Vista Desktop -->
+                    <div class="hidden lg:block overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Espacio</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Fecha</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Hora</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Personas</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Usuario</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Estado</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="reservations-table-body">
+                                <!-- Los datos se cargarán dinámicamente aquí -->
+                                <tr>
+                                    <td colspan="7" class="py-8 px-4 text-center text-gray-500">
+                                        <div class="flex flex-col items-center space-y-2">
+                                            <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                             </svg>
+                                            <p class="text-sm">No hay reservas próximas</p>
                                         </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Sala de Juntas A</p>
-                                            <p class="text-sm text-gray-600">Capacidad: 12 personas</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4 text-gray-900">Hoy</td>
-                                <td class="py-4 px-4 text-gray-900">14:30 - 16:00</td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-xs font-medium">AG</span>
-                                        </div>
-                                        <span class="text-gray-900">Ana García</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Confirmada</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>
-                                        <button class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="bg-green-100 p-2 rounded-lg">
-                                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 6.5V21"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Área Coworking B</p>
-                                            <p class="text-sm text-gray-600">Capacidad: 6 personas</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4 text-gray-900">Mañana</td>
-                                <td class="py-4 px-4 text-gray-900">09:00 - 13:00</td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-xs font-medium">CM</span>
-                                        </div>
-                                        <span class="text-gray-900">Carlos Martín</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Pendiente</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>
-                                        <button class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="bg-purple-100 p-2 rounded-lg">
-                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Sala Creativa</p>
-                                            <p class="text-sm text-gray-600">Capacidad: 8 personas</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4 text-gray-900">25 May</td>
-                                <td class="py-4 px-4 text-gray-900">10:00 - 12:00</td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-xs font-medium">LF</span>
-                                        </div>
-                                        <span class="text-gray-900">Laura Fernández</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Confirmada</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>
-                                        <button class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Vista Mobile/Tablet -->
+                    <div class="lg:hidden space-y-4" id="reservations-mobile-list">
+                        <!-- Los datos se cargarán dinámicamente aquí -->
+                        <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+                            <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="text-sm text-center">No hay reservas próximas</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -691,4 +611,5 @@
     <script src="../assets/js/notifications.js"></script>
     <script src="../assets/js/logout.js"></script>
     <script src="../assets/js/nueva-reserva.js"></script>
+    <script src="../assets/js/proximas-reservas.js"></script>
 </body>
