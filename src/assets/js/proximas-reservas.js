@@ -3,13 +3,30 @@ class ReservationsManager {
     constructor() {
         this.tableBody = document.getElementById('reservations-table-body');
         this.mobileList = document.getElementById('reservations-mobile-list');
+        this.currentReservations = [];
         this.init();
     }
 
     init() {
         this.loadReservations();
+        this.setupEventListeners();
         // Recargar cada 30 segundos para mantener los datos actualizados
         setInterval(() => this.loadReservations(), 30000);
+    }
+
+    setupEventListeners() {
+        // Event delegation para botones de cancelar y editar
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('cancel-reservation-btn')) {
+                const reservationId = parseInt(e.target.dataset.reservationId);
+                this.cancelReservation(reservationId);
+            }
+
+            if (e.target.classList.contains('edit-reservation-btn')) {
+                const reservationId = parseInt(e.target.dataset.reservationId);
+                this.editReservation(reservationId);
+            }
+        });
     }
 
     async loadReservations() {
@@ -76,6 +93,9 @@ class ReservationsManager {
             return;
         }
 
+        // Almacenar las reservas actuales
+        this.currentReservations = reservations;
+
         // Limpiar contenido actual
         this.tableBody.innerHTML = '';
         this.mobileList.innerHTML = '';
@@ -129,8 +149,8 @@ class ReservationsManager {
             </td>
             <td class="py-4 px-4">
                 <div class="flex items-center space-x-2">
-                    ${this.canEdit(reservation) ? `<button onclick="reservationsManager.editReservation(${reservation.id})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>` : ''}
-                    ${this.canCancel(reservation) ? `<button onclick="reservationsManager.cancelReservation(${reservation.id})" class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>` : ''}
+                    ${this.canEdit(reservation) ? `<button data-reservation-id="${reservation.id}" class="edit-reservation-btn text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>` : ''}
+                    ${this.canCancel(reservation) ? `<button data-reservation-id="${reservation.id}" class="cancel-reservation-btn text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>` : ''}
                 </div>
             </td>
         `;
@@ -142,7 +162,7 @@ class ReservationsManager {
         const card = document.createElement('div');
         card.className = 'bg-gray-50 rounded-lg p-4 border border-gray-200';
 
-        const statusInfo = this.getStatusInfo(reservation.status); 
+        const statusInfo = this.getStatusInfo(reservation.status);
         const userInitials = this.getInitials(reservation.userName || 'Usuario');
         const userName = reservation.userName || 'Usuario';
         const workspaceName = reservation.workspaceName || 'Espacio';
@@ -180,8 +200,8 @@ class ReservationsManager {
                 </div>
                 
                 <div class="flex items-center space-x-2">
-                    ${this.canEdit(reservation) ? `<button onclick="reservationsManager.editReservation(${reservation.id})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>` : ''}
-                    ${this.canCancel(reservation) ? `<button onclick="reservationsManager.cancelReservation(${reservation.id})" class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>` : ''}
+                    ${this.canEdit(reservation) ? `<button data-reservation-id="${reservation.id}" class="edit-reservation-btn text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>` : ''}
+                    ${this.canCancel(reservation) ? `<button data-reservation-id="${reservation.id}" class="cancel-reservation-btn text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>` : ''}
                 </div>
             </div>
         `;
@@ -248,32 +268,21 @@ class ReservationsManager {
     }
 
     async cancelReservation(reservationId) {
-        if (!confirm('¿Estás seguro de que quieres cancelar esta reserva?')) {
-            return;
+        // Buscar la reserva en los datos actuales
+        const reservation = this.getCurrentReservationData(reservationId);
+        if (reservation && window.cancelReservationModal) {
+            window.cancelReservationModal.open(reservation);
+        } else {
+            console.error('No se encontró la reserva o el modal no está disponible');
         }
+    }
 
-        try {
-            const response = await fetch(`/api/reservations/${reservationId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.getAuthToken()}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            // Recargar las reservas después de cancelar
-            this.loadReservations();
-
-            // Mostrar mensaje de éxito (opcional)
-            this.showSuccessMessage('Reserva cancelada exitosamente');
-        } catch (error) {
-            console.error('Error canceling reservation:', error);
-            alert('Error al cancelar la reserva. Por favor, inténtalo de nuevo.');
-        }
+    // Agregar este método para obtener los datos de la reserva
+    getCurrentReservationData(reservationId) {
+        // Buscar en los datos actuales cargados
+        // Como no tenemos acceso directo, podemos hacer una consulta rápida
+        // o almacenar los datos en una propiedad de la clase
+        return this.currentReservations?.find(r => r.id === reservationId);
     }
 
     showSuccessMessage(message) {

@@ -76,6 +76,11 @@ app.get('/notifications', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'notifications.html'));
 });
 
+app.get('/my-reservations', (req, res) => {
+  console.log('Ruta /my-reservations accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'my-reservations.html'));
+});
+
 app.use((req, res, next) => {
   console.log(`[LOG] ${req.method} ${req.url}`);
   next();
