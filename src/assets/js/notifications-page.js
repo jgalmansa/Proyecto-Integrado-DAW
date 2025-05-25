@@ -527,10 +527,10 @@ class NotificationsPage {
                                 <span class="text-xs text-gray-500 w-20 flex-shrink-0 mt-0.5">Descripción:</span>
                                 <span class="text-xs text-gray-900">${workspaceDescription}</span>
                             </div>
-                            <div class="flex items-start">
+                            <!--<div class="flex items-start">
                                 <span class="text-xs text-gray-500 w-20 flex-shrink-0 mt-0.5">Equipamiento:</span>
                                 <div class="text-xs text-gray-900">${this.formatEquipment(equipment)}</div>
-                            </div>
+                            </div>-->
                         </div>
                     </div>
 
