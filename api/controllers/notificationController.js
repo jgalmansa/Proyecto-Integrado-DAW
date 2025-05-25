@@ -1,4 +1,4 @@
-import { Notification, Reservation, Workspace } from '../../database/models/index.js';
+import { Notification, Reservation, Workspace, User } from '../../database/models/index.js';
 import { 
   markNotificationAsRead, 
   getUnreadNotifications 
@@ -171,5 +171,161 @@ export const getUnreadCount = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener conteo de notificaciones no leídas:', error);
     return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Crea una notificación global (solo administradores)
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Object>} - Notificación creada
+ */
+export const createGlobalNotification = async (req, res) => {
+  try {
+    const { message, type = 'global' } = req.body;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+    // Verificar que el usuario sea administrador
+    if (userRole !== 'admin') {
+      return res.status(403).json({ 
+        message: 'Acceso denegado. Solo los administradores pueden crear notificaciones globales' 
+      });
+    }
+
+    // Validar mensaje
+    if (!message || message.trim().length === 0) {
+      return res.status(400).json({ 
+        message: 'El mensaje de la notificación es obligatorio' 
+      });
+    }
+
+    if (message.length > 500) {
+      return res.status(400).json({ 
+        message: 'El mensaje no puede exceder los 500 caracteres' 
+      });
+    }
+
+    // Obtener todos los usuarios activos de la misma empresa
+    const companyUsers = await User.findAll({
+      where: {
+        company_id: req.user.company_id,
+        is_active: true
+      },
+      attributes: ['id']
+    });
+
+    if (companyUsers.length === 0) {
+      return res.status(400).json({ 
+        message: 'No se encontraron usuarios en la empresa' 
+      });
+    }
+
+    // Crear notificaciones para todos los usuarios
+    const notifications = [];
+    for (const user of companyUsers) {
+      const notification = await Notification.create({
+        user_id: user.id,
+        type: type,
+        message: message.trim(),
+        is_read: false
+      });
+      notifications.push(notification);
+    }
+
+    console.log(`✅ Notificación global creada para ${notifications.length} usuarios por admin ${req.user.email}`);
+
+    return res.status(201).json({
+      message: 'Notificación global creada exitosamente',
+      notification: {
+        id: notifications[0].id, // ID de referencia
+        type: type,
+        message: message.trim(),
+        recipients: notifications.length,
+        createdBy: {
+          id: userId,
+          email: req.user.email,
+          name: `${req.user.first_name} ${req.user.last_name}`
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al crear notificación global:', error);
+    return res.status(500).json({ 
+      message: 'Error interno del servidor' 
+    });
+  }
+};
+
+/**
+ * Obtiene estadísticas de notificaciones (solo administradores)
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Object>} - Estadísticas de notificaciones
+ */
+export const getNotificationStats = async (req, res) => {
+  try {
+    const userRole = req.user.role;
+    const companyId = req.user.company_id;
+
+    // Verificar que el usuario sea administrador
+    if (userRole !== 'admin') {
+      return res.status(403).json({ 
+        message: 'Acceso denegado. Solo los administradores pueden ver estadísticas' 
+      });
+    }
+
+    // Obtener usuarios de la empresa
+    const totalUsers = await User.count({
+      where: {
+        company_id: companyId,
+        is_active: true
+      }
+    });
+
+    // Obtener estadísticas de notificaciones
+    const totalNotifications = await Notification.count({
+      include: [{
+        model: User,
+        where: { company_id: companyId },
+        attributes: []
+      }]
+    });
+
+    const unreadNotifications = await Notification.count({
+      where: { is_read: false },
+      include: [{
+        model: User,
+        where: { company_id: companyId },
+        attributes: []
+      }]
+    });
+
+    const globalNotifications = await Notification.count({
+      where: { type: 'global' },
+      include: [{
+        model: User,
+        where: { company_id: companyId },
+        attributes: []
+      }]
+    });
+
+    return res.status(200).json({
+      stats: {
+        totalUsers,
+        totalNotifications,
+        unreadNotifications,
+        globalNotifications,
+        readRate: totalNotifications > 0 ? 
+          Math.round(((totalNotifications - unreadNotifications) / totalNotifications) * 100) : 0
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al obtener estadísticas:', error);
+    return res.status(500).json({ 
+      message: 'Error interno del servidor' 
+    });
   }
 };
