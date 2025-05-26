@@ -147,15 +147,6 @@
                         <span>Espacios</span>
                     </a>
 
-                    <a id="new-reservation-menu" href="#"
-                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z">
-                            </path>
-                        </svg>
-                        <span>Nueva Reserva</span>
-                    </a>
                 </div>
 
                 <!-- Sección Administración (solo para admins) -->
@@ -343,8 +334,9 @@
                             </svg>
                         </button>
 
+                        <a href="/espacios" class="w-full flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors text-left">
                         <button
-                            class="w-full flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors text-left">
+                            class="w-full flex items-center justify-between hover:bg-green-100 rounded-lg transition-colors text-left">
                             <div class="flex items-center space-x-3">
                                 <div class="bg-green-600 p-2 rounded-lg">
                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
@@ -364,9 +356,11 @@
                                 </path>
                             </svg>
                         </button>
+                        </a>
 
+                        <a href="/mis-reservas" class="w-full flex items-center justify-between p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-left">
                         <button
-                            class="w-full flex items-center justify-between p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-left">
+                            class="w-full flex items-center justify-between hover:bg-yellow-100 rounded-lg transition-colors text-left">
                             <div class="flex items-center space-x-3">
                                 <div class="bg-yellow-600 p-2 rounded-lg">
                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
@@ -385,6 +379,8 @@
                                 </path>
                             </svg>
                         </button>
+                        </a>
+
                     </div>
                 </div>
 
@@ -443,7 +439,7 @@
                 <div class="p-4 sm:p-6">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                         <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Mis Próximas Reservas</h3>
-                        <a href="/my-reservations" id="view-all-reservations"
+                        <a href="/mis-reservas" id="view-all-reservations"
                             class="text-sm text-blue-600 hover:text-blue-800 font-medium">Ver todas</a>
                     </div>
 

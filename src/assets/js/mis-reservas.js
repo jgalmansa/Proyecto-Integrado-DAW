@@ -136,21 +136,21 @@ class MisReservas {
                 }
 
                 // Llamada 3: Reservas pendientes
-                const pendingResponse = await fetch('/api/reservations/my?status=pending', {
+                /*const pendingResponse = await fetch('/api/reservations/my?status=pending', {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-                });
+                });*/
 
-                let pendingData = { reservations: [] };
+                /*let pendingData = { reservations: [] };
                 if (pendingResponse.ok) {
                     pendingData = await pendingResponse.json();
                     console.log('Reservas pending:', pendingData.reservations?.length || 0);
-                }
+                }*/
 
                 // Combinar todas las reservas
                 const allReservations = [
                     ...(confirmedData.reservations || []),
-                    ...(cancelledData.reservations || []),
-                    ...(pendingData.reservations || [])
+                    ...(cancelledData.reservations || [])
+                    //...(pendingData.reservations || [])
                 ];
 
                 // Eliminar duplicados por ID
@@ -223,7 +223,7 @@ class MisReservas {
 
         // Actualizar tarjetas de estadísticas
         document.getElementById('active-reservations-count').textContent = stats.active;
-        document.getElementById('pending-reservations-count').textContent = stats.pending;
+        //document.getElementById('pending-reservations-count').textContent = stats.pending;
         document.getElementById('completed-reservations-count').textContent = stats.completed;
         document.getElementById('cancelled-reservations-count').textContent = stats.cancelled;
     }
@@ -233,7 +233,7 @@ class MisReservas {
         const stats = {
             total: this.reservations.length,
             active: 0,
-            pending: 0,
+            //pending: 0,
             completed: 0,
             cancelled: 0,
             upcoming: 0
@@ -256,12 +256,12 @@ class MisReservas {
                         stats.completed++;
                     }
                     break;
-                case 'pending':
+                /*case 'pending':
                     stats.pending++;
                     if (startDate > now) {
                         stats.upcoming++;
                     }
-                    break;
+                    break;*/
                 case 'cancelled':
                     stats.cancelled++;
                     break;
@@ -313,11 +313,11 @@ class MisReservas {
                     return endDate > now && ['confirmed', 'active'].includes(reservation.status.toLowerCase());
                 });
                 break;
-            case 'pending':
+            /*case 'pending':
                 this.filteredReservations = this.reservations.filter(reservation => 
                     reservation.status.toLowerCase() === 'pending'
                 );
-                break;
+                break;*/
             case 'completed':
                 this.filteredReservations = this.reservations.filter(reservation => {
                     const endDate = new Date(reservation.endTime);
@@ -481,9 +481,9 @@ class MisReservas {
             return { text: 'Cancelada', color: 'red', iconColor: 'red' };
         }
         
-        if (statusLower === 'pending') {
+        /*if (statusLower === 'pending') {
             return { text: 'Pendiente', color: 'yellow', iconColor: 'yellow' };
-        }
+        }*/
         
         if (endDate < now) {
             return { text: 'Completada', color: 'blue', iconColor: 'blue' };
@@ -501,7 +501,7 @@ class MisReservas {
         const status = reservation.status.toLowerCase();
         
         // Solo se puede editar si está pendiente o confirmada y no ha empezado
-        return ['pending', 'confirmed'].includes(status) && startDate > now;
+        return ['confirmed'].includes(status) && startDate > now;
     }
 
     canCancelReservation(reservation, now) {
