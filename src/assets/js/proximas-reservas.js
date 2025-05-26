@@ -146,7 +146,7 @@ class ReservationsManager {
             </td>
             <td class="py-4 px-4">
                 <div class="flex items-center space-x-2">
-                    ${this.canEdit(reservation) ? `<button data-reservation-id="${reservation.id}" class="edit-reservation-btn text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>` : ''}
+                    <!--${this.canEdit(reservation) ? `<button data-reservation-id="${reservation.id}" class="edit-reservation-btn text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>` : ''}-->
                     ${this.canCancel(reservation) ? `<button data-reservation-id="${reservation.id}" class="cancel-reservation-btn text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>` : ''}
                 </div>
             </td>
