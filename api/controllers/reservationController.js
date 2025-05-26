@@ -236,6 +236,10 @@ export const getUserReservations = async (req, res) => {
         {
           model: Workspace,
           attributes: ['id', 'name', 'description', 'capacity']
+        },
+        {
+          model: User,
+          attributes: ['id', 'first_name', 'last_name', 'email']
         }
       ],
       order: [['start_time', 'ASC']]
@@ -246,10 +250,14 @@ export const getUserReservations = async (req, res) => {
       workspaceId: reservation.workspace_id,
       workspaceName: reservation.Workspace.name,
       workspaceDescription: reservation.Workspace.description,
+      workspaceCapacity: reservation.Workspace.capacity,
+      userName: `${reservation.User.first_name}${reservation.User.last_name ? ' ' + reservation.User.last_name : ''}`,
+      userFirstName: reservation.User.first_name,
+      userLastName: reservation.User.last_name,
       startTime: reservation.start_time,
       endTime: reservation.end_time,
       numberOfPeople: reservation.number_of_people,
-      guests: parseGuestsData(reservation.guests), // Parseamos de vuelta a array
+      guests: parseGuestsData(reservation.guests),
       status: reservation.status,
       createdAt: reservation.created_at
     }));

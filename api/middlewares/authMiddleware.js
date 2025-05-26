@@ -6,10 +6,7 @@ import { verifyToken, verifyActiveSession } from '../services/authService.js';
  * Verificamos si el usuario está autenticado y no ha cerrado sesión
  */
 
-export const authenticateToken = async (req, res, next) => {
-  //console.log('🔍 AUTH - Ruta:', req.method, req.path);
-  //console.log('🔍 AUTH - Headers:', req.headers.authorization?.substring(0, 50) + '...');
-  
+export const authenticateToken = async (req, res, next) => {  
   try {
     // Obtener token del encabezado
     const authHeader = req.headers['authorization'];
@@ -20,9 +17,7 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     // Verificar token usando la función existente en authService
-    //console.log('🔍 Verificando token...');
     const decoded = verifyToken(token);
-    //console.log('🔍 Token decodificado:', decoded);
 
     if (!decoded) {
       //console.log('❌ Token inválido');
@@ -30,9 +25,7 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     // Verificar que la sesión está activa en la base de datos
-    //console.log('🔍 Verificando sesión activa...');
     const activeSession = await verifyActiveSession(token);
-    //console.log('🔍 Sesión activa:', activeSession);
 
     if (!activeSession) {
       //console.log('❌ Sesión inválida');

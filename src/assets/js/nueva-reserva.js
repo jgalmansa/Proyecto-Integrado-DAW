@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const quickBtn = document.getElementById('new-reservation-button-quick');
+    const openButtons = [document.getElementById('new-reservation-button-quick'), document.getElementById('new-reservation-proximas'), document.getElementById('new-reservation-menu')];
     const modal = document.getElementById('float-quick-new-reservation');
     const closeX = document.getElementById('close-modal');
     const cancelBtn = document.getElementById('cancel-reservation');
@@ -184,10 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Abre el modal
-    quickBtn?.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        resetForm();
+    // Abre el modal con quickBtn o quickBtn2
+    openButtons.forEach(btn => {
+        if (btn) {
+            btn.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+                resetForm();
+            });
+        }
     });
 
     // Cierra el modal

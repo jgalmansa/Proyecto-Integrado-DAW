@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coworkly - Dashboard</title>
     <link href="../assets/css/output.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
@@ -13,7 +15,9 @@
             <div class="flex items-center space-x-3">
                 <div class="bg-[#3B82F6] p-2 rounded-lg">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
                     </svg>
                 </div>
                 <div>
@@ -21,19 +25,24 @@
                     <p class="text-sm text-gray-500">Gestión de Espacios</p>
                 </div>
             </div>
-            
+
             <div class="flex items-center gap-4">
                 <!-- Notificaciones -->
                 <div class="relative" id="notifications-container">
-                    <button id="notifications-button" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <button id="notifications-button"
+                        class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z">
+                            </path>
                         </svg>
-                        <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        <span id="notification-badge"
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
                     </button>
-                    
+
                     <!-- Dropdown de notificaciones -->
-                    <div id="notifications-dropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+                    <div id="notifications-dropdown"
+                        class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
                         <!-- Header del dropdown -->
                         <div class="flex items-center justify-between p-4 border-b border-gray-100">
                             <h3 class="text-sm font-semibold text-gray-900">Notificaciones</h3>
@@ -41,7 +50,7 @@
                                 Marcar todas como leídas
                             </button>
                         </div>
-                        
+
                         <!-- Lista de notificaciones -->
                         <div id="dropdown-notifications-list" class="max-h-96 overflow-y-auto">
                             <!-- Loading state -->
@@ -49,24 +58,28 @@
                                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
                                 <p class="text-sm text-gray-500 mt-2">Cargando notificaciones...</p>
                             </div>
-                            
+
                             <!-- Empty state -->
                             <div id="notifications-empty" class="p-8 text-center hidden">
-                                <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                                <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z">
+                                    </path>
                                 </svg>
                                 <p class="text-sm text-gray-500">No tienes notificaciones</p>
                             </div>
-                            
+
                             <!-- Contenedor de notificaciones -->
                             <div id="dropdown-notifications-container">
                                 <!-- Las notificaciones se cargarán aquí dinámicamente -->
                             </div>
                         </div>
-                        
+
                         <!-- Footer del dropdown -->
                         <div class="p-3 border-t border-gray-100 bg-gray-50 rounded-b-lg">
-                            <a href="/notifications" id="view-all-notifications-dropdown" class="block w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-1">
+                            <a href="/notifications" id="view-all-notifications-dropdown"
+                                class="block w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-1">
                                 Ver todas las notificaciones
                             </a>
                         </div>
@@ -89,6 +102,12 @@
                             </svg>
                         </button>
                     </div>
+                    <button class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -101,66 +120,85 @@
                 <!-- Sección General -->
                 <div class="mb-6">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">General</h3>
-                    
+
                     <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-[#3B82F6] text-white">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                         </svg>
                         <span class="font-medium">Dashboard</span>
                     </a>
                     
                     <a href="/mis-reservas" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z">
+                            </path>
                         </svg>
                         <span>Mis Reservas</span>
                     </a>
                     
                     <a href="/espacios" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
                         </svg>
                         <span>Espacios</span>
                     </a>
-                    
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+
+                    <a id="new-reservation-menu" href="#"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z">
+                            </path>
                         </svg>
                         <span>Nueva Reserva</span>
                     </a>
                 </div>
-                
+
                 <!-- Sección Administración (solo para admins) -->
                 <div class="mb-6">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Administración</h3>
-                    
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+
+                    <a href="#"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                            </path>
                         </svg>
                         <span>Gestión Usuarios</span>
                     </a>
                     
                     <a href="/gestion-espacios" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
                         </svg>
                         <span>Gestión Espacios</span>
                     </a>
-                    
-                    <a href="/notifications" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+
+                    <a href="/notifications"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z">
+                            </path>
                         </svg>
                         <span>Notificaciones</span>
                     </a>
                 </div>
-                
+
                 <div class="border-t pt-4">
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                    <a href="#"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
                         </svg>
                         <span>Cerrar Sesión</span>
                     </a>
@@ -189,7 +227,9 @@
                         </div>
                         <div class="bg-blue-100 p-3 rounded-lg">
                             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                </path>
                             </svg>
                         </div>
                     </div>
@@ -212,7 +252,9 @@
                         </div>
                         <div class="bg-green-100 p-3 rounded-lg">
                             <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z">
+                                </path>
                             </svg>
                         </div>
                     </div>
@@ -235,7 +277,8 @@
                         </div>
                         <div class="bg-yellow-100 p-3 rounded-lg">
                             <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                     </div>
@@ -258,7 +301,9 @@
                         </div>
                         <div class="bg-purple-100 p-3 rounded-lg">
                             <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                                </path>
                             </svg>
                         </div>
                     </div>
@@ -277,11 +322,14 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
                     <div class="space-y-3">
-                        <button id="new-reservation-button-quick" class="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-left">
+                        <button id="new-reservation-button-quick"
+                            class="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-left">
                             <div class="flex items-center space-x-3">
                                 <div class="bg-blue-600 p-2 rounded-lg">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                     </svg>
                                 </div>
                                 <div>
@@ -290,15 +338,20 @@
                                 </div>
                             </div>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
                             </svg>
                         </button>
 
-                        <button class="w-full flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors text-left">
+                        <button
+                            class="w-full flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors text-left">
                             <div class="flex items-center space-x-3">
                                 <div class="bg-green-600 p-2 rounded-lg">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                        </path>
                                     </svg>
                                 </div>
                                 <div>
@@ -307,15 +360,19 @@
                                 </div>
                             </div>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
                             </svg>
                         </button>
 
-                        <button class="w-full flex items-center justify-between p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-left">
+                        <button
+                            class="w-full flex items-center justify-between p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-left">
                             <div class="flex items-center space-x-3">
                                 <div class="bg-yellow-600 p-2 rounded-lg">
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                 </div>
                                 <div>
@@ -324,7 +381,8 @@
                                 </div>
                             </div>
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                                </path>
                             </svg>
                         </button>
                     </div>
@@ -334,7 +392,8 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="text-lg font-semibold text-gray-900">Notificaciones</h3>
-                        <a href="/notifications" id="view-all-notifications" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Ver todas</a>
+                        <a href="/notifications" id="view-all-notifications"
+                            class="text-sm text-blue-600 hover:text-blue-800 font-medium">Ver todas</a>
                     </div>
                     <div class="space-y-4" id="notification-dashboard-container">
                         <!--<div class="flex items-start space-x-3 p-3 bg-red-50 rounded-lg">
@@ -379,141 +438,69 @@
                 </div>
             </div>
 
-            <!-- Próximas Reservas -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900">Próximas Reservas</h3>
-                    <button class="bg-[#3B82F6] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#1E40AF] transition-colors">
-                        Nueva Reserva
-                    </button>
-                </div>
+            <!-- Mis Próximas Reservas -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Mis Próximas Reservas</h3>
+                        <a href="/my-reservations" id="view-all-reservations"
+                            class="text-sm text-blue-600 hover:text-blue-800 font-medium">Ver todas</a>
+                    </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Espacio</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Fecha</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Hora</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Usuario</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Estado</th>
-                                <th class="text-left py-3 px-4 font-medium text-gray-900">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="bg-blue-100 p-2 rounded-lg">
-                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    <!-- Vista Desktop -->
+                    <div class="hidden lg:block overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Espacio</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Fecha</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Hora</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Personas</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Usuario</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Estado</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-900">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="reservations-table-body">
+                                <!-- Los datos se cargarán dinámicamente aquí -->
+                                <tr>
+                                    <td colspan="7" class="py-8 px-4 text-center text-gray-500">
+                                        <div class="flex flex-col items-center space-y-2">
+                                            <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                </path>
                                             </svg>
+                                            <p class="text-sm">No hay reservas próximas</p>
                                         </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Sala de Juntas A</p>
-                                            <p class="text-sm text-gray-600">Capacidad: 12 personas</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4 text-gray-900">Hoy</td>
-                                <td class="py-4 px-4 text-gray-900">14:30 - 16:00</td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-xs font-medium">AG</span>
-                                        </div>
-                                        <span class="text-gray-900">Ana García</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Confirmada</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>
-                                        <button class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="bg-green-100 p-2 rounded-lg">
-                                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 6.5V21"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Área Coworking B</p>
-                                            <p class="text-sm text-gray-600">Capacidad: 6 personas</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4 text-gray-900">Mañana</td>
-                                <td class="py-4 px-4 text-gray-900">09:00 - 13:00</td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-xs font-medium">CM</span>
-                                        </div>
-                                        <span class="text-gray-900">Carlos Martín</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs font-medium">Pendiente</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>
-                                        <button class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="bg-purple-100 p-2 rounded-lg">
-                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Sala Creativa</p>
-                                            <p class="text-sm text-gray-600">Capacidad: 8 personas</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4 text-gray-900">25 May</td>
-                                <td class="py-4 px-4 text-gray-900">10:00 - 12:00</td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <div class="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center">
-                                            <span class="text-white text-xs font-medium">LF</span>
-                                        </div>
-                                        <span class="text-gray-900">Laura Fernández</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Confirmada</span>
-                                </td>
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center space-x-2">
-                                        <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">Editar</button>
-                                        <button class="text-red-600 hover:text-red-800 text-sm font-medium">Cancelar</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Vista Mobile/Tablet -->
+                    <div class="lg:hidden space-y-4" id="reservations-mobile-list">
+                        <!-- Los datos se cargarán dinámicamente aquí -->
+                        <div class="flex flex-col items-center justify-center py-12 text-gray-500">
+                            <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            <p class="text-sm text-center">No hay reservas próximas</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
 
         <!-- Flotantes -->
-         <!-- NUEVA RESERVA -->
-        <div id="float-quick-new-reservation" class="hidden fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+        <!-- NUEVA RESERVA -->
+        <div id="float-quick-new-reservation"
+            class="hidden fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
             <!-- Contenedor del modal -->
             <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-hidden">
                 <!-- Header -->
@@ -523,9 +510,11 @@
                             Reserva Rápida
                         </h2>
                     </div>
-                    <button id="close-modal" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                    <button id="close-modal"
+                        class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
@@ -534,71 +523,66 @@
                     <form id="quick-reservation-form" class="space-y-6">
                         <!-- Fecha -->
                         <div>
-                            <label for="reservation-date" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center pl-2">
+                            <label for="reservation-date"
+                                class="block text-sm font-semibold text-gray-700 mb-3 flex items-center pl-2">
                                 Fecha
                             </label>
-                            <input 
-                                type="date" 
-                                id="reservation-date" 
-                                name="date"
+                            <input type="date" id="reservation-date" name="date"
                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
-                                required
-                            >
+                                required>
                         </div>
                         <!-- Contenedor de horarios -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <!-- Hora de inicio -->
                             <div>
-                                <label for="start-time" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <label for="start-time"
+                                    class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     Hora de inicio
                                 </label>
-                                <input 
-                                    type="time" 
-                                    id="start-time" 
-                                    name="startTime"
+                                <input type="time" id="start-time" name="startTime"
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
-                                    required
-                                >
+                                    required>
                             </div>
                             <!-- Hora de fin -->
                             <div>
-                                <label for="end-time" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                                    <svg class="w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <label for="end-time"
+                                    class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     Hora de fin
                                 </label>
-                                <input 
-                                    type="time" 
-                                    id="end-time" 
-                                    name="endTime"
+                                <input type="time" id="end-time" name="endTime"
                                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
-                                    required
-                                >
+                                    required>
                             </div>
                         </div>
 
                         <!-- Sección de Invitados -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                                <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                                    </path>
                                 </svg>
                                 Invitados (opcional)
                             </label>
-                            
+
                             <!-- Buscador de usuarios -->
                             <div class="relative mb-3">
-                                <input 
-                                    type="text" 
-                                    id="guest-search" 
-                                    placeholder="Buscar usuarios por email..."
-                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
-                                >
-                                <div id="guest-search-results" class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                <input type="text" id="guest-search" placeholder="Buscar usuarios por email..."
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white">
+                                <div id="guest-search-results"
+                                    class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
                                     <!-- Resultados de búsqueda aparecerán aquí -->
                                 </div>
                             </div>
@@ -611,23 +595,14 @@
                             <!-- Campo para invitados externos -->
                             <div class="mt-3 w-full">
                                 <div class="flex items-center gap-2 w-full justify-between">
-                                    <input 
-                                        type="number" 
-                                        id="external-guests-count" 
-                                        placeholder="0"
-                                        min="0"
-                                        max="99"
+                                    <input type="number" id="external-guests-count" placeholder="0" min="0" max="99"
                                         value="0"
-                                        class="w-20 px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-gray-50 focus:bg-white text-center"
-                                    >
+                                        class="w-20 px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-gray-50 focus:bg-white text-center">
                                     <span class="text-gray-700 font-medium">
                                         Invitado(s) Externo(s)
                                     </span>
-                                    <button 
-                                        type="button" 
-                                        id="add-external-guest" 
-                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
-                                    >
+                                    <button type="button" id="add-external-guest"
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
                                         Añadir
                                     </button>
                                 </div>
@@ -640,12 +615,16 @@
                         <!-- Espacios disponibles -->
                         <div id="available-spaces-container" class="hidden">
                             <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                                <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
                                 </svg>
                                 Espacios disponibles
                             </label>
-                            <div id="available-spaces" class="space-y-3 max-h-48 overflow-y-auto bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <div id="available-spaces"
+                                class="space-y-3 max-h-48 overflow-y-auto bg-gray-50 p-4 rounded-xl border border-gray-200">
                                 <!-- Los espacios se cargarán dinámicamente -->
                             </div>
                         </div>
@@ -655,36 +634,280 @@
                         </div>
                     </form>
                 </div>
-                
+
                 <!-- Footer -->
-                <div class="flex w-full flex-col sm:flex-row justify-between items-center p-6 border-t border-gray-100 bg-gray-50 space-y-3 sm:space-y-0">
-                    <button 
-                        id="check-availability" 
-                        type="button"
-                        class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                    >
+                <div
+                    class="flex w-full flex-col sm:flex-row justify-between items-center p-6 border-t border-gray-100 bg-gray-50 space-y-3 sm:space-y-0">
+                    <button id="check-availability" type="button"
+                        class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
                         <span>Verificar Disponibilidad</span>
                     </button>
                     <!-- Botones de acción -->
                     <div id="action-buttons" class="flex w-full w-full justify-end items-center gap-3">
-                        <button 
-                            id="confirm-reservation" 
-                            type="button"
-                            class="flex-1 sm:flex-none px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hidden flex items-center justify-center space-x-2"
-                        >
+                        <button id="confirm-reservation" type="button"
+                            class="flex-1 sm:flex-none px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hidden flex items-center justify-center space-x-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
                             </svg>
                             <span>Confirmar Reserva</span>
                         </button>
-                        <button 
-                            id="cancel-reservation" 
-                            type="button"
-                            class="flex-1 sm:flex-none px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-xl transition-colors font-medium"
-                        >
+                        <button id="cancel-reservation" type="button"
+                            class="flex-1 sm:flex-none px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-xl transition-colors font-medium">
                             Cancelar
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL EDITAR RESERVA -->
+        <div id="edit-reservation-modal"
+            class="hidden fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+            <!-- Contenedor del modal -->
+            <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-hidden">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-orange-50">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                        <h2 class="text-xl font-bold text-orange-900">Editar Reserva</h2>
+                    </div>
+                    <button id="close-edit-modal"
+                        class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 overflow-y-auto max-h-[60vh]">
+                    <form id="edit-reservation-form" class="space-y-6">
+                        <!-- Información del espacio (solo lectura) -->
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                    </path>
+                                </svg>
+                                <div>
+                                    <p class="font-semibold text-blue-900" id="edit-workspace-name">Nombre del Espacio
+                                    </p>
+                                    <p class="text-sm text-blue-700" id="edit-workspace-capacity">Capacidad: 0 personas
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Fecha -->
+                        <div>
+                            <label for="edit-reservation-date"
+                                class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                Fecha
+                            </label>
+                            <input type="date" id="edit-reservation-date" name="date"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
+                                required>
+                        </div>
+
+                        <!-- Contenedor de horarios -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Hora de inicio -->
+                            <div>
+                                <label for="edit-start-time"
+                                    class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Hora de inicio
+                                </label>
+                                <input type="time" id="edit-start-time" name="startTime"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
+                                    required>
+                            </div>
+                            <!-- Hora de fin -->
+                            <div>
+                                <label for="edit-end-time"
+                                    class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-red-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Hora de fin
+                                </label>
+                                <input type="time" id="edit-end-time" name="endTime"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white"
+                                    required>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Invitados -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                                    </path>
+                                </svg>
+                                Invitados
+                            </label>
+
+                            <!-- Buscador de usuarios -->
+                            <div class="relative mb-3">
+                                <input type="text" id="edit-guest-search" placeholder="Buscar usuarios por email..."
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors hover:border-gray-300 bg-gray-50 focus:bg-white">
+                                <div id="edit-guest-search-results"
+                                    class="hidden absolute z-10 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                </div>
+                            </div>
+
+                            <!-- Lista de invitados seleccionados -->
+                            <div id="edit-selected-guests" class="space-y-2 mb-3">
+                            </div>
+
+                            <!-- Campo para invitados externos -->
+                            <div class="w-full">
+                                <div class="flex items-center gap-2 w-full justify-between">
+                                    <input type="number" id="edit-external-guests-count" placeholder="0" min="0"
+                                        max="99" value="0"
+                                        class="w-20 px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-gray-50 focus:bg-white text-center">
+                                    <span class="text-gray-700 font-medium">Invitado(s) Externo(s)</span>
+                                    <button type="button" id="edit-add-external-guest"
+                                        class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                                        Añadir
+                                    </button>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Especifica la cantidad de invitados externos a
+                                    añadir</p>
+                            </div>
+                        </div>
+
+                        <!-- Mensaje de estado -->
+                        <div id="edit-status-message" class="hidden rounded-xl p-4 border-l-4">
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Footer -->
+                <div
+                    class="flex w-full flex-col sm:flex-row justify-between items-center p-6 border-t border-gray-100 bg-gray-50 space-y-3 sm:space-y-0">
+                    <button id="edit-check-availability" type="button"
+                        class="w-full sm:w-auto px-6 py-3 bg-orange-600 text-white font-semibold rounded-xl hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2">
+                        <span>Verificar Disponibilidad</span>
+                    </button>
+
+                    <div class="flex w-full sm:w-auto justify-end items-center gap-3">
+                        <button id="edit-confirm-changes" type="button"
+                            class="px-6 py-3 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hidden flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span>Guardar Cambios</span>
+                        </button>
+                        <button id="edit-cancel-changes" type="button"
+                            class="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-xl transition-colors font-medium">
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Cancelar Reserva -->
+        <div id="cancel-reservation-modal"
+            class="hidden fixed inset-0 bg-opacity-50 flex items-center justify-center z-50">
+            <!-- Contenedor del modal -->
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0"
+                id="modal-content">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-red-50">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-red-900">
+                            Cancelar Reserva
+                        </h2>
+                    </div>
+                    <button id="close-cancel-modal"
+                        class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Body -->
+                <div class="p-6">
+                    <div class="text-center">
+                        <p class="text-gray-600 mb-4">
+                            ¿Estás seguro de que quieres cancelar esta reserva?
+                        </p>
+
+                        <!-- Información de la reserva -->
+                        <div class="bg-gray-50 rounded-lg p-4 mb-4 text-left">
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Espacio:</span>
+                                    <span class="font-medium" id="cancel-workspace-name">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Fecha:</span>
+                                    <span class="font-medium" id="cancel-reservation-date">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Hora:</span>
+                                    <span class="font-medium" id="cancel-reservation-time">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Personas:</span>
+                                    <span class="font-medium" id="cancel-reservation-people">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="text-sm text-red-600 font-medium">
+                            Esta acción no se puede deshacer.
+                        </p>
+                    </div>
+                </div>
+                <!-- Footer -->
+                <div class="flex justify-between items-center p-6 border-t border-gray-100 bg-gray-50 space-x-3">
+                    <button id="cancel-modal-action" type="button"
+                        class="px-6 py-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors font-medium">
+                        Cancelar
+                    </button>
+                    <button id="confirm-cancel-reservation" type="button"
+                        class="px-6 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
+                        <span id="confirm-button-text">Cancelar Reserva</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -694,4 +917,6 @@
     <script src="../assets/js/logout.js"></script>
     <script src="../assets/js/nueva-reserva.js"></script>
     <script src="../assets/js/userSession.js"></script>
+    <script src="../assets/js/cancelar-reserva.js"></script>
+    <script src="../assets/js/proximas-reservas.js"></script>
 </body>
