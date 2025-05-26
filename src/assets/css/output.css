@@ -15,8 +15,13 @@
     --color-red-600: oklch(57.7% 0.245 27.325);
     --color-red-700: oklch(50.5% 0.213 27.518);
     --color-red-800: oklch(44.4% 0.177 26.899);
+    --color-red-900: oklch(39.6% 0.141 25.723);
+    --color-orange-50: oklch(98% 0.016 73.684);
     --color-orange-100: oklch(95.4% 0.038 75.164);
+    --color-orange-500: oklch(70.5% 0.213 47.604);
     --color-orange-600: oklch(64.6% 0.222 41.116);
+    --color-orange-700: oklch(55.3% 0.195 38.402);
+    --color-orange-900: oklch(40.8% 0.123 38.172);
     --color-yellow-50: oklch(98.7% 0.026 102.212);
     --color-yellow-100: oklch(97.3% 0.071 103.193);
     --color-yellow-300: oklch(90.5% 0.182 98.111);
@@ -52,7 +57,6 @@
     --color-purple-100: oklch(94.6% 0.033 307.174);
     --color-purple-200: oklch(90.2% 0.063 306.703);
     --color-purple-600: oklch(55.8% 0.288 302.321);
-    --color-pink-500: oklch(65.6% 0.241 354.308);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
@@ -429,12 +433,6 @@
   .mx-auto {
     margin-inline: auto;
   }
-  .mt-0 {
-    margin-top: calc(var(--spacing) * 0);
-  }
-  .mt-0\.5 {
-    margin-top: calc(var(--spacing) * 0.5);
-  }
   .mt-1 {
     margin-top: calc(var(--spacing) * 1);
   }
@@ -781,6 +779,18 @@
     --tw-translate-y: calc(1/3 * 100%);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
+  .scale-95 {
+    --tw-scale-x: 95%;
+    --tw-scale-y: 95%;
+    --tw-scale-z: 95%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
+  .scale-100 {
+    --tw-scale-x: 100%;
+    --tw-scale-y: 100%;
+    --tw-scale-z: 100%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
   .-rotate-6 {
     rotate: calc(6deg * -1);
   }
@@ -813,6 +823,9 @@
   }
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .flex-col {
     flex-direction: column;
@@ -1155,11 +1168,14 @@
   .bg-indigo-600 {
     background-color: var(--color-indigo-600);
   }
+  .bg-orange-50 {
+    background-color: var(--color-orange-50);
+  }
   .bg-orange-100 {
     background-color: var(--color-orange-100);
   }
-  .bg-pink-500 {
-    background-color: var(--color-pink-500);
+  .bg-orange-600 {
+    background-color: var(--color-orange-600);
   }
   .bg-purple-100 {
     background-color: var(--color-purple-100);
@@ -1362,6 +1378,9 @@
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
   }
+  .py-2\.5 {
+    padding-block: calc(var(--spacing) * 2.5);
+  }
   .py-3 {
     padding-block: calc(var(--spacing) * 3);
   }
@@ -1560,6 +1579,9 @@
   .text-orange-600 {
     color: var(--color-orange-600);
   }
+  .text-orange-900 {
+    color: var(--color-orange-900);
+  }
   .text-purple-600 {
     color: var(--color-purple-600);
   }
@@ -1577,6 +1599,9 @@
   }
   .text-red-800 {
     color: var(--color-red-800);
+  }
+  .text-red-900 {
+    color: var(--color-red-900);
   }
   .text-white {
     color: var(--color-white);
@@ -1797,13 +1822,6 @@
       }
     }
   }
-  .hover\:bg-\[\#1E40AF\] {
-    &:hover {
-      @media (hover: hover) {
-        background-color: #1E40AF;
-      }
-    }
-  }
   .hover\:bg-blue-50 {
     &:hover {
       @media (hover: hover) {
@@ -1871,13 +1889,6 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-indigo-700);
-      }
-    }
-  }
-  .hover\:bg-red-700 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-red-700);
       }
     }
   }
@@ -2010,6 +2021,11 @@
       border-color: var(--color-indigo-500);
     }
   }
+  .focus\:border-orange-500 {
+    &:focus {
+      border-color: var(--color-orange-500);
+    }
+  }
   .focus\:border-red-500 {
     &:focus {
       border-color: var(--color-red-500);
@@ -2049,6 +2065,11 @@
   .focus\:ring-indigo-500 {
     &:focus {
       --tw-ring-color: var(--color-indigo-500);
+    }
+  }
+  .focus\:ring-orange-500 {
+    &:focus {
+      --tw-ring-color: var(--color-orange-500);
     }
   }
   .focus\:ring-red-500 {
@@ -2133,6 +2154,16 @@
       flex-direction: row;
     }
   }
+  .sm\:items-center {
+    @media (width >= 40rem) {
+      align-items: center;
+    }
+  }
+  .sm\:justify-between {
+    @media (width >= 40rem) {
+      justify-content: space-between;
+    }
+  }
   .sm\:space-y-0 {
     @media (width >= 40rem) {
       :where(& > :not(:last-child)) {
@@ -2196,11 +2227,6 @@
     @media (width >= 40rem) {
       font-size: var(--text-sm);
       line-height: var(--tw-leading, var(--text-sm--line-height));
-    }
-  }
-  .md\:ml-2 {
-    @media (width >= 48rem) {
-      margin-left: calc(var(--spacing) * 2);
     }
   }
   .md\:flex {
@@ -2286,9 +2312,19 @@
       margin-bottom: calc(var(--spacing) * 0);
     }
   }
+  .lg\:block {
+    @media (width >= 64rem) {
+      display: block;
+    }
+  }
   .lg\:grid {
     @media (width >= 64rem) {
       display: grid;
+    }
+  }
+  .lg\:hidden {
+    @media (width >= 64rem) {
+      display: none;
     }
   }
   .lg\:h-80 {
@@ -2441,6 +2477,21 @@ button {
   syntax: "*";
   inherits: false;
   initial-value: 0;
+}
+@property --tw-scale-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+@property --tw-scale-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+@property --tw-scale-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
 }
 @property --tw-rotate-x {
   syntax: "*";
@@ -2699,21 +2750,6 @@ button {
   syntax: "*";
   inherits: false;
 }
-@property --tw-scale-x {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
-@property --tw-scale-y {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
-@property --tw-scale-z {
-  syntax: "*";
-  inherits: false;
-  initial-value: 1;
-}
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -2730,6 +2766,9 @@ button {
       --tw-translate-x: 0;
       --tw-translate-y: 0;
       --tw-translate-z: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-scale-z: 1;
       --tw-rotate-x: initial;
       --tw-rotate-y: initial;
       --tw-rotate-z: initial;
@@ -2789,9 +2828,6 @@ button {
       --tw-backdrop-saturate: initial;
       --tw-backdrop-sepia: initial;
       --tw-duration: initial;
-      --tw-scale-x: 1;
-      --tw-scale-y: 1;
-      --tw-scale-z: 1;
     }
   }
 }

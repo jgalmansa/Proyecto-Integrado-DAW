@@ -38,9 +38,8 @@ router.get('/check-availability', validateCheckAvailability, checkAvailability);
 // Obtener reservas del usuario actual
 router.get('/user', getUserReservations);
 
-// Obtener las reservas del usuario (para dashboard - NUEVA RUTA)
+// Obtener las reservas del usuario
 router.get('/my', getUserReservations);
-
 
 // Obtener las reservas del dia para los recordatorios
 router.get('/my-reservations', getMyTodayReservations);
