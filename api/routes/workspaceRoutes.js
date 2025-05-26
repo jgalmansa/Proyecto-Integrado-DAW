@@ -4,7 +4,8 @@ import {
   getWorkspaceById,
   createWorkspace,
   updateWorkspace,
-  deleteWorkspace
+  deleteWorkspace,
+  getWorkspaceReservations
 } from '../controllers/workspaceController.js';
 import { authenticateToken, authorizeRole } from '../middlewares/authMiddleware.js';
 import { 
@@ -20,6 +21,8 @@ router.use(authenticateToken);
 // Rutas públicas para usuarios autenticados
 router.get('/', getWorkspaces);
 router.get('/:id', getWorkspaceById);
+router.get('/:id/reservations', getWorkspaceReservations); 
+
 
 // Rutas solo para administradores
 router.post('/', [authorizeRole(['admin']), validateWorkspaceCreation], createWorkspace);
