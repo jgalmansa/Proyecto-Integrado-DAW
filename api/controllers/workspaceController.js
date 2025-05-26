@@ -1,6 +1,8 @@
 // backend/src/controllers/workspaceController.js
 import { Workspace } from '../../database/models/index.js';
 import { createGlobalNotification } from '../services/notificationService.js';
+import { Reservation, User } from '../../database/models/index.js';
+import { Op } from 'sequelize'; // Para operadores de consulta
 /**
  * Obtiene todos los espacios de trabajo de la empresa asociada al usuario autenticado
  * 
@@ -277,3 +279,113 @@ export const deleteWorkspace = async (req, res) => {
     return res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
+
+/**
+ * Obtiene las reservas de un espacio específico
+ * 
+ * @param {import('express').Request} req - Petición HTTP
+ * @param {import('express').Response} res - Respuesta HTTP
+ * 
+ * @example
+ * GET /workspaces/:id/reservations?start=2024-01-01&end=2024-01-31
+ */
+export const getWorkspaceReservations = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { start, end } = req.query;
+    
+    // Intentar obtener el ID de compañía de cualquier forma posible
+    let companyId;
+    if (req.user.dataValues && req.user.dataValues.company_id) {
+      companyId = req.user.dataValues.company_id;
+    } else {
+      companyId = req.user.company_id || req.user.companyId;
+    }
+    
+    if (!companyId) {
+      return res.status(400).json({ message: 'ID de compañía no encontrado en el usuario autenticado' });
+    }
+    
+    // Verificar que el espacio pertenece a la empresa del usuario
+    const workspace = await Workspace.findOne({
+      where: { 
+        id,
+        company_id: companyId,
+        deleted_at: null
+      }
+    });
+    
+    if (!workspace) {
+      return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
+    }
+    
+    // Construir filtros de fecha si se proporcionan
+    const whereClause = {
+      workspace_id: id,
+      deleted_at: null
+    };
+    
+    if (start && end) {
+      whereClause.start_time = {
+        [Op.between]: [new Date(start), new Date(end)]
+      };
+    }
+    
+    // Obtener las reservas
+    const reservations = await Reservation.findAll({
+      where: whereClause,
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'first_name', 'last_name', 'email']
+        }
+      ],
+      order: [['start_time', 'ASC']]
+    });
+    
+    // Formatear las reservas para FullCalendar
+    const formattedReservations = reservations.map(reservation => ({
+      id: reservation.id,
+      title: `Reservado por ${reservation.User.first_name} ${reservation.User.last_name}`,
+      start: reservation.start_time,
+      end: reservation.end_time,
+      backgroundColor: getReservationColor(reservation.status),
+      borderColor: getReservationColor(reservation.status),
+      extendedProps: {
+        status: reservation.status,
+        userId: reservation.user_id,
+        userName: `${reservation.User.first_name} ${reservation.User.last_name}`,
+        userEmail: reservation.User.email,
+        description: reservation.description
+      }
+    }));
+    
+    return res.status(200).json({ 
+      reservations: formattedReservations,
+      workspace: {
+        id: workspace.id,
+        name: workspace.name,
+        capacity: workspace.capacity
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error al obtener reservas del espacio:', error);
+    return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+// Función auxiliar para obtener colores según el estado de la reserva
+function getReservationColor(status) {
+  switch (status) {
+    case 'confirmed':
+      return '#ef4444'; // Rojo - Reservado
+    case 'pending':
+      return '#eab308'; // Amarillo - Pendiente
+    case 'cancelled':
+      return '#6b7280'; // Gris - Cancelado
+    default:
+      return '#ef4444'; // Rojo por defecto
+  }
+}

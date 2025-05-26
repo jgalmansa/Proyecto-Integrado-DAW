@@ -86,6 +86,11 @@ app.get('/mis-reservas', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'mis-reservas.html'));
 });
 
+app.get('/espacios', (req, res) => {
+  console.log('Ruta /espacios accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'espacios.html'));
+});
+
 app.use((req, res, next) => {
   console.log(`[LOG] ${req.method} ${req.url}`);
   next();
