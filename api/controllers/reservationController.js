@@ -535,6 +535,17 @@ export const updateReservation = async (req, res) => {
 
     // Preparar datos para actualizar
     const updateData = {};
+    // Si se cambia el status (para cancelaciones)
+    if (req.body.status) {
+      updateData.status = req.body.status;
+      
+      // Si es una cancelación, agregar el motivo si se proporciona
+      if (req.body.status === 'cancelled' && req.body.cancellationReason) {
+          updateData.cancellation_reason = req.body.cancellationReason;
+      }
+      
+      console.log('📋 Actualizando status a:', req.body.status);
+    }
     let newNumberOfPeople = reservation.number_of_people;
 
     // Si se actualizan los guests, recalcular número de personas
