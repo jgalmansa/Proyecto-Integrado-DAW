@@ -662,7 +662,10 @@ export const findUserByEmail = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, email, role, is_active, password } = req.body;
+    // Cambiar el mapeo de campos para que coincida con el frontend
+    const { first_name, last_name, email, role, is_active, password } = req.body;
+    
+    //console.log('Datos recibidos para actualización:', req.body); // Debug
     
     // Verificar permisos de acceso
     const where = { id };
@@ -694,7 +697,7 @@ export const updateUser = async (req, res) => {
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ 
         where: { 
-          email,
+          email: email.toLowerCase(),
           id: { [Op.ne]: id }
         }
       });
@@ -709,9 +712,10 @@ export const updateUser = async (req, res) => {
     // Preparar los datos a actualizar
     const updateData = {};
     
-    if (firstName !== undefined) updateData.first_name = firstName.trim();
-    if (lastName !== undefined) updateData.last_name = lastName.trim();
-    if (email !== undefined) updateData.email = email.toLowerCase();
+    // Usar los nombres correctos de los campos
+    if (first_name !== undefined) updateData.first_name = first_name.trim();
+    if (last_name !== undefined) updateData.last_name = last_name.trim();
+    if (email !== undefined) updateData.email = email.toLowerCase().trim();
     
     // Solo admins y super_admins pueden cambiar rol y estado activo
     if (req.user.role === 'admin' || req.user.role === 'super_admin') {
@@ -720,9 +724,11 @@ export const updateUser = async (req, res) => {
     }
     
     // Si se proporciona una nueva contraseña, hashearla
-    if (password) {
-      updateData.password = await hashPassword(password);
+    if (password && password.trim() !== '') {
+      updateData.password = password; // El hook beforeUpdate se encargará del hash
     }
+
+    //console.log('Datos que se van a actualizar:', updateData); // Debug
 
     // Actualizar el usuario
     await user.update(updateData);
@@ -751,7 +757,8 @@ export const updateUser = async (req, res) => {
     console.error('Error updating user:', error);
     res.status(500).json({
       success: false,
-      message: 'Error interno del servidor'
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

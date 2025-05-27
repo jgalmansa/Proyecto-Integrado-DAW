@@ -238,12 +238,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeUserModal();
             }
         });
+
+        // Botón para crear nuevo usuario (AGREGAR ESTO)
+        const newUserBtn = document.getElementById('new-user-btn'); // Ajusta el ID según tu HTML
+        if (newUserBtn) {
+            newUserBtn.addEventListener('click', openNewUserModal);
+        }
     }
 
     function openEditUserModal(userId) {
         const user = users.find(u => u.id === userId);
         if (!user) return;
-
+    
         userModalTitle.textContent = 'Editar Usuario';
         document.getElementById('user-id').value = user.id;
         document.getElementById('user-first-name').value = user.first_name;
@@ -252,10 +258,21 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('user-role').value = user.role;
         document.getElementById('user-status').value = user.is_active.toString();
         
-        // Ocultar campos de contraseña para edición y remover required
+        // Ocultar campos de contraseña para edición y limpiar completamente
         passwordFields.style.display = 'none';
-        document.getElementById('user-password').removeAttribute('required');
-        document.getElementById('user-confirm-password').removeAttribute('required');
+        const passwordInput = document.getElementById('user-password');
+        const confirmPasswordInput = document.getElementById('user-confirm-password');
+        
+        if (passwordInput) {
+            passwordInput.removeAttribute('required');
+            passwordInput.value = ''; // Limpiar el campo
+            passwordInput.disabled = true; // Deshabilitar para que no se envíe
+        }
+        if (confirmPasswordInput) {
+            confirmPasswordInput.removeAttribute('required');
+            confirmPasswordInput.value = ''; // Limpiar el campo
+            confirmPasswordInput.disabled = true; // Deshabilitar para que no se envíe
+        }
         
         userModal.classList.remove('hidden');
         
@@ -265,11 +282,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 
+
+
     function closeUserModal() {
         userModal.classList.add('hidden');
         userForm.reset();
+        
+        // Rehabilitar campos por si quedaron deshabilitados
+        const passwordInput = document.getElementById('user-password');
+        const confirmPasswordInput = document.getElementById('user-confirm-password');
+        
+        if (passwordInput) {
+            passwordInput.disabled = false;
+        }
+        if (confirmPasswordInput) {
+            confirmPasswordInput.disabled = false;
+        }
     }
 
+    // Función corregida para guardar usuario
     async function saveUser() {
         const userId = document.getElementById('user-id').value;
         const firstName = document.getElementById('user-first-name').value.trim();
@@ -277,61 +308,74 @@ document.addEventListener('DOMContentLoaded', function() {
         const email = document.getElementById('user-email').value.trim();
         const role = document.getElementById('user-role').value;
         const isActive = document.getElementById('user-status').value === 'true';
-        const password = document.getElementById('user-password')?.value;
-        const confirmPassword = document.getElementById('user-confirm-password')?.value;
-
+        
+        // Solo obtener contraseña si los campos están habilitados y visibles
+        const passwordInput = document.getElementById('user-password');
+        const confirmPasswordInput = document.getElementById('user-confirm-password');
+        const password = (passwordInput && !passwordInput.disabled) ? passwordInput.value : '';
+        const confirmPassword = (confirmPasswordInput && !confirmPasswordInput.disabled) ? confirmPasswordInput.value : '';
+    
         // Validaciones básicas
-        if (!firstName || !lastName || !email) {
+        if (!firstName || !email) {
             showErrorToast('Por favor complete todos los campos requeridos.');
             return;
         }
-
+    
         // Validar email
         if (!isValidEmail(email)) {
             showErrorToast('Por favor ingresa un email válido.');
             return;
         }
-
-        // Validar contraseña si se está creando nuevo usuario o cambiando contraseña
-        if (!userId && (!password || password.length < 6)) {
-            showErrorToast('La contraseña debe tener al menos 6 caracteres.');
-            return;
+    
+        // Validar contraseña solo si se proporciona
+        if (password && password.trim() !== '') {
+            if (password.length < 8) {
+                showErrorToast('La contraseña debe tener al menos 8 caracteres.');
+                return;
+            }
+    
+            if (password !== confirmPassword) {
+                showErrorToast('Las contraseñas no coinciden.');
+                return;
+            }
         }
-
-        if ((!userId || password) && password !== confirmPassword) {
-            showErrorToast('Las contraseñas no coinciden.');
-            return;
-        }
-
+    
+        // Preparar datos usando los nombres correctos de campos
         const userData = {
             first_name: firstName,
             last_name: lastName,
-            email,
+            email: email.toLowerCase(),
             role,
-            is_active: isActive,
-            company_id: currentCompanyId
+            is_active: isActive
         };
-
-        // Solo agregar contraseña si se está creando nuevo usuario o se proporcionó una nueva
-        if (!userId || password) {
+    
+        // IMPORTANTE: Solo agregar contraseña si realmente se proporcionó una nueva y está habilitada
+        if (password && password.trim() !== '' && passwordInput && !passwordInput.disabled) {
             userData.password = password;
         }
-
+    
+        console.log('Datos a enviar (filtrados):', userData); // Debug
+    
         try {
             // Deshabilitar botón mientras se procesa
             saveUserBtn.disabled = true;
             saveUserBtn.textContent = 'Guardando...';
-
+    
             if (userId) {
                 // Editar usuario existente
                 await updateUser(parseInt(userId), userData);
             } else {
-                // Crear nuevo usuario
+                // Para crear usuario, la contraseña es obligatoria
+                if (!password || password.trim() === '') {
+                    showErrorToast('La contraseña es obligatoria para crear un nuevo usuario.');
+                    return;
+                }
+                userData.company_id = currentCompanyId;
                 await createUser(userData);
             }
         } catch (error) {
             console.error('Error guardando usuario:', error);
-            showErrorToast('Error al guardar el usuario. Por favor intenta de nuevo.');
+            showErrorToast(error.message || 'Error al guardar el usuario. Por favor intenta de nuevo.');
         } finally {
             // Rehabilitar botón
             saveUserBtn.disabled = false;
@@ -339,14 +383,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+
     // Función real para crear usuario
     async function createUser(userData) {
         try {
             const token = getAuthToken();
-
-            console.log('Enviando datos:', userData); // ✅ Aquí se muestra lo que realmente estás enviando
-
-            const response = await fetch(`${API_BASE_URL}/users/register`, {
+    
+            console.log('Creando usuario con datos:', userData); // Debug
+    
+            // Para crear usuarios usar el endpoint correcto
+            const response = await fetch(`${API_BASE_URL}/users`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -354,13 +400,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(userData)
             });
-
-            const newUser = await response.json();
-
-            users.push(newUser.user || newUser);
+    
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+            }
+    
+            const result = await response.json();
+            const newUser = result.data || result.user || result;
+    
+            // Actualizar la lista local
+            users.push(newUser);
             renderUsers();
             closeUserModal();
-
+    
             showSuccessToast('Usuario creado correctamente');
         } catch (error) {
             console.error('Error en createUser:', error);
@@ -373,6 +426,9 @@ document.addEventListener('DOMContentLoaded', function() {
     async function updateUser(id, userData) {
         try {
             const token = getAuthToken();
+            
+            console.log(`Actualizando usuario ${id} con datos:`, userData); // Debug
+            
             const response = await fetch(`${API_BASE_URL}/users/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -381,29 +437,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(userData)
             });
-
+    
+            console.log('Response status:', response.status); // Debug
+    
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error('Error response:', errorData); // Debug
                 throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
             }
-
-            const updatedUser = await response.json();
-           
+    
+            const result = await response.json();
+            console.log('Update result:', result); // Debug
+            
+            // Manejar la respuesta correctamente
+            const updatedUser = result.data || result;
+            
             // Actualizar usuario en la lista local
             const userIndex = users.findIndex(u => u.id === id);
             if (userIndex !== -1) {
-                users[userIndex] = updatedUser.data;
+                users[userIndex] = updatedUser;
             }
-           
+            
             renderUsers();
             closeUserModal();
-           
+            
             showSuccessToast('Usuario actualizado correctamente');
         } catch (error) {
             console.error('Error en updateUser:', error);
             throw error;
         }
     }
+
 
     function showSuccessToast(message = 'Acción completada correctamente') {
         const toast = document.getElementById('success-toast');
@@ -722,3 +786,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 });
+
+
+function openNewUserModal() {
+    userModalTitle.textContent = 'Crear Nuevo Usuario';
+    
+    // Limpiar todos los campos
+    document.getElementById('user-id').value = '';
+    document.getElementById('user-first-name').value = '';
+    document.getElementById('user-last-name').value = '';
+    document.getElementById('user-email').value = '';
+    document.getElementById('user-role').value = 'user';
+    document.getElementById('user-status').value = 'true';
+    
+    // Mostrar y habilitar campos de contraseña para nuevo usuario
+    passwordFields.style.display = 'block';
+    const passwordInput = document.getElementById('user-password');
+    const confirmPasswordInput = document.getElementById('user-confirm-password');
+    
+    if (passwordInput) {
+        passwordInput.setAttribute('required', 'required');
+        passwordInput.value = '';
+        passwordInput.disabled = false; // Habilitar para nuevo usuario
+    }
+    if (confirmPasswordInput) {
+        confirmPasswordInput.setAttribute('required', 'required');
+        confirmPasswordInput.value = '';
+        confirmPasswordInput.disabled = false; // Habilitar para nuevo usuario
+    }
+    
+    userModal.classList.remove('hidden');
+    
+    // Focus en el primer campo
+    setTimeout(() => {
+        document.getElementById('user-first-name').focus();
+    }, 100);
+}
