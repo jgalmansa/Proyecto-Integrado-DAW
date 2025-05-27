@@ -1,5 +1,17 @@
 import express from 'express';
-import { registerUser, checkInvitationCode, login, logout, getCurrentUser, getUsers, getUserStats, getUserById, findUserByEmail } from '../controllers/userController.js';
+import {
+  registerUser,
+  checkInvitationCode,
+  login,
+  logout,
+  getCurrentUser,
+  getUsers,
+  getUserStats,
+  getUserById,
+  findUserByEmail,
+  updateUser,
+  deleteUser
+} from '../controllers/userController.js';
 import { validateUserRegistration, validateLogin } from '../middlewares/userValidationMiddleware.js';
 import  { authenticateToken } from '../middlewares/authMiddleware.js';
 
@@ -30,5 +42,11 @@ router.get('/me', authenticateToken, getCurrentUser);
 
 // GET /api/users/:id - Obtener usuario específico
 router.get('/:id', authenticateToken, getUserById);
+
+// PUT /api/users/:id - Actualizar un usuario específico
+router.put('/:id', authenticateToken, updateUser);
+
+// DELETE /api/users/:id - Eliminar un usuario específico
+router.delete('/:id', authenticateToken, deleteUser);
 
 export default router;

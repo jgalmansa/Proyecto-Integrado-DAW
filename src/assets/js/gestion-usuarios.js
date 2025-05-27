@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Elementos del DOM
     const usersList = document.getElementById('users-list');
-    const addUserBtn = document.getElementById('add-user-btn');
     const userModal = document.getElementById('user-modal');
     const closeUserModalBtn = document.getElementById('close-user-modal');
     const cancelUserBtn = document.getElementById('cancel-user');
@@ -71,19 +70,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Función real para obtener usuarios
     async function fetchUsers() {
         try {
             const token = getAuthToken();
             if (!token) {
                 throw new Error('No hay token de autenticación disponible');
             }
-            
+
             if (!currentCompanyId || isNaN(currentCompanyId)) {
                 throw new Error('ID de compañía inválido');
             }
-            
-            console.log(`Fetching users for company ${currentCompanyId}`); // Debug
+
+            console.log(`Fetching users for company ${currentCompanyId}`);
             const response = await fetch(`${API_BASE_URL}/users?company_id=${currentCompanyId}`, {
                 method: 'GET',
                 headers: {
@@ -98,8 +96,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const data = await response.json();
-            console.log('Usuarios recibidos:', data); // Debug
-            return data.users || data; // Ajustar según la estructura de tu respuesta
+            console.log('Estructura de la respuesta:', {
+                status: response.status,
+                data: data,
+                isArray: Array.isArray(data),
+                hasUsers: !!data.users,
+                usersIsArray: Array.isArray(data.users)
+            });
+
+            // Asegurarnos de que siempre trabajamos con un array
+            if (Array.isArray(data)) {
+                return data;
+            } else if (data.users && Array.isArray(data.users)) {
+                return data.users;
+            } else if (data.data && Array.isArray(data.data)) {
+                return data.data;
+            } else {
+                console.error('Formato de respuesta inesperado:', data);
+                return [];
+            }
         } catch (error) {
             console.error('Error en fetchUsers:', error);
             throw new Error(error.message || 'Error al cargar los usuarios');
@@ -107,6 +122,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function renderUsers() {
+        // Asegurarnos de que users es un array
+        if (!Array.isArray(users)) {
+            console.error('Users no es un array:', users);
+            users = [];
+        }
+
         if (users.length === 0) {
             usersList.innerHTML = `
                 <tr>
@@ -115,16 +136,9 @@ document.addEventListener('DOMContentLoaded', function() {
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                         </svg>
                         <p class="text-sm text-gray-500">No hay usuarios registrados</p>
-                        <button id="add-first-user" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                            Añadir primer usuario
-                        </button>
                     </td>
                 </tr>
             `;
-           
-            document.getElementById('add-first-user')?.addEventListener('click', () => {
-                openAddUserModal();
-            });
            
             return;
         }
@@ -203,14 +217,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupEventListeners() {
-        // Abrir modal para añadir usuario
-        addUserBtn.addEventListener('click', openAddUserModal);
-       
         // Cerrar modal
         closeUserModalBtn.addEventListener('click', closeUserModal);
         cancelUserBtn.addEventListener('click', closeUserModal);
        
         // Guardar usuario
+        console.log('saveUserBtn:', saveUserBtn);
         saveUserBtn.addEventListener('click', saveUser);
 
         // Cerrar modal al hacer clic fuera
@@ -226,24 +238,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeUserModal();
             }
         });
-    }
-
-    function openAddUserModal() {
-        userModalTitle.textContent = 'Añadir Nuevo Usuario';
-        userForm.reset();
-        document.getElementById('user-id').value = '';
-        passwordFields.style.display = 'block';
-        
-        // Hacer campos de contraseña requeridos para nuevos usuarios
-        document.getElementById('user-password').setAttribute('required', 'true');
-        document.getElementById('user-confirm-password').setAttribute('required', 'true');
-        
-        userModal.classList.remove('hidden');
-        
-        // Focus en el primer campo
-        setTimeout(() => {
-            document.getElementById('user-first-name').focus();
-        }, 100);
     }
 
     function openEditUserModal(userId) {
@@ -349,7 +343,10 @@ document.addEventListener('DOMContentLoaded', function() {
     async function createUser(userData) {
         try {
             const token = getAuthToken();
-            const response = await fetch(`${API_BASE_URL}/users`, {
+
+            console.log('Enviando datos:', userData); // ✅ Aquí se muestra lo que realmente estás enviando
+
+            const response = await fetch(`${API_BASE_URL}/users/register`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -358,24 +355,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(userData)
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
-            }
-
             const newUser = await response.json();
-           
-            // Actualizar la lista local
+
             users.push(newUser.user || newUser);
             renderUsers();
             closeUserModal();
-           
+
             showSuccessToast('Usuario creado correctamente');
         } catch (error) {
             console.error('Error en createUser:', error);
             throw error;
         }
     }
+
 
     // Función real para actualizar usuario
     async function updateUser(id, userData) {
@@ -400,7 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Actualizar usuario en la lista local
             const userIndex = users.findIndex(u => u.id === id);
             if (userIndex !== -1) {
-                users[userIndex] = updatedUser.user || updatedUser;
+                users[userIndex] = updatedUser.data;
             }
            
             renderUsers();
@@ -658,10 +650,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     email: userData.email,
                     first_name: userData.first_name || userData.name?.split(' ')[0] || '',
                     last_name: userData.last_name || userData.name?.split(' ').slice(1).join(' ') || '',
-                    company_id: userData.company_id || userData.company?.id || 1,
+                    company_id: userData.company_id || userData.companyId || userData.company?.id || 1,
                     role: userData.role || 'user',
                     is_active: userData.is_active !== undefined ? userData.is_active : true
                 };
+                
             } catch (e) {
                 console.error('Error parsing sessionStorage userData:', e);
             }
