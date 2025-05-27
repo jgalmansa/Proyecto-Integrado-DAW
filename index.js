@@ -81,6 +81,12 @@ app.get('/gestion-espacios', (req, res) => {
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-espacios.html'));
 });
 
+
+app.get('/gestion-usuarios', (req, res) => {
+  console.log('Ruta /gestion-espacios accedida');
+  res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-espacios.html'));
+});
+
 app.get('/mis-reservas', (req, res) => {
   console.log('Ruta /mis-reservas accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'mis-reservas.html'));
