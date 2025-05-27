@@ -81,3 +81,84 @@ export const validateLogin = [
     next();
   }
 ];
+
+// Middleware para validar actualización de usuarios - MEJORADO
+export const validateUserUpdate = [
+  // Validar email (opcional)
+  body('email')
+    .optional()
+    .isEmail()
+    .withMessage('Por favor, proporciona un correo electrónico válido')
+    .normalizeEmail(),
+  
+  // Validar contraseña (opcional, pero si se proporciona debe cumplir criterios)
+  body('password')
+    .optional({ nullable: true, checkFalsy: true }) // Permite valores vacíos
+    .custom((value) => {
+      // Solo validar si realmente se proporciona una contraseña
+      if (value && value.trim() !== '') {
+        if (value.length < 8) {
+          throw new Error('La contraseña debe tener al menos 8 caracteres');
+        }
+      }
+      return true;
+    }),
+  
+  // ... resto de validaciones igual
+];
+
+
+
+// Middleware para validar creación de usuarios por admin
+export const validateUserCreation = [
+  // Validar email
+  body('email')
+    .isEmail()
+    .withMessage('Por favor, proporciona un correo electrónico válido')
+    .normalizeEmail(),
+  
+  // Validar contraseña
+  body('password')
+    .isLength({ min: 8 })
+    .withMessage('La contraseña debe tener al menos 8 caracteres'),
+  
+  // Validar nombre
+  body('first_name')
+    .trim()
+    .notEmpty()
+    .withMessage('El nombre es obligatorio')
+    .isLength({ max: 100 })
+    .withMessage('El nombre no puede exceder los 100 caracteres'),
+  
+  // Validar apellido
+  body('last_name')
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('El apellido no puede exceder los 100 caracteres'),
+    
+  // Validar rol
+  body('role')
+    .optional()
+    .isIn(['admin', 'user'])
+    .withMessage('El rol debe ser "admin" o "user"'),
+    
+  // Validar estado activo
+  body('is_active')
+    .optional()
+    .isBoolean()
+    .withMessage('El estado activo debe ser verdadero o falso'),
+
+  // Middleware para manejar los errores de validación
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Errores de validación',
+        errors: errors.array() 
+      });
+    }
+    next();
+  }
+];

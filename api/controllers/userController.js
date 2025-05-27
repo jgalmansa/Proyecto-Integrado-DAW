@@ -46,10 +46,12 @@ export const login = async (req, res) => {
  *     o el dominio del correo no está permitido.
  *   - 500 y un mensaje de error si ocurre un error interno del servidor.
  */
-
 export const registerUser = async (req, res) => {
+  console.log('Datos recibidos en el backend:', req.body);
   try {
-    const { email, password, firstName, lastName, invitationCode } = req.body;
+    // Extraer también role del req.body (is_active se puede definir aquí)
+    const { email, password, firstName, lastName, invitationCode, role = 'user' } = req.body;
+    const is_active = true; // Por defecto los usuarios nuevos están activos
 
     // Verificar si el usuario ya existe
     const existingUser = await User.findOne({ where: { email } });
@@ -88,8 +90,8 @@ export const registerUser = async (req, res) => {
       first_name: firstName,
       last_name: lastName,
       company_id: company.id,
-      role: 'user', // Por defecto es un usuario sin privilegios
-      is_active: true
+      role,
+      is_active
     });
 
     // No devolver la contraseña en la respuesta
@@ -108,7 +110,97 @@ export const registerUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al registrar usuario:', error);
+
+    if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+    // Devuelve array con mensajes de error al frontend
+    return res.status(400).json({ errors: error.errors.map(e => e.message) });
+  }
+
     return res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+/**
+ * Crea un nuevo usuario (solo para administradores)
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Object>} - Resultado de la creación del usuario
+ */
+export const createUser = async (req, res) => {
+  try {
+    const { email, password, firstName, lastName, role = 'user', is_active = true, company_id } = req.body;
+    
+    // Verificar si el usuario ya existe
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'El correo electrónico ya está registrado'
+      });
+    }
+
+    // Determinar la empresa del nuevo usuario
+    let targetCompanyId = company_id;
+    
+    // Si no se especifica company_id, usar la empresa del admin
+    if (!targetCompanyId) {
+      targetCompanyId = req.user.company_id;
+    }
+    
+    // Verificar que la empresa existe
+    const company = await Company.findByPk(targetCompanyId);
+    if (!company) {
+      return res.status(400).json({
+        success: false,
+        message: 'La empresa especificada no existe'
+      });
+    }
+
+    // Solo super-admins pueden crear usuarios en otras empresas
+    if (req.user.company_id !== targetCompanyId && req.user.role !== 'super_admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'No tienes permisos para crear usuarios en otras empresas'
+      });
+    }
+
+    // Crear el nuevo usuario
+    const newUser = await User.create({
+      email: email.toLowerCase(),
+      password: await hashPassword(password),
+      first_name: firstName,
+      last_name: lastName,
+      company_id: targetCompanyId,
+      role,
+      is_active
+    });
+
+    // Obtener el usuario creado con la información de la empresa
+    const createdUser = await User.findOne({
+      where: { id: newUser.id },
+      attributes: {
+        exclude: ['password']
+      },
+      include: [
+        {
+          association: 'Company',
+          attributes: ['id', 'name']
+        }
+      ]
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Usuario creado correctamente',
+      data: createdUser
+    });
+
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
   }
 };
 
@@ -149,7 +241,6 @@ export const checkInvitationCode = async (req, res) => {
  * @param {Object} res - Objeto de respuesta de Express
  * @returns {Promise<Object>} - Mensaje de confirmación de cierre de sesión
  */
-
 export const logout = async (req, res) => {
   try {
     const token = req.token;
@@ -200,7 +291,6 @@ export const logout = async (req, res) => {
   }
 };
 
-
 /**
  * Obtiene la información del usuario autenticado.
  * 
@@ -217,14 +307,13 @@ export const logout = async (req, res) => {
  * 
  * @throws {Error} Si ocurre un error al obtener la información del usuario, responde con un estado 500 y un mensaje de error.
  */
-
 export const getCurrentUser = async (req, res) => {
   try {
     // req.user ya está disponible gracias al middleware authenticateToken
     res.json({
       id: req.user.id,
       email: req.user.email,
-      first_namename: req.user.first_name,
+      first_name: req.user.first_name,
       last_name: req.user.last_name,
       company_id: req.user.company_id,
       role: req.user.role,
@@ -235,7 +324,6 @@ export const getCurrentUser = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
-
 
 /**
  * Obtiene una lista de usuarios con paginación.
@@ -301,10 +389,13 @@ export const getUsers = async (req, res) => {
     }
 
     // Filtro por empresa (si no es admin, solo puede ver usuarios de su empresa)
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
       where.company_id = req.user.company_id;
     } else if (company_id) {
       where.company_id = company_id;
+    } else if (req.user.role === 'admin') {
+      // Los admins regulares solo ven usuarios de su empresa
+      where.company_id = req.user.company_id;
     }
 
     // Calcular offset para paginación
@@ -357,7 +448,6 @@ export const getUsers = async (req, res) => {
   }
 };
 
-
 /**
  * Obtiene estadísticas de usuarios.
  * 
@@ -379,8 +469,8 @@ export const getUsers = async (req, res) => {
  */
 export const getUserStats = async (req, res) => {
   try {
-    // Filtrar siempre por la empresa del usuario autenticado
-    const where = { company_id: req.user.company_id };
+    // Filtrar siempre por la empresa del usuario autenticado (excepto super_admin)
+    const where = req.user.role === 'super_admin' ? {} : { company_id: req.user.company_id };
 
     const [ totalUsers, activeUsers, inactiveUsers, adminUsers ] = await Promise.all([
       User.count({ where }),
@@ -456,8 +546,11 @@ export const getUserById = async (req, res) => {
     
     const where = { id };
     
-    // Si no es admin, solo puede ver usuarios de su empresa
-    if (req.user.role !== 'admin') {
+    // Si no es admin o super_admin, solo puede ver usuarios de su empresa
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+      where.company_id = req.user.company_id;
+    } else if (req.user.role === 'admin') {
+      // Los admins regulares solo ven usuarios de su empresa
       where.company_id = req.user.company_id;
     }
 
@@ -555,4 +648,182 @@ export const findUserByEmail = async (req, res) => {
       message: 'Error interno del servidor'
     });
   }
-}
+};
+
+/**
+ * Actualiza un usuario específico por su ID
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Object>} - Resultado de la actualización
+ *   - success: Verdadero si la operación fue exitosa
+ *   - message: Mensaje de confirmación o error
+ *   - data: Información del usuario actualizado
+ */
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Cambiar el mapeo de campos para que coincida con el frontend
+    const { first_name, last_name, email, role, is_active, password } = req.body;
+    
+    //console.log('Datos recibidos para actualización:', req.body); // Debug
+    
+    // Verificar permisos de acceso
+    const where = { id };
+    
+    if (req.user.role === 'admin') {
+      // Los admins solo pueden editar usuarios de su empresa
+      where.company_id = req.user.company_id;
+    } else if (req.user.role !== 'super_admin') {
+      // Los usuarios regulares solo pueden editar su propio perfil
+      if (req.user.id !== parseInt(id)) {
+        return res.status(403).json({
+          success: false,
+          message: 'No tienes permisos para editar este usuario'
+        });
+      }
+      where.company_id = req.user.company_id;
+    }
+
+    // Buscar el usuario a actualizar
+    const user = await User.findOne({ where });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    // Verificar si el email ya existe (excluyendo el usuario actual)
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ 
+        where: { 
+          email: email.toLowerCase(),
+          id: { [Op.ne]: id }
+        }
+      });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'El correo electrónico ya está en uso'
+        });
+      }
+    }
+
+    // Preparar los datos a actualizar
+    const updateData = {};
+    
+    // Usar los nombres correctos de los campos
+    if (first_name !== undefined) updateData.first_name = first_name.trim();
+    if (last_name !== undefined) updateData.last_name = last_name.trim();
+    if (email !== undefined) updateData.email = email.toLowerCase().trim();
+    
+    // Solo admins y super_admins pueden cambiar rol y estado activo
+    if (req.user.role === 'admin' || req.user.role === 'super_admin') {
+      if (role !== undefined) updateData.role = role;
+      if (is_active !== undefined) updateData.is_active = is_active;
+    }
+    
+    // Si se proporciona una nueva contraseña, hashearla
+    if (password && password.trim() !== '') {
+      updateData.password = password; // El hook beforeUpdate se encargará del hash
+    }
+
+    //console.log('Datos que se van a actualizar:', updateData); // Debug
+
+    // Actualizar el usuario
+    await user.update(updateData);
+
+    // Obtener el usuario actualizado sin la contraseña
+    const updatedUser = await User.findOne({
+      where: { id },
+      attributes: {
+        exclude: ['password']
+      },
+      include: [
+        {
+          association: 'Company',
+          attributes: ['id', 'name']
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      message: 'Usuario actualizado correctamente',
+      data: updatedUser
+    });
+
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
+/**
+ * Elimina un usuario específico por su ID
+ * @param {Object} req - Objeto de solicitud de Express
+ * @param {Object} res - Objeto de respuesta de Express
+ * @returns {Promise<Object>} - Resultado de la eliminación
+ *   - success: Verdadero si la operación fue exitosa
+ *   - message: Mensaje de confirmación o error
+ */
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Solo los administradores pueden eliminar usuarios
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'No tienes permisos para eliminar usuarios'
+      });
+    }
+
+    // Un usuario no puede eliminarse a sí mismo
+    if (req.user.id === parseInt(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'No puedes eliminarte a ti mismo'
+      });
+    }
+
+    // Buscar el usuario a eliminar
+    const where = { id };
+    
+    // Los admins regulares solo pueden eliminar usuarios de su empresa
+    if (req.user.role === 'admin') {
+      where.company_id = req.user.company_id;
+    }
+
+    const user = await User.findOne({ 
+      where,
+      attributes: ['id', 'email', 'first_name', 'last_name', 'role']
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    // Eliminar el usuario
+    await user.destroy();
+
+    res.json({
+      success: true,
+      message: `Usuario ${user.first_name} ${user.last_name} eliminado correctamente`
+    });
+
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
