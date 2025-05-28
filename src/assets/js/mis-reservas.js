@@ -1,5 +1,3 @@
-// assets/js/mis-reservas.js
-
 class MisReservas {
     constructor() {
         this.reservations = [];
@@ -28,14 +26,6 @@ class MisReservas {
             btn.addEventListener('click', (e) => {
                 this.handleFilterChange(e.target.id.replace('filter-', ''));
             });
-        });
-
-        // Botones de nueva reserva
-        document.getElementById('new-reservation-button')?.addEventListener('click', () => {
-            this.redirectToNewReservation();
-        });
-        document.getElementById('empty-state-new-reservation')?.addEventListener('click', () => {
-            this.redirectToNewReservation();
         });
 
         // Modales
@@ -663,7 +653,7 @@ class MisReservas {
         `;
         
         // Limpiar textarea
-        document.getElementById('cancellation-reason').value = '';
+        // document.getElementById('cancellation-reason').value = '';
         
         // Mostrar modal
         document.getElementById('cancel-confirmation-modal').classList.remove('hidden');
@@ -680,11 +670,8 @@ class MisReservas {
             confirmBtn.disabled = true;
             confirmBtn.innerHTML = 'Cancelando...';
 
-            const reason = document.getElementById('cancellation-reason').value.trim();
-            
             const cancelData = {
                 status: 'cancelled',
-                cancellationReason: reason || null
             };
 
             const token = this.getAuthToken();
