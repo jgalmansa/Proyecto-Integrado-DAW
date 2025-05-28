@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentCompanyId = null;
     let currentUserId = null;
     let currentUserRole = null;
+    let companyInvitationCode = null;
 
     // Base URL de tu API (ajusta según tu configuración)
     const API_BASE_URL = '/api'; // o 'http://localhost:3000/api' si usas puerto diferente
@@ -17,7 +18,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const userForm = document.getElementById('user-form');
     const userModalTitle = document.getElementById('user-modal-title');
     const passwordFields = document.getElementById('password-fields');
+    // Código de invitación - Añadir estas líneas
+    const copyInvitationCodeBtn = document.getElementById('copy-invitation-code');
 
+    if (copyInvitationCodeBtn) {
+        copyInvitationCodeBtn.addEventListener('click', copyInvitationCode);
+    }
+
+    // Botón para crear nuevo usuario
+    const newUserBtn = document.getElementById('new-user-btn');
+    if (newUserBtn) {
+        newUserBtn.addEventListener('click', openNewUserModal);
+    }
+    
     // Inicializar la página
     init();
 
@@ -28,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
        
         // Cargar usuarios
         loadUsers();
+        loadInvitationCode();
        
         // Configurar eventos
         setupEventListeners();
@@ -56,6 +70,69 @@ document.addEventListener('DOMContentLoaded', function() {
             // window.location.href = '/logout';
         }
     }
+
+    // Función para cargar el código de invitación
+async function loadInvitationCode() {
+    console.log('currentCompanyId:', currentCompanyId); // Debug
+    try {
+        const token = getAuthToken();
+        console.log('URL being called:', `${API_BASE_URL}/companies/${currentCompanyId}/invitation-code`); // Debug
+        
+        const response = await fetch(`${API_BASE_URL}/companies/${currentCompanyId}/invitation-code`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al cargar el código de invitación');
+        }
+
+        const data = await response.json();
+        companyInvitationCode = data.invitation_code;
+        const invitationCodeDisplay = document.getElementById('invitation-code');
+        if (invitationCodeDisplay) {
+            invitationCodeDisplay.textContent = companyInvitationCode;
+        }
+    } catch (error) {
+        console.error('Error cargando código de invitación:', error);
+        const invitationCodeDisplay = document.getElementById('invitation-code');
+        if (invitationCodeDisplay) {
+            invitationCodeDisplay.textContent = 'Error al cargar';
+        }
+    }
+}
+
+// Función para copiar el código de invitación
+async function copyInvitationCode() {
+    try {
+        await navigator.clipboard.writeText(companyInvitationCode);
+        
+        const copyInvitationCodeBtn = document.getElementById('copy-invitation-code');
+        // Cambiar el texto del botón temporalmente para dar feedback
+        const originalText = copyInvitationCodeBtn.innerHTML;
+        copyInvitationCodeBtn.innerHTML = `
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span>¡Copiado!</span>
+        `;
+        copyInvitationCodeBtn.classList.add('bg-green-600');
+        copyInvitationCodeBtn.classList.remove('bg-blue-600');
+        
+        setTimeout(() => {
+            copyInvitationCodeBtn.innerHTML = originalText;
+            copyInvitationCodeBtn.classList.remove('bg-green-600');
+            copyInvitationCodeBtn.classList.add('bg-blue-600');
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error copiando código:', error);
+        showErrorToast('No se pudo copiar el código al portapapeles');
+    }
+}
 
     async function loadUsers() {
         showLoadingState();
