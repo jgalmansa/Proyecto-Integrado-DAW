@@ -39,7 +39,7 @@ class LogoutManager {
         });
 
         if (logoutButton) {
-            console.log('✅ Botón de logout encontrado');
+            //console.log('✅ Botón de logout encontrado');
             
             // Remover href="#" para evitar scroll
             logoutButton.removeAttribute('href');
@@ -212,12 +212,13 @@ class LogoutManager {
     showLogoutMessage(customMessage = null) {
         // Crear overlay de mensaje
         const overlay = document.createElement('div');
-        overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        // CAMBIO: Usar bg-white/30 backdrop-blur-sm en lugar de bg-black bg-opacity-50
+        overlay.className = 'fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50';
         overlay.style.zIndex = '9999';
-
+    
         const messageBox = document.createElement('div');
         messageBox.className = 'bg-white rounded-lg p-6 max-w-sm mx-4 text-center shadow-xl';
-
+    
         messageBox.innerHTML = `
             <div class="mb-4">
                 <svg class="w-12 h-12 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,10 +233,10 @@ class LogoutManager {
                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
             </div>
         `;
-
+    
         overlay.appendChild(messageBox);
         document.body.appendChild(overlay);
-
+    
         // Remover el mensaje después de un tiempo
         setTimeout(() => {
             if (overlay.parentNode) {
@@ -243,7 +244,7 @@ class LogoutManager {
             }
         }, 3000);
     }
-
+    
     /**
      * Método público para logout (puede ser llamado desde otros scripts)
      */

@@ -220,61 +220,68 @@ document.addEventListener('DOMContentLoaded', function() {
         workspaceModal.classList.add('hidden');
     }
 
-    async function saveWorkspace() {
-        const workspaceId = document.getElementById('workspace-id').value;
-        const name = document.getElementById('workspace-name').value.trim();
-        const description = document.getElementById('workspace-description').value.trim();
-        const capacity = parseInt(document.getElementById('workspace-capacity').value);
-        const isAvailable = document.getElementById('workspace-available').value === 'true';
-        
-        const equipmentInput = document.getElementById('workspace-equipment').value;
-        const equipment = {};
-        equipmentInput.split(',')
-            .map(e => e.trim())
-            .filter(e => e.length > 0)
-            .forEach(e => equipment[e] = true);
+    // Función corregida para guardar espacio
+async function saveWorkspace() {
+    const workspaceId = document.getElementById('workspace-id').value;
+    const name = document.getElementById('workspace-name').value.trim();
+    const description = document.getElementById('workspace-description').value.trim();
+    const capacity = parseInt(document.getElementById('workspace-capacity').value);
+    const isAvailable = document.getElementById('workspace-available').value === 'true';
+    
+    const equipmentInput = document.getElementById('workspace-equipment').value;
+    const equipment = {};
+    equipmentInput.split(',')
+        .map(e => e.trim())
+        .filter(e => e.length > 0)
+        .forEach(e => equipment[e] = true);
 
-        // Validaciones básicas
-        if (!name || isNaN(capacity) || capacity < 1) {
-            alert('Por favor complete todos los campos requeridos correctamente.');
-            return;
-        }
-
-        const workspaceData = {
-            name,
-            description,
-            capacity,
-            is_available: isAvailable,
-            equipment,
-            company_id: currentCompanyId
-        };
-
-        try {
-            // Deshabilitar botón mientras se procesa
-            saveWorkspaceBtn.disabled = true;
-            saveWorkspaceBtn.textContent = 'Guardando...';
-
-            if (workspaceId) {
-                // Editar espacio existente
-                await updateWorkspace(parseInt(workspaceId), workspaceData);
-            } else {
-                // Crear nuevo espacio
-                await createWorkspace(workspaceData);
-            }
-        } catch (error) {
-            console.error('Error guardando espacio:', error);
-            showErrorToast('Error al guardar el espacio. Por favor intenta de nuevo.');
-        } finally {
-            // Rehabilitar botón
-            saveWorkspaceBtn.disabled = false;
-            saveWorkspaceBtn.textContent = 'Guardar';
-        }
+    // Validaciones básicas
+    if (!name || isNaN(capacity) || capacity < 1) {
+        showErrorToast('Por favor complete todos los campos requeridos correctamente.');
+        return;
     }
+
+    // CORRECCIÓN: Usar nombres de campos correctos
+    const workspaceData = {
+        name,
+        description,
+        capacity,
+        is_available: isAvailable, // Usar is_available en lugar de isAvailable
+        equipment,
+        company_id: currentCompanyId
+    };
+
+    console.log('Datos a enviar:', workspaceData); // Debug
+
+    try {
+        // Deshabilitar botón mientras se procesa
+        saveWorkspaceBtn.disabled = true;
+        saveWorkspaceBtn.textContent = 'Guardando...';
+
+        if (workspaceId) {
+            // Editar espacio existente
+            await updateWorkspace(parseInt(workspaceId), workspaceData);
+        } else {
+            // Crear nuevo espacio
+            await createWorkspace(workspaceData);
+        }
+    } catch (error) {
+        console.error('Error guardando espacio:', error);
+        showErrorToast(error.message || 'Error al guardar el espacio. Por favor intenta de nuevo.');
+    } finally {
+        // Rehabilitar botón
+        saveWorkspaceBtn.disabled = false;
+        saveWorkspaceBtn.textContent = 'Guardar';
+    }
+}
 
     // Función real para crear espacio de trabajo
     async function createWorkspace(workspaceData) {
         try {
             const token = getAuthToken();
+            
+            //console.log('Creando espacio con datos:', workspaceData); // Debug
+            
             const response = await fetch(`${API_BASE_URL}/workspaces`, {
                 method: 'POST',
                 headers: {
@@ -283,16 +290,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(workspaceData)
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
+                console.error('Error response:', errorData); // Debug
                 throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
             }
-
-            const newWorkspace = await response.json();
+    
+            const result = await response.json();
+            console.log('Create result:', result); // Debug
+            
+            // CORRECCIÓN: Verificar que la creación fue exitosa
+            if (!result.success) {
+                throw new Error(result.message || 'Error en la creación');
+            }
             
             // Actualizar la lista local
-            workspaces.push(newWorkspace.workspace || newWorkspace);
+            workspaces.push(result.workspace || result.data || result);
             renderWorkspaces();
             closeWorkspaceModal();
             
@@ -306,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Función real para actualizar espacio de trabajo
     async function updateWorkspace(id, workspaceData) {
         try {
-            const token = getAuthToken();
+            const token = getAuthToken();            
             const response = await fetch(`${API_BASE_URL}/workspaces/${id}`, {
                 method: 'PUT',
                 headers: {
@@ -315,18 +329,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(workspaceData)
             });
-
+    
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
             }
-
-            const updatedWorkspace = await response.json();
+    
+            const result = await response.json();
+            
+            // CORRECCIÓN: Verificar que la actualización fue exitosa
+            if (!result.success) {
+                throw new Error(result.message || 'Error en la actualización');
+            }
             
             // Actualizar la lista local
             const index = workspaces.findIndex(w => w.id === id);
             if (index !== -1) {
-                workspaces[index] = updatedWorkspace.workspace || updatedWorkspace;
+                workspaces[index] = result.workspace || result.data || result;
             }
             
             renderWorkspaces();
@@ -338,6 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
             throw error;
         }
     }
+
 
     function showSuccessToast(message = 'Acción completada correctamente') {
         const toast = document.getElementById('success-toast');

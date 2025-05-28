@@ -104,7 +104,8 @@ export const getWorkspaceById = async (req, res) => {
 
 export const createWorkspace = async (req, res) => {
   try {
-    const { name, description, capacity, equipment, isAvailable } = req.body;
+    // CORRECCIÓN: Usar los nombres correctos de los campos
+    const { name, description, capacity, equipment, is_available } = req.body;
     
     // Intentar obtener el ID de compañía de cualquier forma posible
     let companyId;
@@ -118,13 +119,11 @@ export const createWorkspace = async (req, res) => {
     if (!companyId) {
       console.error('Error: company_id es null o undefined');
       return res.status(400).json({ 
+        success: false,
         message: 'Error de validación',
         errors: ['ID de compañía no encontrado en el usuario autenticado']
       });
     }
-    
-    // En lugar de generar un QR, simplemente dejamos el campo en null por ahora
-    // Esto se puede implementar más adelante
     
     const workspace = await Workspace.create({
       name,
@@ -132,11 +131,12 @@ export const createWorkspace = async (req, res) => {
       capacity,
       company_id: companyId,
       qr: null, // Sin QR por ahora
-      is_available: isAvailable !== undefined ? isAvailable : true,
+      is_available: is_available !== undefined ? is_available : true,
       equipment: equipment || {}
     });
     
     return res.status(201).json({
+      success: true, // ✅ Agregar flag de éxito
       message: 'Espacio de trabajo creado exitosamente',
       workspace
     });
@@ -145,11 +145,15 @@ export const createWorkspace = async (req, res) => {
     console.error('Detalle del error:', error.message);
     if (error.name === 'SequelizeValidationError') {
       return res.status(400).json({ 
+        success: false,
         message: 'Error de validación',
         errors: error.errors.map(err => err.message)
       });
     }
-    return res.status(500).json({ message: 'Error interno del servidor' });
+    return res.status(500).json({ 
+      success: false,
+      message: 'Error interno del servidor' 
+    });
   }
 };
 
@@ -168,7 +172,9 @@ export const createWorkspace = async (req, res) => {
 export const updateWorkspace = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, capacity, equipment, isAvailable } = req.body;
+    // ✅ CORRECCIÓN: Usar los nombres correctos de los campos
+    const { name, description, capacity, equipment, is_available } = req.body;
+    
     
     // Intentar obtener el ID de compañía de cualquier forma posible
     let companyId;
@@ -194,22 +200,24 @@ export const updateWorkspace = async (req, res) => {
       return res.status(404).json({ message: 'Espacio de trabajo no encontrado' });
     }
     
-    const updatedWorkspace = await workspace.update({
-      name: name !== undefined ? name : workspace.name,
-      description: description !== undefined ? description : workspace.description,
-      capacity: capacity !== undefined ? capacity : workspace.capacity,
-      is_available: isAvailable !== undefined ? isAvailable : workspace.is_available,
-      equipment: equipment !== undefined ? equipment : workspace.equipment
-    });
+    // ✅ CORRECCIÓN: Usar los nombres correctos
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (capacity !== undefined) updateData.capacity = capacity;
+    if (is_available !== undefined) updateData.is_available = is_available;
+    if (equipment !== undefined) updateData.equipment = equipment;
+    
+    const updatedWorkspace = await workspace.update(updateData);
 
     // Añadir notificación global si el espacio se marca como no disponible
-    if (req.body.isAvailable === false) {
+    if (is_available === false) {
       await createGlobalNotification(
         workspace.company_id,
         `AVISO: El espacio "${workspace.name}" ya no está disponible para reservas.`,
         [] // No excluir a ningún usuario
       );
-    } else if (req.body.isAvailable === true) {
+    } else if (is_available === true) {
       // Notificar que el espacio vuelve a estar disponible
       await createGlobalNotification(
         workspace.company_id,
@@ -219,12 +227,17 @@ export const updateWorkspace = async (req, res) => {
     }
     
     return res.status(200).json({
+      success: true, // ✅ Agregar flag de éxito
       message: 'Espacio de trabajo actualizado exitosamente',
       workspace: updatedWorkspace
     });
   } catch (error) {
     console.error('Error al actualizar espacio de trabajo:', error);
-    return res.status(500).json({ message: 'Error interno del servidor' });
+    return res.status(500).json({ 
+      success: false,
+      message: 'Error interno del servidor',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
