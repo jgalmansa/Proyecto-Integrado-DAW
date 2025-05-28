@@ -33,11 +33,5 @@ router.post('/validate-invitation-code', companyController.validateInvitationCod
  */
 router.get('/:companyId/invitation-code', authenticateToken, companyController.getInvitationCode);
 
-/**
- * @route POST /api/companies/:companyId/regenerate-invitation-code
- * @description Regenerar el código de invitación de una empresa (solo admins)
- * @access Private (Admin only)
- */
-router.post('/:companyId/regenerate-invitation-code', authenticateToken, companyController.regenerateInvitationCode);
 
 export default router;
