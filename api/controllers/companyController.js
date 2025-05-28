@@ -186,6 +186,103 @@ class CompanyController {
       });
     }
   }
+
+  /**
+ * Obtiene el código de invitación de una empresa (solo para administradores)
+ */
+async getInvitationCode(req, res) {
+  try {
+    const { companyId } = req.params;
+    const userRole = req.user.role;
+
+    if (userRole !== 'admin') {
+      return res.status(403).json({
+        message: 'No tienes permisos para acceder al código de invitación'
+      });
+    }
+
+    if (req.user.company_id !== parseInt(companyId)) {
+      return res.status(403).json({
+        message: 'No tienes acceso a esta empresa'
+      });
+    }
+
+    const company = await Company.findByPk(companyId, {
+      attributes: ['id', 'name', 'invitation_code']
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        message: 'Empresa no encontrada'
+      });
+    }
+
+    res.status(200).json({
+      invitation_code: company.invitation_code,
+      company_name: company.name
+    });
+
+  } catch (error) {
+    console.error('Error al obtener código de invitación:', error);
+    res.status(500).json({
+      message: 'Error interno del servidor',
+      error: error.message
+    });
+  }
+}
+
+/**
+ * Valida un código de invitación y devuelve información de la empresa
+ */
+async validateInvitationCode(req, res) {
+  try {
+    const { invitation_code } = req.body;
+
+    if (!invitation_code) {
+      return res.status(400).json({
+        message: 'Código de invitación es requerido'
+      });
+    }
+
+    const company = await Company.findOne({
+      where: { 
+        invitation_code: invitation_code.toUpperCase() 
+      },
+      attributes: ['id', 'name', 'email'],
+      include: [{
+        model: Domain,
+        as: 'domains',
+        where: { is_active: true },
+        attributes: ['domain']
+      }]
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        message: 'Código de invitación inválido',
+        valid: false
+      });
+    }
+
+    res.status(200).json({
+      message: 'Código de invitación válido',
+      valid: true,
+      company: {
+        id: company.id,
+        name: company.name,
+        email: company.email,
+        domains: company.domains.map(d => d.domain)
+      }
+    });
+
+  } catch (error) {
+    console.error('Error al validar código de invitación:', error);
+    res.status(500).json({
+      message: 'Error interno del servidor',
+      error: error.message
+    });
+  }
+}
 }
 
 export default new CompanyController();

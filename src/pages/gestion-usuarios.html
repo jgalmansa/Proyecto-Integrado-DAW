@@ -123,12 +123,6 @@
                         <span>Espacios</span>
                     </a>
                    
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z"></path>
-                        </svg>
-                        <span>Nueva Reserva</span>
-                    </a>
                 </div>
                
                 <!-- Sección Administración (solo para admins) -->
@@ -175,6 +169,35 @@
                 <div>
                     <h2 class="text-2xl font-bold text-gray-900 mb-2">Gestión de Usuarios</h2>
                     <p class="text-gray-600">Administra los usuarios de tu empresa</p>
+                </div>
+            </div>
+
+            <!-- Código de Invitación Card -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">Código de Invitación</h3>
+                            <p class="text-sm text-gray-600">Comparte este código para que nuevos usuarios se registren en tu empresa</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white px-4 py-2 rounded-lg border border-gray-200 font-mono text-lg font-bold text-gray-800" id="invitation-code-display">
+                            <span id="invitation-code">Cargando...</span>
+                        </div>
+                        <button id="copy-invitation-code" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Copiar</span>
+                        </button>
+                        
+                    </div>
                 </div>
             </div>
 
