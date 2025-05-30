@@ -224,6 +224,7 @@ async function loadWorkspaceStats() {
  * - Carga las reservas del usuario actual.
  * - Filtra las reservas activas actualmente.
  * - Filtra las reservas de hoy.
+ * - Filtra las reservas futuras (incluyendo las de hoy que no han terminado).
  * - Calcula el tiempo hasta la próxima reserva.
  * - Actualiza el DOM con los resultados.
  * 
@@ -252,10 +253,16 @@ async function loadReservationStats() {
             return now >= startTime && now <= endTime;
         });
         
-        // Próximas reservas del usuario
+        // Próximas reservas del usuario (futuras)
         const upcomingReservations = myReservations.filter(r => {
             const startTime = new Date(r.startTime || r.start_time);
             return startTime > now;
+        });
+        
+        // Reservas futuras incluye: reservas de hoy que no han terminado + reservas futuras
+        const futureReservations = myReservations.filter(r => {
+            const endTime = new Date(r.endTime || r.end_time);
+            return endTime > now;
         });
         
         const timeUntilNext = getTimeUntilNext(upcomingReservations);
@@ -266,16 +273,21 @@ async function loadReservationStats() {
         document.getElementById('upcoming-reservations').textContent = `${formatNumber(upcomingReservations.length)} próximas`;
         document.getElementById('next-reservation-time').textContent = timeUntilNext;
         
-        document.getElementById('my-reservations').textContent = formatNumber(myReservations.length);
+        // Mostrar solo reservas futuras (incluyendo las de hoy que no han terminado)
+        document.getElementById('my-reservations').textContent = formatNumber(futureReservations.length);
         
         if (activeReservations.length > 0) {
             document.getElementById('active-reservations-status').className = 'text-green-600 font-medium';
             document.getElementById('active-reservations-status').textContent = `${activeReservations.length} activa${activeReservations.length > 1 ? 's' : ''}`;
             document.getElementById('active-reservations-text').textContent = 'ahora';
+        } else if (futureReservations.length > 0) {
+            document.getElementById('active-reservations-status').className = 'text-blue-600 font-medium';
+            document.getElementById('active-reservations-status').textContent = `${futureReservations.length} próxima${futureReservations.length > 1 ? 's' : ''}`;
+            document.getElementById('active-reservations-text').textContent = 'pendiente';
         } else {
             document.getElementById('active-reservations-status').className = 'text-gray-600 font-medium';
-            document.getElementById('active-reservations-status').textContent = 'Ninguna activa';
-            document.getElementById('active-reservations-text').textContent = 'ahora';
+            document.getElementById('active-reservations-status').textContent = 'Ninguna';
+            document.getElementById('active-reservations-text').textContent = 'programada';
         }
         
     } catch (error) {
