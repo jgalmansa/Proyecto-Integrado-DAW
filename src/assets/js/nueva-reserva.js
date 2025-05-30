@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const openButtons = [document.getElementById('new-reservation-button-quick'), document.getElementById('new-reservation-proximas'), document.getElementById('new-reservation-menu'), document.getElementById('new-reservation-button')];
+    const openButtons = [document.getElementById('new-reservation-button-quick'), document.getElementById('new-reservation-proximas'), document.getElementById('new-reservation-menu'), document.getElementById('new-reservation-button'), document.getElementById('empty-state-new-reservation')];
     const modal = document.getElementById('float-quick-new-reservation');
     const closeX = document.getElementById('close-modal');
     const cancelBtn = document.getElementById('cancel-reservation');
