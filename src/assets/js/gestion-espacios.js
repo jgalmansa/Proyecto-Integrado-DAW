@@ -290,7 +290,6 @@ async function saveWorkspace() {
     
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Error response:', errorData); // Debug
                 throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
             }
     
