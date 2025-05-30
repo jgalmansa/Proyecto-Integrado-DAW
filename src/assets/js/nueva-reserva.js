@@ -248,10 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span>Verificando...</span>
       `;
 
-            // Intentar obtener token de localStorage primero, luego sessionStorage
             const token = getAuthToken();
-            console.log('Token encontrado:', token ? 'Sí' : 'No');
-            console.log('Token length:', token ? token.length : 0);
 
             if (!token) {
                 showStatusMessage('No se encontró token de autenticación. Por favor inicia sesión nuevamente.', 'error');
@@ -267,8 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            console.log('Response status:', response.status);
-            console.log('Response data:', data);
 
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {
@@ -409,8 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const data = await response.json();
-
-            console.log('Create reservation response:', response.status, data);
 
             if (!response.ok) {
                 if (response.status === 401 || response.status === 403) {

@@ -37,9 +37,6 @@ async function apiRequest(endpoint, options = {}) {
     const fullUrl = `${API_BASE_URL}${endpoint}`;
     const token = getAuthToken();
     
-    console.log('🌐 Intentando petición a:', fullUrl);
-    console.log('🔑 Token disponible:', token ? 'Sí' : 'No');
-    
     // Si no hay token, redirigir al login
     if (!token) {
         console.error('❌ No hay token de autenticación');
@@ -57,7 +54,6 @@ async function apiRequest(endpoint, options = {}) {
             }
         });
         
-        console.log(`📡 Respuesta de ${fullUrl}:`, response.status, response.statusText);
         
         // Si el token es inválido, redirigir al login
         if (response.status === 401 || response.status === 403) {
@@ -74,7 +70,6 @@ async function apiRequest(endpoint, options = {}) {
         }
         
         const data = await response.json();
-        console.log(`✅ Datos recibidos de ${fullUrl}:`, data);
         return data;
         
     } catch (error) {
@@ -132,10 +127,8 @@ function getTimeUntilNext(reservations) {
  * @returns {boolean} true si el usuario es administrador, false en caso contrario
  */
 async function isAdmin() {
-    console.log('🔐 Verificando si es administrador...');
     try {
-        const userInfo = await apiRequest('/users/me'); // 🔧 Ahora usando la ruta correcta
-        console.log('👤 Info del usuario:', userInfo);
+        const userInfo = await apiRequest('/users/me');
         return userInfo.isAdmin;
     } catch (error) {
         console.error('❌ Error checking admin status:', error);
@@ -180,23 +173,16 @@ async function loadWorkspaceStats() {
 
         // Consultamos las reservas activas en este momento
         try {
-            // Por esta (temporalmente para debug):
-            console.log('URL completa que se va a llamar:', '/reservations/active-now');
             const activeReservations = await apiRequest('/reservations/active-now');
-            // const activeReservations = await apiRequest('/reservations/active-now');
-            console.log('Reservas activas recibidas:', activeReservations);
 
             // Creamos un set con los workspace_id ocupados ahora mismo
             const occupiedWorkspaceIds = new Set(
                 activeReservations.map(r => r.workspace_id)
             );
-            console.log('IDs de espacios ocupados:', Array.from(occupiedWorkspaceIds));
 
             // Filtramos los disponibles físicamente que NO están ocupados ahora
             const currentlyAvailable = physicallyAvailable.filter(ws => !occupiedWorkspaceIds.has(ws.id));
             availableCount = currentlyAvailable.length;
-            console.log('Espacios físicamente disponibles:', physicallyAvailable.map(ws => ws.id));
-            console.log('Espacios disponibles después de filtrar ocupados:', currentlyAvailable.map(ws => ws.id));
 
             availableCount = currentlyAvailable.length;
 

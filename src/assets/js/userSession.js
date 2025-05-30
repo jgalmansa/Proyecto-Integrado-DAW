@@ -6,39 +6,28 @@ class UserSession {
 
     // Cargar información del usuario al inicializar
     loadUserInfo() {
-        console.log('🔍 Cargando información de usuario...');
-        
         let userData = this.getCurrentUser();
-        console.log('👤 Usuario obtenido:', userData);
         
         if (userData) {
-            console.log('🎯 Actualizando header con usuario encontrado');
             this.updateHeaderUserInfo(userData);
         } else {
-            console.log('⚠️ No hay usuario logueado');
             this.showDefaultUser();
         }
     }
 
     // Obtener datos del usuario actual - Compatible con el sistema de login existente
     getCurrentUser() {
-        console.log('🔍 Buscando usuario actual...');
-        
         // 1. Verificar si hay token de autenticación (indica que hay sesión activa)
         const authToken = sessionStorage.getItem('authToken') || localStorage.getItem('authToken');
         if (!authToken) {
-            console.log('❌ No hay token de autenticación');
             return null;
         }
         
-        console.log('✅ Token encontrado, buscando datos de usuario...');
-
         // 2. Intentar obtener desde sessionStorage (prioridad porque es más reciente)
         const sessionUserStr = sessionStorage.getItem('userData');
         if (sessionUserStr) {
             try {
                 const userData = JSON.parse(sessionUserStr);
-                console.log('📍 Usuario encontrado en sessionStorage:', userData);
                 return this.normalizeUserData(userData);
             } catch (e) {
                 console.error('Error parsing sessionStorage userData:', e);
@@ -51,7 +40,6 @@ class UserSession {
         if (localUserStr) {
             try {
                 const userData = JSON.parse(localUserStr);
-                console.log('📍 Usuario encontrado en localStorage:', userData);
                 return this.normalizeUserData(userData);
             } catch (e) {
                 console.error('Error parsing localStorage userData:', e);
@@ -64,7 +52,6 @@ class UserSession {
         if (currentUserStr) {
             try {
                 const userData = JSON.parse(currentUserStr);
-                console.log('📍 Usuario encontrado en formato UserSession:', userData);
                 return userData;
             } catch (e) {
                 console.error('Error parsing currentUser data:', e);
@@ -77,14 +64,12 @@ class UserSession {
         if (userCookie) {
             try {
                 const userData = JSON.parse(decodeURIComponent(userCookie));
-                console.log('📍 Usuario encontrado en cookies:', userData);
                 return this.normalizeUserData(userData);
             } catch (e) {
                 console.error('Error parsing cookie user data:', e);
             }
         }
 
-        console.log('❌ Usuario no encontrado en ningún storage');
         return null;
     }
 
@@ -115,7 +100,6 @@ class UserSession {
             role: role.toLowerCase()
         };
         
-        console.log('🔄 Usuario normalizado:', normalizedUser);
         return normalizedUser;
     }
 
@@ -129,23 +113,15 @@ class UserSession {
 
     // Actualizar la información del usuario en el header
     updateHeaderUserInfo(userData) {
-        console.log('🔄 Actualizando elementos del header...');
         
         // Actualizar nombre y rol
         const nameElement = document.querySelector('.user-name');
         const roleElement = document.querySelector('.user-role');
         const avatarElement = document.querySelector('.user-avatar');
 
-        console.log('📍 Elementos encontrados:', {
-            nombre: !!nameElement,
-            rol: !!roleElement, 
-            avatar: !!avatarElement
-        });
-
         if (nameElement) {
             const userName = userData.name || userData.fullName || 'Usuario';
             nameElement.textContent = userName;
-            console.log('✅ Nombre actualizado:', userName);
         } else {
             console.error('❌ No se encontró elemento .user-name');
         }
@@ -153,7 +129,6 @@ class UserSession {
         if (roleElement) {
             const userRole = this.translateRole(userData.role || 'user');
             roleElement.textContent = userRole;
-            console.log('✅ Rol actualizado:', userRole);
         } else {
             console.error('❌ No se encontró elemento .user-role');
         }
@@ -161,12 +136,9 @@ class UserSession {
         if (avatarElement) {
             const initials = this.generateInitials(userData.name || userData.fullName || 'Usuario');
             avatarElement.textContent = initials;
-            console.log('✅ Avatar actualizado:', initials);
         } else {
             console.error('❌ No se encontró elemento .user-avatar');
         }
-
-        console.log('🎉 Usuario cargado exitosamente:', userData.name, '-', this.translateRole(userData.role));
     }
 
     // Mostrar usuario por defecto cuando no hay sesión
@@ -187,7 +159,6 @@ class UserSession {
             avatarElement.textContent = 'UI';
         }
 
-        console.log('No hay usuario logueado - mostrando usuario por defecto');
     }
 
     // Generar iniciales del nombre
@@ -223,7 +194,6 @@ class UserSession {
             expires.setTime(expires.getTime() + (24 * 60 * 60 * 1000)); // 24 horas
             document.cookie = `user_session=${encodeURIComponent(JSON.stringify(userData))}; expires=${expires.toUTCString()}; path=/`;
             
-            console.log('Sesión de usuario guardada:', userData.name);
             return true;
         } catch (e) {
             console.error('Error guardando sesión de usuario:', e);
@@ -241,8 +211,6 @@ class UserSession {
             // Limpiar cookies
             document.cookie = 'user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
             document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            
-            console.log('Sesión cerrada');
             
             // Redirigir al login o recargar página
             // window.location.href = '/login.html';

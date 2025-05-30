@@ -39,8 +39,6 @@ class LogoutManager {
         });
 
         if (logoutButton) {
-            //console.log('✅ Botón de logout encontrado');
-            
             // Remover href="#" para evitar scroll
             logoutButton.removeAttribute('href');
             logoutButton.style.cursor = 'pointer';
@@ -60,8 +58,6 @@ class LogoutManager {
      */
     async handleLogout() {
         try {
-            console.log('🔄 Iniciando proceso de logout...');
-
             // Mostrar loading en el botón
             this.setLogoutButtonLoading(true);
 
@@ -138,8 +134,6 @@ class LogoutManager {
      * Limpia todos los datos locales del usuario
      */
     clearLocalData() {
-        console.log('🧹 Limpiando datos locales...');
-
         // Limpiar tokens de autenticación
         localStorage.removeItem('authToken');
         sessionStorage.removeItem('authToken');
@@ -161,15 +155,12 @@ class LogoutManager {
 
         keysToRemove.forEach(key => {
             localStorage.removeItem(key);
-            console.log('🗑️ Removido:', key);
         });
 
         // También limpiar sessionStorage
         keysToRemove.forEach(key => {
             sessionStorage.removeItem(key);
         });
-
-        console.log('✅ Datos locales limpiados');
     }
 
     /**
@@ -262,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (hasLogoutButton) {
         window.logoutManager = new LogoutManager();
-        console.log('✅ Sistema de logout inicializado');
     }
 });
 
