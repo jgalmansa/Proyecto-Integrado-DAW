@@ -52,53 +52,43 @@ app.use('/api/notifications', notificationRoutes);
 
 // Rutas específicas para páginas HTML
 app.get('/', (req, res) => {
-  console.log('Ruta / accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'index.html'));
 });
 
 app.get('/register', (req, res) => {
-  console.log('Ruta /register accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'register.html'));
 });
 
 app.get('/login', (req, res) => {
-  console.log('Ruta /login accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'login.html'));
 });
 
 app.get('/dashboard', (req, res) => {
-  console.log('Ruta /dashboard accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'dashboard.html'));
 });
 
 app.get('/notifications', (req, res) => {
-  console.log('Ruta /notifications accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'notifications.html'));
 });
 
 app.get('/gestion-espacios', (req, res) => {
-  console.log('Ruta /gestion-espacios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-espacios.html'));
 });
 
 
 app.get('/gestion-usuarios', (req, res) => {
-  console.log('Ruta /gestion-usuarios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-usuarios.html'));
 });
 
 app.get('/mis-reservas', (req, res) => {
-  console.log('Ruta /mis-reservas accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'mis-reservas.html'));
 });
 
 app.get('/espacios', (req, res) => {
-  console.log('Ruta /espacios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'espacios.html'));
 });
 
 app.get('/gestion-usuarios', (req, res) => {
-  console.log('Ruta /gestion-usuarios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-usuarios.html'));
 });
 
@@ -135,13 +125,6 @@ app.use((err, req, res, next) => {
  */
 const startServer = async () => {
   try {
-    console.log('Variables de entorno:');
-    console.log('DB_USER:', process.env.DB_USER);
-    console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '***' : 'undefined');
-    console.log('DB_NAME:', process.env.DB_NAME);
-    console.log('DB_HOST:', process.env.DB_HOST);
-    console.log('DB_PORT:', process.env.DB_PORT);
-    
     await sequelize.authenticate();
     console.log('📦 Conexión a la base de datos establecida correctamente');
 
@@ -151,15 +134,6 @@ const startServer = async () => {
       console.log(`📡 Puerto: ${PORT}`);
       console.log(`🌐 URL: http://localhost:${PORT}`);
       console.log(`🔑 Modo: ${process.env.NODE_ENV || 'desarrollo'}`);
-      console.log('===========================\n');
-      
-      // Debug: Mostrar rutas registradas
-      console.log('📋 Rutas registradas:');
-      console.log('  GET /');
-      console.log('  GET /register');
-      console.log('  POST /api/companies/*');
-      console.log('  POST /api/users/*');
-      console.log('  Archivos estáticos: /frontend/public');
       console.log('===========================\n');
     });
   } catch (error) {

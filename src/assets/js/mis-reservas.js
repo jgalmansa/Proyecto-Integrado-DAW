@@ -93,9 +93,6 @@ class MisReservas {
                 this.redirectToLogin();
                 return;
             }
-
-            // SOLUCIÓN: Hacer múltiples llamadas para obtener todas las reservas
-            console.log('Cargando reservas...');
             
             try {
                 // Llamada 1: Reservas sin filtro (confirmed por defecto)
@@ -112,7 +109,6 @@ class MisReservas {
                 }
 
                 const confirmedData = await confirmedResponse.json();
-                console.log('Reservas confirmed:', confirmedData.reservations?.length || 0);
 
                 // Llamada 2: Reservas canceladas
                 const cancelledResponse = await fetch('/api/reservations/my?status=cancelled', {
@@ -122,19 +118,7 @@ class MisReservas {
                 let cancelledData = { reservations: [] };
                 if (cancelledResponse.ok) {
                     cancelledData = await cancelledResponse.json();
-                    console.log('Reservas cancelled:', cancelledData.reservations?.length || 0);
                 }
-
-                // Llamada 3: Reservas pendientes
-                /*const pendingResponse = await fetch('/api/reservations/my?status=pending', {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-                });*/
-
-                /*let pendingData = { reservations: [] };
-                if (pendingResponse.ok) {
-                    pendingData = await pendingResponse.json();
-                    console.log('Reservas pending:', pendingData.reservations?.length || 0);
-                }*/
 
                 // Combinar todas las reservas
                 const allReservations = [
@@ -155,7 +139,6 @@ class MisReservas {
                 });
 
                 this.reservations = uniqueReservations;
-                console.log('Total reservas únicas:', this.reservations.length);
                 
                 // Ordenar reservas por fecha (futuras primero, luego pasadas)
                 this.sortReservations();

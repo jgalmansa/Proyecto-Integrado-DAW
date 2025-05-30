@@ -251,7 +251,6 @@ async function saveWorkspace() {
         company_id: currentCompanyId
     };
 
-    console.log('Datos a enviar:', workspaceData); // Debug
 
     try {
         // Deshabilitar botón mientras se procesa
@@ -280,8 +279,6 @@ async function saveWorkspace() {
         try {
             const token = getAuthToken();
             
-            //console.log('Creando espacio con datos:', workspaceData); // Debug
-            
             const response = await fetch(`${API_BASE_URL}/workspaces`, {
                 method: 'POST',
                 headers: {
@@ -293,12 +290,10 @@ async function saveWorkspace() {
     
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Error response:', errorData); // Debug
                 throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
             }
     
             const result = await response.json();
-            console.log('Create result:', result); // Debug
             
             // CORRECCIÓN: Verificar que la creación fue exitosa
             if (!result.success) {

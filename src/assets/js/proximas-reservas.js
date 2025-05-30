@@ -39,8 +39,6 @@ class ReservationsManager {
                 }
             });
 
-            console.log('Response status:', response.status);
-            console.log('Response ok:', response.ok);
 
             if (!response.ok) {
                 const errorText = await response.text();
@@ -49,14 +47,11 @@ class ReservationsManager {
             }
 
             const data = await response.json();
-            console.log('Raw API response:', data);
 
             // Filtrar solo las reservas futuras y del día actual
             const reservationsArray = data.reservations || data.data || data;
-            console.log('Reservations array:', reservationsArray);
 
             const upcomingReservations = this.filterUpcomingReservations(reservationsArray);
-            console.log('Upcoming reservations:', upcomingReservations);
 
             this.renderReservations(upcomingReservations);
         } catch (error) {
@@ -400,23 +395,13 @@ class ReservationsManager {
             document.cookie.split('; ')
                 .find(row => row.startsWith('token='))?.split('=')[1];
 
-        console.log('Found token:', token ? 'Token exists' : 'No token found');
         return token;
     }
 
     async editReservation(reservationId) {
-        console.log('🔍 DEBUG editReservation called with ID:', reservationId);
-        
-        // Verificar si existe window.editReservationModal
-        console.log('🔍 window.editReservationModal exists:', !!window.editReservationModal);
-        console.log('🔍 editReservationModal object:', window.editReservationModal);
-        
         const reservation = this.getCurrentReservationData(reservationId);
-        console.log('🔍 Found reservation data:', reservation);
-        console.log('🔍 Current reservations array:', this.currentReservations);
         
         if (reservation && window.editReservationModal) {
-            console.log('✅ Opening modal with reservation:', reservation);
             window.editReservationModal.open(reservation);
         } else {
             console.error('❌ No se encontró la reserva o el modal no está disponible');
@@ -425,11 +410,8 @@ class ReservationsManager {
             
             // Intentar crear el modal si no existe
             if (!window.editReservationModal) {
-                console.log('🔧 Intentando crear el modal...');
                 try {
                     window.editReservationModal = new EditReservationModal();
-                    console.log('✅ Modal creado exitosamente');
-                    
                     if (reservation) {
                         window.editReservationModal.open(reservation);
                     }

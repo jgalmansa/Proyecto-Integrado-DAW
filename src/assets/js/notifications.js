@@ -41,10 +41,11 @@ class NotificationManager {
                 await this.checkUpcomingReservations();
             } catch (reminderError) {
                 console.warn('Error al cargar recordatorios (no crítico):', reminderError);
-                // Continúa sin recordatorios pero sin fallar toda la inicialización
             }
             
+            // Renderizar en dashboard Y sidebar
             this.renderDashboardNotifications();
+            this.renderSidebarNotifications(); // NUEVA LÍNEA
             this.updateNotificationBadge();
             this.setupDropdownEvents();
         } catch (error) {
@@ -204,12 +205,14 @@ class NotificationManager {
     async markAsRead(notificationId) {
         try {
             const notificationIdStr = String(notificationId);
-            //  Manejar recordatorios (que no están en BD)
+            
             if (notificationIdStr.startsWith('reminder_')) {
                 const reminder = this.reminderNotifications.find(n => n.id === notificationIdStr);
                 if (reminder) {
                     reminder.isRead = true;
                     this.updateNotificationBadge();
+                    this.renderSidebarNotifications(); // NUEVA LÍNEA
+                    this.renderDashboardNotifications();
                 }
                 return true;
             }
@@ -231,6 +234,8 @@ class NotificationManager {
                     notification.isRead = true;
                     this.unreadCount = Math.max(0, this.unreadCount - 1);
                     this.updateNotificationBadge();
+                    this.renderSidebarNotifications(); // NUEVA LÍNEA
+                    this.renderDashboardNotifications();
                 }
                 return true;
             }
@@ -414,10 +419,11 @@ class NotificationManager {
     }
 
     /**
-     *  Actualiza badge con selector correcto
+     *  Actualiza el badge de notificaciones - CORREGIDO para sidebar
      */
     updateNotificationBadge() {
-        const badge = document.getElementById('notification-badge'); //  Usar ID
+        // Buscar tanto el badge del header (si existe) como el del sidebar
+        const badge = document.getElementById('notification-badge') || document.getElementById('notification-count');
         
         if (!badge) {
             console.warn('Badge de notificaciones no encontrado');
@@ -440,179 +446,99 @@ class NotificationManager {
     }
 
     /**
-     *  Mostrar estado de error al usuario
+     * Renderiza notificaciones en el sidebar - NUEVA FUNCIÓN
      */
-    showErrorState() {
-        const container = document.getElementById('notification-dashboard-container');
-        if (container) {
-            container.innerHTML = `
-                <div class="text-center py-8">
-                    <svg class="w-12 h-12 text-red-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                    </svg>
-                    <p class="text-red-500 text-sm">Error al cargar notificaciones</p>
-                    <button onclick="window.notificationManager.refresh()" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">Reintentar</button>
-                </div>
-            `;
-        }
-    }
-
-    /**
-     * Configurar eventos del dropdown de notificaciones
-     */
-    setupDropdownEvents() {
-        const button = document.getElementById('notifications-button');
-        const dropdown = document.getElementById('notifications-dropdown');
-        const markAllButton = document.getElementById('mark-all-read');
-
-        if (!button || !dropdown) {
-            console.warn('Elementos del dropdown de notificaciones no encontrados');
+    renderSidebarNotifications() {
+        const sidebarContainer = document.getElementById('sidebar-notifications-list');
+        
+        if (!sidebarContainer) {
+            console.warn('Contenedor de notificaciones del sidebar no encontrado');
             return;
         }
 
-        button.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const isHidden = dropdown.classList.contains('hidden');
-            
-            if (isHidden) {
-                this.openDropdown();
-            } else {
-                this.closeDropdown();
-            }
-        });
-
-        markAllButton?.addEventListener('click', async () => {
-            await this.markAllAsRead();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target) && !button.contains(e.target)) {
-                this.closeDropdown();
-            }
-        });
-
-        dropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-    }
-
-    /**
-     * Abre el dropdown de notificaciones
-     */
-    async openDropdown() {
-        const dropdown = document.getElementById('notifications-dropdown');
-        const container = document.getElementById('dropdown-notifications-container');
-        const loading = document.getElementById('notifications-loading');
-        const empty = document.getElementById('notifications-empty');
-
-        dropdown.classList.remove('hidden');
-        
-        loading.classList.remove('hidden');
-        empty.classList.add('hidden');
-        if (container) container.innerHTML = '';
-
-        try {
-            await this.loadNotifications(7);
-            
-            //  Verificar si dropdown sigue abierto
-            if (!dropdown.classList.contains('hidden')) {
-                this.renderDropdownNotifications();
-            }
-        } catch (error) {
-            console.error('Error al cargar notificaciones del dropdown:', error);
-        } finally {
-            loading.classList.add('hidden');
-        }
-    }
-
-    /**
-     * Cierra el dropdown de notificaciones
-     */
-    closeDropdown() {
-        const dropdown = document.getElementById('notifications-dropdown');
-        dropdown.classList.add('hidden');
-    }
-
-    /**
-     * Renderiza las notificaciones en el dropdown
-     */
-    renderDropdownNotifications() {
-        const container = document.getElementById('dropdown-notifications-container');
-        const empty = document.getElementById('notifications-empty');
-
-        if (!container) return;
-
-        if (!this.reminderNotifications) {
-            this.reminderNotifications = [];
-        }
-
-        const unreadNotifications = [
+        // Combinar todas las notificaciones
+        const allNotifications = [
             ...this.reminderNotifications.filter(n => !n.isRead),
-            ...this.notifications.filter(n => !n.isRead)
+            ...this.notifications
         ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        const recentNotifications = unreadNotifications.slice(0, 7);
+        const recentNotifications = allNotifications.slice(0, 3);
 
         if (recentNotifications.length === 0) {
-            container.innerHTML = '';
-            empty.classList.remove('hidden');
+            sidebarContainer.innerHTML = `
+                <div class="text-center py-2">
+                    <p class="text-xs text-gray-500">No hay notificaciones</p>
+                </div>
+            `;
             return;
         }
 
-        empty.classList.add('hidden');
-        container.innerHTML = '';
+        sidebarContainer.innerHTML = recentNotifications.map(notification => `
+            <div class="sidebar-notification text-xs p-2 border-b border-gray-100 last:border-b-0 ${notification.isRead ? 'opacity-60' : 'bg-blue-50'} rounded cursor-pointer hover:bg-gray-100 transition-colors"
+                 data-notification-id="${notification.id}"
+                 data-is-read="${notification.isRead}">
+                <p class="font-medium text-gray-900 truncate ${!notification.isRead ? 'font-semibold' : ''}">${notification.message || notification.title}</p>
+                ${notification.reservation ? `
+                    <p class="text-gray-600 truncate mt-1">${this.formatReservationInfo(notification.reservation)}</p>
+                ` : ''}
+                <p class="text-gray-400 mt-1">${this.formatTimeAgo(notification.createdAt || notification.created_at)}</p>
+                ${!notification.isRead ? '<div class="w-1 h-1 bg-blue-500 rounded-full mt-1"></div>' : ''}
+            </div>
+        `).join('');
 
-        recentNotifications.forEach(notification => {
-            const notificationElement = this.createDropdownNotificationElement(notification);
-            container.appendChild(notificationElement);
+        // Agregar event listeners a cada notificación del sidebar
+        const notificationElements = sidebarContainer.querySelectorAll('.sidebar-notification');
+        notificationElements.forEach(element => {
+            element.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const notificationId = element.getAttribute('data-notification-id');
+                const isRead = element.getAttribute('data-is-read') === 'true';
+                
+                if (!isRead && notificationId) {
+                    // Marcar como leída
+                    const success = await this.markAsRead(notificationId);
+                    
+                    if (success) {
+                        // Actualizar el elemento visualmente
+                        element.classList.remove('bg-blue-50');
+                        element.classList.add('opacity-60');
+                        element.setAttribute('data-is-read', 'true');
+                        
+                        // Remover el punto de no leída
+                        const unreadDot = element.querySelector('.w-1.h-1.bg-blue-500');
+                        if (unreadDot) {
+                            unreadDot.remove();
+                        }
+                        
+                        // Remover font-semibold del texto
+                        const messageElement = element.querySelector('.font-semibold');
+                        if (messageElement) {
+                            messageElement.classList.remove('font-semibold');
+                        }
+                        
+                        console.log(`✅ Notificación ${notificationId} marcada como leída desde sidebar`);
+                    }
+                }
+            });
         });
     }
 
     /**
-     * Crea un elemento de notificación para el dropdown
+     * Actualiza las notificaciones - CORREGIDA
      */
-    createDropdownNotificationElement(notification) {
-        const div = document.createElement('div');
-        div.className = `p-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer transition-colors ${
-            !notification.isRead ? 'bg-blue-50' : ''
-        }`;
-
-        const { icon, bgColor, textColor } = this.getNotificationStyle(notification);
-
-        div.innerHTML = `
-            <div class="flex items-start space-x-3">
-                <div class="${bgColor} p-1.5 rounded-full flex-shrink-0">
-                    ${icon}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 ${!notification.isRead ? 'font-semibold' : ''} line-clamp-2">
-                        ${notification.message}
-                    </p>
-                    ${notification.reservation ? `
-                        <p class="text-xs text-gray-600 mt-1 truncate">${this.formatReservationInfo(notification.reservation)}</p>
-                    ` : ''}
-                    <p class="text-xs text-gray-500 mt-1">${this.formatTimeAgo(notification.createdAt)}</p>
-                </div>
-                ${!notification.isRead ? `
-                    <div class="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-1"></div>
-                ` : ''}
-            </div>
-        `;
-
-        div.addEventListener('click', async () => {
-            if (!notification.isRead) {
-                const success = await this.markAsRead(notification.id);
-                if (success) {
-                    div.classList.remove('bg-blue-50');
-                    const unreadDot = div.querySelector('.w-2.h-2.bg-blue-500');
-                    if (unreadDot) unreadDot.remove();
-                    const messageElement = div.querySelector('.font-semibold');
-                    if (messageElement) messageElement.classList.remove('font-semibold');
-                }
-            }
-        });
-
-        return div;
+    async refresh() {
+        try {
+            await this.loadNotifications();
+            await this.updateUnreadCount();
+            await this.checkUpcomingReservations();
+            this.renderDashboardNotifications();
+            this.renderSidebarNotifications(); // NUEVA LÍNEA
+            this.updateNotificationBadge();
+        } catch (error) {
+            console.error('Error al actualizar notificaciones:', error);
+        }
     }
 
     /**
@@ -642,21 +568,6 @@ class NotificationManager {
             }
         } catch (error) {
             console.error('Error al marcar todas como leídas:', error);
-        }
-    }
-
-    /**
-     * Actualiza las notificaciones
-     */
-    async refresh() {
-        try {
-            await this.loadNotifications();
-            await this.updateUnreadCount();
-            await this.checkUpcomingReservations();
-            this.renderDashboardNotifications();
-            this.updateNotificationBadge();
-        } catch (error) {
-            console.error('Error al actualizar notificaciones:', error);
         }
     }
 }

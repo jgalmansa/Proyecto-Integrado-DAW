@@ -665,7 +665,6 @@ export const updateUser = async (req, res) => {
     // Cambiar el mapeo de campos para que coincida con el frontend
     const { first_name, last_name, email, role, is_active, password } = req.body;
     
-    //console.log('Datos recibidos para actualización:', req.body); // Debug
     
     // Verificar permisos de acceso
     const where = { id };
@@ -728,7 +727,6 @@ export const updateUser = async (req, res) => {
       updateData.password = password; // El hook beforeUpdate se encargará del hash
     }
 
-    //console.log('Datos que se van a actualizar:', updateData); // Debug
 
     // Actualizar el usuario
     await user.update(updateData);

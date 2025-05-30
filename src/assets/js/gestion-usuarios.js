@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
     init();
 
     function init() {
-        console.log('Usuario actual:', getUserSessionData());
         // Verificar sesión y rol de administrador
         checkAdminSession();
        
@@ -49,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function checkAdminSession() {
         const userData = getUserSessionData();
-        console.log('Datos del usuario:', userData); // Debug
         
         if (!userData || userData.role !== 'admin') {
             window.location.href = '/dashboard';
@@ -61,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
         currentUserId = Number(userData.id);
         currentUserRole = userData.role;
         
-        console.log(`ID de compañía: ${currentCompanyId}, ID de usuario: ${currentUserId}, Rol: ${currentUserRole}`); // Debug
         
         if (!currentCompanyId || isNaN(currentCompanyId)) {
             console.error('ID de compañía inválido:', currentCompanyId);
@@ -73,10 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Función para cargar el código de invitación
 async function loadInvitationCode() {
-    console.log('currentCompanyId:', currentCompanyId); // Debug
     try {
         const token = getAuthToken();
-        console.log('URL being called:', `${API_BASE_URL}/companies/${currentCompanyId}/invitation-code`); // Debug
         
         const response = await fetch(`${API_BASE_URL}/companies/${currentCompanyId}/invitation-code`, {
             method: 'GET',
@@ -158,7 +153,6 @@ async function copyInvitationCode() {
                 throw new Error('ID de compañía inválido');
             }
 
-            console.log(`Fetching users for company ${currentCompanyId}`);
             const response = await fetch(`${API_BASE_URL}/users?company_id=${currentCompanyId}`, {
                 method: 'GET',
                 headers: {
@@ -299,7 +293,6 @@ async function copyInvitationCode() {
         cancelUserBtn.addEventListener('click', closeUserModal);
        
         // Guardar usuario
-        console.log('saveUserBtn:', saveUserBtn);
         saveUserBtn.addEventListener('click', saveUser);
 
         // Cerrar modal al hacer clic fuera
@@ -431,7 +424,6 @@ async function copyInvitationCode() {
             userData.password = password;
         }
     
-        console.log('Datos a enviar (filtrados):', userData); // Debug
     
         try {
             // Deshabilitar botón mientras se procesa
@@ -466,7 +458,6 @@ async function copyInvitationCode() {
         try {
             const token = getAuthToken();
     
-            console.log('Creando usuario con datos:', userData); // Debug
     
             // Para crear usuarios usar el endpoint correcto
             const response = await fetch(`${API_BASE_URL}/users`, {
@@ -504,7 +495,6 @@ async function copyInvitationCode() {
         try {
             const token = getAuthToken();
             
-            console.log(`Actualizando usuario ${id} con datos:`, userData); // Debug
             
             const response = await fetch(`${API_BASE_URL}/users/${id}`, {
                 method: 'PUT',
@@ -515,16 +505,13 @@ async function copyInvitationCode() {
                 body: JSON.stringify(userData)
             });
     
-            console.log('Response status:', response.status); // Debug
     
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error('Error response:', errorData); // Debug
                 throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
             }
     
             const result = await response.json();
-            console.log('Update result:', result); // Debug
             
             // Manejar la respuesta correctamente
             const updatedUser = result.data || result;
@@ -826,7 +813,6 @@ async function copyInvitationCode() {
         if (currentUserStr) {
             try {
                 const userData = JSON.parse(currentUserStr);
-                console.log('User data from currentUser:', userData);
                 return {
                     id: userData.id,
                     email: userData.email,

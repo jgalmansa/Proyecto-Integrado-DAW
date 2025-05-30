@@ -66,7 +66,6 @@ class NotificationsPage {
     checkAuth() {
         const token = this.getAuthToken();
         if (!token) {
-            console.log('❌ No hay token, redirigiendo al login...');
             window.location.href = '/login';
             return false;
         }
@@ -157,7 +156,6 @@ class NotificationsPage {
 
             const data = await response.json();
             this.notifications = data.notifications || [];
-            console.log('📧 Notificaciones cargadas:', this.notifications.length);
 
         } catch (error) {
             console.error('Error al cargar notificaciones:', error);
@@ -697,7 +695,6 @@ class NotificationsPage {
      * 🔧 FIX: Marca una notificación como leída con manejo de recordatorios
      */
     async markAsRead(notificationId) {
-        console.log('🔄 markAsRead llamado con ID:', notificationId, 'tipo:', typeof notificationId);
         
         // Convertir a string para poder usar startsWith
         const notificationIdStr = String(notificationId);
@@ -725,12 +722,9 @@ class NotificationsPage {
             });
 
             if (response.ok) {
-                console.log('✅ API respondió OK para notificación:', notificationId);
                 const notification = this.notifications.find(n => n.id == notificationId);
-                console.log('🔍 Notificación encontrada:', notification);
                 if (notification) {
                     notification.isRead = true;
-                    console.log('✅ Notificación marcada como leída localmente');
                     this.renderPage();
                 }
             } else {
@@ -763,7 +757,6 @@ class NotificationsPage {
                 this.reminderNotifications.forEach(n => n.isRead = true);
                 
                 this.renderPage();
-                console.log('Todas las notificaciones marcadas como leídas');
             }
         } catch (error) {
             console.error('Error al marcar todas como leídas:', error);

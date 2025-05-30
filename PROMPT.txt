@@ -1,5 +1,4 @@
 PETICIÓN:
-Haz una pagina login.html para el siguiente proyecto. Usa html y Tailwind. Si necesitas js, añade un archivo a parte.
 
 Te vuelvo a mostrar el enunciado del proyecto:
 Desarrollaremos una aplicación web para la gestión integral de reservas de espacios de trabajo colaborativo, que incluirá salas de reuniones, áreas de coworking y otros recursos. La plataforma permitirá a los usuarios:
