@@ -1,160 +1,135 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coworkly - Gestión de Usuarios</title>
     <link href="../assets/css/output.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-50 min-h-screen">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
-        <div class="flex items-center justify-between px-6 py-4">
-            <div class="flex items-center space-x-3">
-                <div class="bg-[#3B82F6] p-2 rounded-lg">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
-                </div>
-                <div>
-                    <h1 class="text-xl font-semibold text-gray-900">Coworkly</h1>
-                    <p class="text-sm text-gray-500">Gestión de Usuarios</p>
-                </div>
-            </div>
-           
-            <div class="flex items-center gap-4">
-                <!-- Notificaciones -->
-                <div class="relative" id="notifications-container">
-                    <button id="notifications-button" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
-                        </svg>
-                        <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
-                    </button>
-                   
-                    <!-- Dropdown de notificaciones -->
-                    <div id="notifications-dropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
-                        <!-- Header del dropdown -->
-                        <div class="flex items-center justify-between p-4 border-b border-gray-100">
-                            <h3 class="text-sm font-semibold text-gray-900">Notificaciones</h3>
-                            <button id="mark-all-read" class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                Marcar todas como leídas
-                            </button>
-                        </div>
-                       
-                        <!-- Lista de notificaciones -->
-                        <div id="dropdown-notifications-list" class="max-h-96 overflow-y-auto">
-                            <!-- Loading state -->
-                            <div id="notifications-loading" class="p-4 text-center">
-                                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-                                <p class="text-sm text-gray-500 mt-2">Cargando notificaciones...</p>
-                            </div>
-                           
-                            <!-- Empty state -->
-                            <div id="notifications-empty" class="p-8 text-center hidden">
-                                <svg class="w-12 h-12 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
-                                </svg>
-                                <p class="text-sm text-gray-500">No tienes notificaciones</p>
-                            </div>
-                           
-                            <!-- Contenedor de notificaciones -->
-                            <div id="dropdown-notifications-container">
-                                <!-- Las notificaciones se cargarán aquí dinámicamente -->
-                            </div>
-                        </div>
-                       
-                        <!-- Footer del dropdown -->
-                        <div class="p-3 border-t border-gray-100 bg-gray-50 rounded-b-lg">
-                            <a href="/notifications" id="view-all-notifications-dropdown" class="block w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium py-1">
-                                Ver todas las notificaciones
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                                   
-                <!-- Perfil de usuario -->
-                <div class="flex items-center space-x-3 border-l pl-4">
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-gray-900 user-name">Cargando...</p>
-                        <p class="text-xs text-gray-500 user-role">...</p>
-                    </div>
-                    <div class="w-8 h-8 bg-[#3B82F6] rounded-full flex items-center justify-center">
-                        <span class="text-white text-sm font-medium user-avatar">??</span>
-                    </div>
-                    <div class="relative">
-                        <button id="user-menu-button" class="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg p-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
 
     <div class="flex w-full overflow-hidden">
         <!-- Sidebar -->
         <aside class="w-full max-w-[250px] bg-white shadow-sm h-screen sticky top-0">
+            <!-- Logo y título -->
+            <div class="flex items-center space-x-3 p-4 border-b border-gray-200">
+                <div class="bg-[#3B82F6] p-2 rounded-lg">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-semibold text-gray-900">Coworkly</h1>
+                    <p class="text-sm text-gray-500">Gestión de Espacios</p>
+                </div>
+            </div>
+
+            <!-- Perfil de usuario -->
+            <div class="flex items-center space-x-3 p-4 w-full border-b border-gray-200">
+                <div class="w-8 h-8 bg-[#3B82F6] rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-medium user-avatar">??</span>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-medium text-gray-900 user-name">Cargando...</p>
+                    <p class="text-xs text-gray-500 user-role">...</p>
+                </div>
+            </div>
+
+            <!-- Sección de notificaciones rápidas en el sidebar -->
+            <div class="p-4 border-b border-gray-200" id="notifications-sidebar-section">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Notificaciones</h3>
+                    <span id="notification-count"
+                        class="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                        style="display: none;">0</span>
+                </div>
+
+                <!-- Mini lista de notificaciones -->
+                <div class="space-y-1 max-h-32 overflow-y-auto" id="sidebar-notifications-list">
+                    <!-- Las notificaciones se cargarán aquí -->
+                    <div class="animate-pulse">
+                        <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                        <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+                    </div>
+                </div>
+
+                <a href="/notifications"
+                    class="block text-center text-xs text-blue-600 hover:text-blue-800 font-medium mt-2 pt-2 border-t border-gray-100">
+                    Ver todas
+                </a>
+            </div>
+
+            <!-- Sidebar navegación -->
             <nav class="p-4 space-y-2">
                 <!-- Sección General -->
                 <div class="mb-6">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">General</h3>
-                   
+
                     <a href="/dashboard" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
                         </svg>
-                        <span class="font-medium">Dashboard</span>
+                        <span>Dashboard</span>
                     </a>
-                   
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+
+                    <a href="/mis-reservas"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m0 0V7a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2z">
+                            </path>
                         </svg>
                         <span>Mis Reservas</span>
                     </a>
-                   
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+
+                    <a href="/espacios"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
                         </svg>
                         <span>Espacios</span>
                     </a>
-                   
                 </div>
-               
+
                 <!-- Sección Administración (solo para admins) -->
                 <div class="mb-6">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Administración</h3>
-                   
-                    <a href="/gestion-usuarios" class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-[#3B82F6] text-white">
+
+                    <a href="#"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg bg-[#3B82F6] text-white">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
+                            </path>
                         </svg>
-                        <span>Gestión Usuarios</span>
+                        <span class="font-medium">Gestión Usuarios</span>
                     </a>
-                   
-                    <a href="gestion-espacios" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+
+                    <a href="/gestion-espacios"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
                         </svg>
                         <span>Gestión Espacios</span>
                     </a>
-                   
-                    <a href="/notifications" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-                        </svg>
-                        <span>Notificaciones</span>
-                    </a>
                 </div>
-               
+
                 <div class="border-t pt-4">
-                    <a href="#" class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                    <a href="#"
+                        class="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                            </path>
                         </svg>
                         <span>Cerrar Sesión</span>
                     </a>
@@ -202,25 +177,32 @@
                     <div class="flex items-center space-x-4">
                         <div class="bg-blue-100 p-3 rounded-full">
                             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
+                                </path>
                             </svg>
                         </div>
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">Código de Invitación</h3>
-                            <p class="text-sm text-gray-600">Comparte este código para que nuevos usuarios se registren en tu empresa</p>
+                            <p class="text-sm text-gray-600">Comparte este código para que nuevos usuarios se registren
+                                en tu empresa</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <div class="bg-white px-4 py-2 rounded-lg border border-gray-200 font-mono text-lg font-bold text-gray-800" id="invitation-code-display">
+                        <div class="bg-white px-4 py-2 rounded-lg border border-gray-200 font-mono text-lg font-bold text-gray-800"
+                            id="invitation-code-display">
                             <span id="invitation-code">Cargando...</span>
                         </div>
-                        <button id="copy-invitation-code" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2">
+                        <button id="copy-invitation-code"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center space-x-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
+                                </path>
                             </svg>
                             <span>Copiar</span>
                         </button>
-                        
+
                     </div>
                 </div>
             </div>
@@ -242,7 +224,8 @@
                             <!-- Loading state -->
                             <tr>
                                 <td colspan="5" class="py-8 text-center">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto">
+                                    </div>
                                     <p class="text-sm text-gray-500 mt-2">Cargando usuarios...</p>
                                 </td>
                             </tr>
@@ -254,82 +237,102 @@
     </div>
 
     <!-- Modal para añadir/editar usuario -->
-    <div id="user-modal" class="hidden fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
+    <div id="user-modal"
+        class="hidden fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
             <!-- Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-100 bg-blue-50">
                 <h2 class="text-xl font-bold text-blue-900" id="user-modal-title">Añadir Nuevo Usuario</h2>
-                <button id="close-user-modal" class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                <button id="close-user-modal"
+                    class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2 rounded-lg transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
                 </button>
             </div>
-           
+
             <!-- Body -->
             <div class="p-6">
                 <form id="user-form" class="space-y-4">
                     <input type="hidden" id="user-id">
-                   
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label for="user-first-name" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                            <input type="text" id="user-first-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                            <label for="user-first-name"
+                                class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input type="text" id="user-first-name"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                required>
                         </div>
                         <div>
-                            <label for="user-last-name" class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
-                            <input type="text" id="user-last-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                            <label for="user-last-name"
+                                class="block text-sm font-medium text-gray-700 mb-1">Apellidos</label>
+                            <input type="text" id="user-last-name"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                required>
                         </div>
                     </div>
-                   
+
                     <div>
                         <label for="user-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                        <input type="email" id="user-email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" required>
+                        <input type="email" id="user-email"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            required>
                     </div>
-                   
+
                     <div>
                         <label for="user-role" class="block text-sm font-medium text-gray-700 mb-1">Rol</label>
-                        <select id="user-role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <select id="user-role"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                             <option value="user">Usuario</option>
                             <option value="admin">Administrador</option>
                         </select>
                     </div>
-                   
+
                     <div id="password-fields">
                         <div>
-                            <label for="user-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-                            <input type="password" id="user-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <label for="user-password"
+                                class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                            <input type="password" id="user-password"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <div class="mt-2">
-                            <label for="user-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
-                            <input type="password" id="user-confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <label for="user-confirm-password"
+                                class="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                            <input type="password" id="user-confirm-password"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                         </div>
                         <p class="text-xs text-gray-500 mt-1">Deja en blanco para mantener la contraseña actual</p>
                     </div>
-                   
+
                     <div>
                         <label for="user-status" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                        <select id="user-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        <select id="user-status"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
                             <option value="true">Activo</option>
                             <option value="false">Inactivo</option>
                         </select>
                     </div>
                 </form>
             </div>
-           
+
             <!-- Footer -->
             <div class="flex justify-end p-6 border-t border-gray-100 bg-gray-50 space-x-3">
-                <button id="cancel-user" type="button" class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors font-medium">
+                <button id="cancel-user" type="button"
+                    class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors font-medium">
                     Cancelar
                 </button>
-                <button id="save-user" type="button" class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <button id="save-user" type="button"
+                    class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
                     Guardar
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="success-toast" class="fixed top-6 right-6 bg-green-100 border-green-400 text-green-700 px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-500 z-50">
+    <div id="success-toast"
+        class="fixed top-6 right-6 bg-green-100 border-green-400 text-green-700 px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-500 z-50">
         Usuario actualizado correctamente
     </div>
 
@@ -339,4 +342,5 @@
     <script src="../assets/js/logout.js"></script>
     <script src="../assets/js/userSession.js"></script>
 </body>
+
 </html>
