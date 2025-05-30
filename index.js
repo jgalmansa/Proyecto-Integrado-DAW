@@ -52,53 +52,43 @@ app.use('/api/notifications', notificationRoutes);
 
 // Rutas específicas para páginas HTML
 app.get('/', (req, res) => {
-  console.log('Ruta / accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'index.html'));
 });
 
 app.get('/register', (req, res) => {
-  console.log('Ruta /register accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'register.html'));
 });
 
 app.get('/login', (req, res) => {
-  console.log('Ruta /login accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'login.html'));
 });
 
 app.get('/dashboard', (req, res) => {
-  console.log('Ruta /dashboard accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'dashboard.html'));
 });
 
 app.get('/notifications', (req, res) => {
-  console.log('Ruta /notifications accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'notifications.html'));
 });
 
 app.get('/gestion-espacios', (req, res) => {
-  console.log('Ruta /gestion-espacios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-espacios.html'));
 });
 
 
 app.get('/gestion-usuarios', (req, res) => {
-  console.log('Ruta /gestion-usuarios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-usuarios.html'));
 });
 
 app.get('/mis-reservas', (req, res) => {
-  console.log('Ruta /mis-reservas accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'mis-reservas.html'));
 });
 
 app.get('/espacios', (req, res) => {
-  console.log('Ruta /espacios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'espacios.html'));
 });
 
 app.get('/gestion-usuarios', (req, res) => {
-  console.log('Ruta /gestion-usuarios accedida');
   res.sendFile(path.join(process.cwd(), 'src', 'pages', 'gestion-usuarios.html'));
 });
 
