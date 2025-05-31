@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coworkly - Dashboard</title>
     <link href="../assets/css/output.css" rel="stylesheet">
+    <link href="../assets/css/custom.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-gray-50 min-h-screen">
     <div class="flex w-full overflow-hidden">
-        <aside class="w-full max-w-[250px] bg-white shadow-sm h-screen sticky top-0">
+        <div id="sidebar-overlay"></div>
+
+        <aside id="sidebar" class="w-full max-w-[250px] bg-white shadow-sm h-screen sticky top-0">
             <!-- Logo y título -->
             <div class="flex items-center space-x-3 p-4 border-b border-gray-200">
                 <div class="bg-[#3B82F6] p-2 rounded-lg">
@@ -150,6 +154,29 @@
 
         <!-- Main Content -->
         <main class="w-full p-6">
+            <!-- HEADER MÓVIL - AGREGAR ESTO -->
+            <header id="mobile-header" class="bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-30 -mx-6 -mt-6 mb-6">
+                <!-- Botón hamburguesa -->
+                <button id="sidebar-toggle" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <!-- Logo móvil -->
+                <div class="flex items-center space-x-2">
+                    <div class="bg-[#3B82F6] p-1.5 rounded-lg">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                            </path>
+                        </svg>
+                    </div>
+                    <h1 class="text-lg font-semibold text-gray-900">Coworkly</h1>
+                </div>
+
+            
+            </header>
             <!-- Dashboard Header -->
             <div class="mb-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-2">Dashboard</h2>
@@ -867,6 +894,8 @@
     <script src="../assets/js/userSession.js"></script>
     <script src="../assets/js/cancelar-reserva.js"></script>
     <script src="../assets/js/proximas-reservas.js"></script>
+    <script src="../assets/js/sidebar-responsive.js"></script>
+
 </body>
 
 </html>
