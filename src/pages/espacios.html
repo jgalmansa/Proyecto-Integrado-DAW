@@ -42,27 +42,39 @@
                 </div>
             </div>
 
-            <!-- Sección de notificaciones rápidas en el sidebar -->
-            <div class="p-4 border-b border-gray-200" id="notifications-sidebar-section">
+            <!-- Sección de notificaciones con dropdown en el sidebar -->
+            <div class="p-4 border-b border-gray-200 relative" id="notifications-sidebar-section">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Notificaciones</h3>
-                    <span id="notification-count"
-                        class="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-                        style="display: none;">0</span>
+                    
+                    <!-- Botón numérico para notificaciones -->
+                    <button id="notifications-dropdown-button" 
+                            class="min-w-[24px] h-6 px-2 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded-full transition-all duration-200 transform hover:scale-105"
+                            style="display: none;">
+                        <span id="notification-count">0</span>
+                    </button>
                 </div>
 
-                <!-- Mini lista de notificaciones -->
-                <div class="space-y-1 max-h-32 overflow-y-auto" id="sidebar-notifications-list">
-                    <!-- Las notificaciones se cargarán aquí -->
-                    <div class="animate-pulse">
-                        <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                        <div class="h-3 bg-gray-200 rounded w-3/4"></div>
+                <!-- Dropdown de notificaciones -->
+                <div id="notifications-dropdown-menu" 
+                    class="hidden absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg max-h-80 overflow-hidden">
+                    
+                    <!-- Contenido del dropdown -->
+                    <div id="notifications-dropdown-content" class="max-h-72 overflow-y-auto">
+                        <!-- Las notificaciones no leídas se cargarán aquí -->
+                        <div class="px-4 py-3 text-center">
+                            <div class="animate-pulse">
+                                <div class="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                                <div class="h-3 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Enlace para ver todas las notificaciones -->
                 <a href="/notifications"
-                    class="block text-center text-xs text-blue-600 hover:text-blue-800 font-medium mt-2 pt-2 border-t border-gray-100">
-                    Ver todas
+                class="block text-center text-xs text-blue-600 hover:text-blue-800 font-medium mt-2 pt-2 border-t border-gray-100">
+                    Ver página de notificaciones
                 </a>
             </div>
 

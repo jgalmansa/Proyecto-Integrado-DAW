@@ -13,10 +13,19 @@ import {
 export const getUserNotifications = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { read, limit = 20, page = 1 } = req.query;
-    
+    const { read, limit = 20, page = 1, unreadOnly = false } = req.query;
+
     // Construir la consulta
     const whereClause = { user_id: userId };
+    
+    // Detectar si es la ruta /unread
+    const isUnreadRoute = req.path.includes('/unread');
+    const shouldFilterUnread = unreadOnly === 'true' || isUnreadRoute;
+
+    // Filtrar solo no leídas si se especifica o es la ruta /unread
+    if (shouldFilterUnread) {
+      whereClause.is_read = false;  
+    }
     
     // Si se especifica filtrar por leídas/no leídas
     if (read !== undefined) {
