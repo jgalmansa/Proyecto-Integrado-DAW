@@ -136,6 +136,49 @@ async function isAdmin() {
     }
 }
 
+
+/**
+ * Controla la visibilidad de la sección de administración según el rol del usuario.
+ * Solo los usuarios administradores podrán ver las opciones de administración.
+ * 
+ * @returns {Promise<void>}
+ */
+async function toggleAdminSection() {
+    try {
+        console.log('🔍 Verificando permisos de administrador...');
+        
+        const adminSection = document.getElementById('admin-section');
+        
+        if (!adminSection) {
+            console.warn('⚠️ No se encontró el elemento admin-section en el DOM');
+            return;
+        }
+
+        // Obtener la información del usuario
+        const userData = await apiRequest('/users/me');
+
+        // Verificar rol
+        if (!userData || userData.role !== 'admin') {
+            adminSection.classList.add('hidden');
+            adminSection.classList.remove('block');
+            return;
+        }
+
+        // Mostrar sección si es admin
+        adminSection.classList.remove('hidden');
+        adminSection.classList.add('block');
+
+    } catch (error) {
+        console.error('❌ Error al verificar permisos de administrador:', error);
+        const adminSection = document.getElementById('admin-section');
+        if (adminSection) {
+            adminSection.classList.add('hidden');
+            adminSection.classList.remove('block');
+        }
+    }
+}
+
+
 /**
  * Carga estadísticas de los espacios de trabajo desde el endpoint /workspaces.
  *
@@ -353,7 +396,8 @@ async function loadDashboardStats() {
         await Promise.all([
             loadWorkspaceStats(),
             loadReservationStats(),
-            loadUserStats()
+            loadUserStats(),
+            toggleAdminSection()
         ]);
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
@@ -388,3 +432,4 @@ setInterval(() => {
         loadDashboardStats();
     }
 }, 5 * 60 * 1000);
+
