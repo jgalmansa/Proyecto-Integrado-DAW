@@ -13,6 +13,7 @@ class NotificationManager {
         this.reminderNotifications = [];
         this.unreadCount = 0;
         this.apiBase = '/api/notifications';
+        this.dropdownOpen = false;
         this.init();
     }
 
@@ -45,7 +46,7 @@ class NotificationManager {
             
             // Renderizar en dashboard Y sidebar
             this.renderDashboardNotifications();
-            this.renderSidebarNotifications(); // NUEVA LÍNEA
+            this.renderSidebarDropdown(); // Llamar al dropdown
             this.updateNotificationBadge();
             this.setupDropdownEvents();
         } catch (error) {
@@ -200,6 +201,66 @@ class NotificationManager {
     }
 
     /**
+     * Carga solo las notificaciones no leídas desde la API
+     */
+    async loadUnreadNotifications(limit = 5) {
+        try {
+            const token = this.getAuthToken();
+            if (!token) {
+                throw new Error('Token de autenticación no encontrado');
+            }
+
+            // Primero intentamos el endpoint /unread, si no existe usamos el original con filtro
+            let response;
+            try {
+                response = await fetch(`${this.apiBase}/unread?limit=${limit}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (error) {
+                // Si el endpoint /unread no existe, usar el original y filtrar
+                response = await fetch(`${this.apiBase}?limit=${limit * 2}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            }
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+
+            const data = await response.json();
+            let apiNotifications = data.notifications || [];
+            
+            // Filtrar solo las no leídas si usamos el endpoint original
+            if (response.url.includes('/unread')) {
+                // Ya están filtradas
+            } else {
+                apiNotifications = apiNotifications.filter(n => !n.isRead && !n.is_read);
+            }
+            
+            // Combinar con recordatorios no leídos
+            const unreadReminders = this.reminderNotifications.filter(n => !n.isRead);
+            const allUnreadNotifications = [
+                ...unreadReminders,
+                ...apiNotifications
+            ].sort((a, b) => new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at));
+
+            return allUnreadNotifications.slice(0, limit);
+            
+        } catch (error) {
+            console.error('Error al cargar notificaciones no leídas:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Marca una notificación como leída
      */
     async markAsRead(notificationId) {
@@ -211,7 +272,7 @@ class NotificationManager {
                 if (reminder) {
                     reminder.isRead = true;
                     this.updateNotificationBadge();
-                    this.renderSidebarNotifications(); // NUEVA LÍNEA
+                    this.renderSidebarDropdown(); // Renderizar dropdown
                     this.renderDashboardNotifications();
                 }
                 return true;
@@ -234,7 +295,7 @@ class NotificationManager {
                     notification.isRead = true;
                     this.unreadCount = Math.max(0, this.unreadCount - 1);
                     this.updateNotificationBadge();
-                    this.renderSidebarNotifications(); // NUEVA LÍNEA
+                    this.renderSidebarDropdown(); // Renderizar dropdown
                     this.renderDashboardNotifications();
                 }
                 return true;
@@ -245,6 +306,192 @@ class NotificationManager {
             return false;
         }
     }
+
+
+
+    /**
+     * Renderiza notificaciones no leídas en el dropdown del sidebar
+     */
+    renderSidebarDropdown() {
+        const dropdownContainer = document.getElementById('notifications-dropdown-content');
+        
+        if (!dropdownContainer) {
+            console.warn('Contenedor del dropdown de notificaciones no encontrado');
+            return;
+        }
+
+        // Obtener solo notificaciones NO LEÍDAS
+        this.loadUnreadNotifications().then(unreadNotifications => {
+            if (unreadNotifications.length === 0) {
+                dropdownContainer.innerHTML = `
+                    <div class="px-4 py-3 text-center text-gray-500">
+                        <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5v5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path>
+                        </svg>
+                        <p class="text-xs">No hay notificaciones nuevas</p>
+                    </div>
+                `;
+                return;
+            }
+
+            dropdownContainer.innerHTML = unreadNotifications.map(notification => {
+                const { icon, bgColor } = this.getNotificationStyle(notification);
+                return `
+                    <div class="notification-item px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                         data-notification-id="${notification.id}">
+                        <div class="flex items-start space-x-3">
+                            <div class="${bgColor} p-1 rounded-full flex-shrink-0">
+                                ${icon}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">${notification.message}</p>
+                                ${notification.reservation ? `
+                                    <p class="text-xs text-gray-600 mt-1 truncate">${this.formatReservationInfo(notification.reservation)}</p>
+                                ` : ''}
+                                <p class="text-xs text-gray-500 mt-1">${this.formatTimeAgo(notification.createdAt || notification.created_at)}</p>
+                            </div>
+                            <div class="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Agregar footer con enlace a ver todas
+            dropdownContainer.innerHTML += `
+                <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
+                    <a href="/notifications" class="block text-center text-sm text-blue-600 hover:text-blue-800 font-medium">
+                        Ver todas las notificaciones
+                    </a>
+                </div>
+            `;
+
+            // Agregar event listeners
+            const notificationItems = dropdownContainer.querySelectorAll('.notification-item');
+            notificationItems.forEach(item => {
+                item.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const notificationId = item.getAttribute('data-notification-id');
+                    
+                    if (notificationId) {
+                        const success = await this.markAsRead(notificationId);
+                        
+                        if (success) {
+                            // Eliminar el item del dropdown visualmente
+                            item.style.opacity = '0.5';
+                            setTimeout(() => {
+                                item.remove();
+                                // Si no quedan notificaciones, mostrar mensaje vacío
+                                const remainingItems = dropdownContainer.querySelectorAll('.notification-item');
+                                if (remainingItems.length === 0) {
+                                    this.renderSidebarDropdown();
+                                }
+                            }, 300);
+                            
+                            console.log(`✅ Notificación ${notificationId} marcada como leída desde dropdown`);
+                        }
+                    }
+                });
+            });
+        }).catch(error => {
+            console.error('Error al cargar notificaciones no leídas:', error);
+            this.showErrorState();
+        });
+    }
+
+    /**
+     * Configura los eventos del dropdown
+     */
+    setupDropdownEvents() {
+        const notificationButton = document.getElementById('notifications-dropdown-button');
+        const dropdownMenu = document.getElementById('notifications-dropdown-menu');
+        
+        if (!notificationButton || !dropdownMenu) {
+            console.warn('Elementos del dropdown no encontrados');
+            return;
+        }
+
+        // Toggle dropdown al hacer click en el botón
+        notificationButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.toggleDropdown();
+        });
+
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+            if (!notificationButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                this.closeDropdown();
+            }
+        });
+
+        // Prevenir cierre al hacer click dentro del dropdown
+        dropdownMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    /**
+     * Toggle del dropdown
+     */
+    toggleDropdown() {
+        const dropdownMenu = document.getElementById('notifications-dropdown-menu');
+        
+        if (!dropdownMenu) return;
+
+        if (this.dropdownOpen) {
+            this.closeDropdown();
+        } else {
+            this.openDropdown();
+        }
+    }
+
+    /**
+     * Abrir dropdown
+     */
+    openDropdown() {
+        const dropdownMenu = document.getElementById('notifications-dropdown-menu');
+        const dropdownButton = document.getElementById('notifications-dropdown-button');
+        
+        if (!dropdownMenu) return;
+
+        dropdownMenu.classList.remove('hidden');
+        dropdownMenu.classList.add('block');
+        
+        // Agregar clase activa al botón
+        if (dropdownButton) {
+            dropdownButton.classList.add('active');
+        }
+        
+        this.dropdownOpen = true;
+        
+        // Actualizar contenido al abrir
+        this.renderSidebarDropdown();
+    }
+
+    /**
+     * Cerrar dropdown
+     */
+    closeDropdown() {
+        const dropdownMenu = document.getElementById('notifications-dropdown-menu');
+        const dropdownButton = document.getElementById('notifications-dropdown-button');
+        
+        if (!dropdownMenu) return;
+
+        dropdownMenu.classList.remove('block');
+        dropdownMenu.classList.add('hidden');
+        
+        // Remover clase activa del botón
+        if (dropdownButton) {
+            dropdownButton.classList.remove('active');
+        }
+        
+        this.dropdownOpen = false;
+    }
+
+
+
 
     /**
      *  Renderiza notificaciones con selector correcto
@@ -422,33 +669,43 @@ class NotificationManager {
      *  Actualiza el badge de notificaciones - CORREGIDO para sidebar
      */
     updateNotificationBadge() {
-        // Buscar tanto el badge del header (si existe) como el del sidebar
-        const badge = document.getElementById('notification-badge') || document.getElementById('notification-count');
+        const button = document.getElementById('notifications-dropdown-button');
+        const countElement = document.getElementById('notification-count');
         
-        if (!badge) {
-            console.warn('Badge de notificaciones no encontrado');
+        if (!button || !countElement) {
+            console.warn('Botón o contador de notificaciones no encontrado');
             return;
         }
-
+    
         if (!this.reminderNotifications) {
             this.reminderNotifications = [];
         }
-
+    
         const unreadReminders = this.reminderNotifications.filter(n => !n.isRead).length;
         const totalUnread = this.unreadCount + unreadReminders;
-
+    
+        console.log('📊 Debug badge:', { unreadCount: this.unreadCount, unreadReminders, totalUnread });
+    
+        // Actualizar el texto del contador
+        countElement.textContent = totalUnread > 99 ? '99+' : totalUnread.toString();
+        
+        // Actualizar el atributo data-count para los estilos CSS
+        button.setAttribute('data-count', totalUnread.toString());
+    
+        // Mostrar u ocultar el botón según el conteo
         if (totalUnread > 0) {
-            badge.textContent = totalUnread > 99 ? '99+' : totalUnread.toString();
-            badge.style.display = 'flex';
+            button.style.display = 'block';
+            console.log('✅ Mostrando botón con', totalUnread, 'notificaciones');
         } else {
-            badge.style.display = 'none';
+            button.style.display = 'none';
+            console.log('❌ Ocultando botón - sin notificaciones');
         }
     }
 
     /**
      * Renderiza notificaciones en el sidebar - NUEVA FUNCIÓN
      */
-    renderSidebarNotifications() {
+    /*renderSidebarNotifications() {
         const sidebarContainer = document.getElementById('sidebar-notifications-list');
         
         if (!sidebarContainer) {
@@ -523,7 +780,7 @@ class NotificationManager {
                 }
             });
         });
-    }
+    }*/
 
     /**
      * Actualiza las notificaciones - CORREGIDA
@@ -534,7 +791,7 @@ class NotificationManager {
             await this.updateUnreadCount();
             await this.checkUpcomingReservations();
             this.renderDashboardNotifications();
-            this.renderSidebarNotifications(); // NUEVA LÍNEA
+            this.renderSidebarDropdown(); // Usar dropdown
             this.updateNotificationBadge();
         } catch (error) {
             console.error('Error al actualizar notificaciones:', error);

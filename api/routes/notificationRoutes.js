@@ -9,6 +9,7 @@ router.use(authenticateToken);
 
 // Rutas de notificaciones
 router.get('/', getUserNotifications);
+router.get('/unread', getUserNotifications);
 router.get('/unread-count', getUnreadCount);
 router.patch('/:id/read', markAsRead);
 router.patch('/read-all', markAllAsRead);
