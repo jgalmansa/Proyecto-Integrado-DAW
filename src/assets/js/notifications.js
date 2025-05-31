@@ -389,7 +389,7 @@ class NotificationManager {
                                 }
                             }, 300);
                             
-                            console.log(`✅ Notificación ${notificationId} marcada como leída desde dropdown`);
+                            //console.log(`✅ Notificación ${notificationId} marcada como leída desde dropdown`);
                         }
                     }
                 });
@@ -684,7 +684,7 @@ class NotificationManager {
         const unreadReminders = this.reminderNotifications.filter(n => !n.isRead).length;
         const totalUnread = this.unreadCount + unreadReminders;
     
-        console.log('📊 Debug badge:', { unreadCount: this.unreadCount, unreadReminders, totalUnread });
+        //console.log('📊 Debug badge:', { unreadCount: this.unreadCount, unreadReminders, totalUnread });
     
         // Actualizar el texto del contador
         countElement.textContent = totalUnread > 99 ? '99+' : totalUnread.toString();
@@ -695,10 +695,10 @@ class NotificationManager {
         // Mostrar u ocultar el botón según el conteo
         if (totalUnread > 0) {
             button.style.display = 'block';
-            console.log('✅ Mostrando botón con', totalUnread, 'notificaciones');
+            //console.log('✅ Mostrando botón con', totalUnread, 'notificaciones');
         } else {
             button.style.display = 'none';
-            console.log('❌ Ocultando botón - sin notificaciones');
+            //console.log('❌ Ocultando botón - sin notificaciones');
         }
     }
 
